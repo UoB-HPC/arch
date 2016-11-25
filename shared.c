@@ -47,7 +47,7 @@ void decompose_2d_cartesian(
   for(int xx = 0; xx <= x_rank; ++xx) {
     *x_off = off;
     const int x_floor = global_nx/ranks_x;
-    const int x_pad_req = (global_nx != (off + (ranks_x-xx)*x_floor));
+    const int x_pad_req = (global_nx < (off + (ranks_x-xx)*x_floor));
     *local_nx = x_pad_req ? x_floor+1 : x_floor;
     off += *local_nx;
   }
@@ -56,9 +56,9 @@ void decompose_2d_cartesian(
   for(int yy = 0; yy <= y_rank; ++yy) {
     *y_off = off;
     const int y_floor = global_ny/ranks_y;
-    const int y_pad_req = (global_ny != (off + (ranks_y-yy)*y_floor));
+    const int y_pad_req = (global_ny < (off + (ranks_y-yy)*y_floor));
     *local_ny = y_pad_req ? y_floor+1 : y_floor;
-    y_off += *local_ny;
+    off += *local_ny;
   }
 
   // Calculate the surrounding ranks
