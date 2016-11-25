@@ -16,6 +16,7 @@
 #define NNEIGHBOURS 4
 
 enum { EDGE = -1, NORTH, EAST, SOUTH, WEST };
+enum { NO_PACK, PACK };
 
 #ifdef MPI
 // Decomposes the ranks, potentially load balancing and minimising the
@@ -24,7 +25,6 @@ void decompose_2d_cartesian(
     const int rank, const int nranks, const int global_nx, const int global_ny,
     int* neighbours, int* local_nx, int* local_ny, int* x_off, int* y_off);
 #endif
-
 
 // Write out data for visualisation in visit
 void write_to_visit(
