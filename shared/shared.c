@@ -1,7 +1,70 @@
-#include "shared.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
+#include "shared.h"
+
+struct Profile compute_profile = {0};
+struct Profile comms_profile = {0};
+
+#ifdef MPI
+static inline double mpi_all_reduce(
+    const double local_val, MPI_Op op)
+{
+  double global_val = local_val;
+  START_PROFILING(&compute_profile);
+  MPI_Allreduce(&local_val, &global_val, 1, MPI_DOUBLE, op, MPI_COMM_WORLD);
+  STOP_PROFILING(&compute_profile, "communications");
+  return global_val;
+}
+#endif
+
+
+// Reduces the value across all ranks and returns minimum result
+double mpi_all_min(const double local_val)
+{
+  double global_val = local_val;
+#ifdef MPI
+  mpi_all_reduce(local_val, MPI_SUM);
+#endif
+  return global_val;
+}
+
+// Reduces the value across all ranks and returns the sum
+double mpi_all_sum(const double local_val)
+{
+  double global_val = local_val;
+#ifdef MPI
+  mpi_all_reduce(local_val, MPI_SUM);
+#endif
+  return global_val;
+}
+
+// This is currently duplicated from the hydro package
+void initialise_comms(
+    int argc, char** argv, Mesh* mesh)
+{
+  for(int ii = 0; ii < NNEIGHBOURS; ++ii) {
+    mesh->neighbours[ii] = EDGE;
+  }
+
+#ifdef MPI
+  MPI_Init(&argc, &argv);
+  MPI_Comm_rank(MPI_COMM_WORLD, &mesh->rank);
+  MPI_Comm_size(MPI_COMM_WORLD, &mesh->nranks);
+
+  decompose_2d_cartesian(
+      mesh->rank, mesh->nranks, mesh->global_nx, mesh->global_ny, 
+      mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->x_off, &mesh->y_off);
+
+  // Add on the halo padding to the local mesh
+  mesh->local_nx += 2*PAD;
+  mesh->local_ny += 2*PAD;
+#endif 
+
+  if(mesh->rank == MASTER)
+    printf("Problem dimensions %dx%d for %d iterations.\n", 
+        mesh->global_nx, mesh->global_ny, mesh->niters);
+}
 
 // Decomposes the ranks, potentially load balancing and minimising the
 // ratio of perimeter to area
@@ -77,6 +140,7 @@ void write_to_visit(
     const int nx, const int ny, const int x_off, const int y_off, 
     const double* data, const char* name, const int step, const double time)
 {
+#ifdef ENABLE_VISIT_DUMPS
   char bovname[256];
   char datname[256];
   sprintf(bovname, "%s%d.bov", name, step);
@@ -104,7 +168,6 @@ void write_to_visit(
 #endif
 
   fprintf(bovfp, "BRICK_SIZE: %d %d 1\n", nx, ny);
-
   fclose(bovfp);
 
   FILE* datfp = fopen(datname, "wb");
@@ -113,8 +176,9 @@ void write_to_visit(
     exit(1);
   }
 
-  fwrite(data, nx*ny, sizeof(data), datfp);
+  fwrite(data, sizeof(data), nx*ny, datfp);
   fclose(datfp);
+#endif
 }
 
 // TODO: Fix this method - shouldn't be necessary to bring the data back from
@@ -126,7 +190,7 @@ void write_all_ranks_to_visit(
     const char* name, const int tt, const double elapsed_sim_time)
 {
   // If MPI is enabled need to collect the data from all 
-#ifdef MPI
+#if defined(MPI) && defined(ENABLE_VISIT_DUMPS)
   double* global_arr;
   double** remote_data;
 
