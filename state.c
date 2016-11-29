@@ -1,3 +1,4 @@
+#include <stdio.h>
 #include "state.h"
 #include "shared.h"
 
@@ -81,9 +82,10 @@ void initialise_state(
 
   // TODO: Improve what follows, make it a somewhat more general problem 
   // selection mechanism for some important stock problems
-  
+
+#if 0
   // WET STATE INITIALISATION
-  
+
   // Initialise a default state for the energy and density on the mesh
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
@@ -141,8 +143,8 @@ void initialise_state(
 #endif // if 0
     }
   }
+#endif // if 0
 
-#if 0
   // HOT STATE INITIALISATION
   // Set the initial state
 #pragma omp parallel for
@@ -150,8 +152,8 @@ void initialise_state(
 #pragma omp simd
     for(int jj = 0; jj < local_nx; ++jj) {
       const int index = ii*local_nx+jj;
-      state->rho[index] = 1.0e3;
-      state->x[index] = 1.0e-5*state->rho[index];
+      state->rho[index] = 0.1;
+      state->e[index] = state->rho[index] * 0.1;
     }
   }
 
@@ -160,24 +162,19 @@ void initialise_state(
   for(int ii = 0; ii < local_ny; ++ii) {
 #pragma omp simd
     for(int jj = 0; jj < local_nx; ++jj) {
+      const int index = ii*local_nx+jj;
       const int ioff = ii+y_off;
       const int joff = jj+x_off;
-      const int index = ii*local_nx+jj;
+
       // Box problem
-      if((ioff >= 7*global_ny/8 || ioff < global_ny/8) ||
-          (joff >= 7*global_nx/8 || joff < global_nx/8)) {
-        if(joff > 20) {
-          state->rho[index] = 0.1;
-          state->x[index] = 0.1*state->rho[index];
-        }
-        else {
-          state->rho[index] = 0.1;
-          state->x[index] = 1.0e3*state->rho[index];
-        }
+      if(ioff > 7*(global_ny+2*PAD)/8 || ioff <= (global_ny+2*PAD)/8 ||
+          joff > 7*(global_nx+2*PAD)/8 || joff <= (global_nx+2*PAD)/8) {
+        state->rho[index] = 100.0;
+        state->x[index] = state->rho[index]*0.1;
+        state->e[index] = state->x[index];
       }
     }
   }
-#endif // if 0
 }
 
 // Deallocate all of the state memory
