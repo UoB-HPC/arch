@@ -1,133 +1,205 @@
 #include "state.h"
+#include "shared.h"
 
-// Initialise the state for the problem
+// Initialises the state variables
 void initialise_state(
-    State* state, Mesh* mesh)
+    const int global_nx, const int global_ny, const int local_nx, const int local_ny, 
+    const int x_off, const int y_off, State* state) 
 {
-  // Allocate memory for all state variables
-  state->rho = (double*)_mm_malloc(sizeof(double)*mesh->local_nx*mesh->local_ny, VEC_ALIGN);
-  state->rho_old = (double*)_mm_malloc(sizeof(double)*mesh->local_nx*mesh->local_ny, VEC_ALIGN);
-  state->P = (double*)_mm_malloc(sizeof(double)*mesh->local_nx*mesh->local_ny, VEC_ALIGN);
-  state->e = (double*)_mm_malloc(sizeof(double)*mesh->local_nx*mesh->local_ny, VEC_ALIGN);
-  state->rho_u = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->rho_v = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->u = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->v = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->F_x = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->F_y = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->mF_x = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->mF_y = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->slope_x0 = (double*)_mm_malloc(sizeof(double)*mesh->local_nx*mesh->local_ny, VEC_ALIGN);
-  state->slope_y0 = (double*)_mm_malloc(sizeof(double)*mesh->local_nx*mesh->local_ny, VEC_ALIGN);
-  state->slope_x1 = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->slope_y1 = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->Qxx = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
-  state->Qyy = (double*)_mm_malloc(sizeof(double)*(mesh->local_nx+1)*(mesh->local_ny+1), VEC_ALIGN);
+  // Shared state
+  allocate_data(&state->rho, sizeof(double)*local_nx*local_ny);
+  allocate_data(&state->e, sizeof(double)*local_nx*local_ny);
 
-  // Initialise all of the memory to default values
+  // Currently flattening the capacity by sharing some of the state containers
+  // between the different solves for different applications. This might not
+  // be maintainable and/or desirable but seems like a reasonable optimisation
+  // for now...
+  double* temp1;
+  allocate_data(&temp1, sizeof(double)*local_nx*local_ny);
+  state->rho_old = temp1;
+  state->Ap = temp1;
+
+  double* temp2;
+  allocate_data(&temp2, sizeof(double)*(local_nx+1)*(local_ny+1));
+  state->s_x = temp2;
+  state->Qxx = temp2;
+
+  double* temp3;
+  allocate_data(&temp3, sizeof(double)*(local_nx+1)*(local_ny+1));
+  state->s_y = temp3;
+  state->Qyy = temp3;
+
+  double* temp4;
+  allocate_data(&temp4, sizeof(double)*local_nx*local_ny);
+  state->r = temp4;
+  state->P = temp4;
+
+  double* temp5;
+  allocate_data(&temp5, sizeof(double)*(local_nx+1)*(local_ny+1));
+  state->x = temp5;
+  state->u = temp5;
+
+  double* temp6;
+  allocate_data(&temp6, sizeof(double)*(local_nx+1)*(local_ny+1));
+  state->p = temp6;
+  state->v = temp6;
+
+  // Wet-specific state
+  allocate_data(&state->rho_u, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->rho_v, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->F_x, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->F_y, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->uF_x, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->uF_y, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->vF_x, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->vF_y, sizeof(double)*(local_nx+1)*(local_ny+1));
+
+  // Initialise all of the state to 0, but is this best for NUMA?
 #pragma omp parallel for
-  for(int ii = 0; ii < mesh->local_nx*mesh->local_ny; ++ii) {
+  for(int ii = 0; ii < local_nx*local_ny; ++ii) {
     state->rho[ii] = 0.0;
-    state->rho_old[ii] = 0.0;
-    state->P[ii] = 0.0;
     state->e[ii] = 0.0;
-    state->slope_x0[ii] = 0.0;
-    state->slope_y0[ii] = 0.0;
+    temp1[ii] = 0.0;
+    temp4[ii] = 0.0;
   }
 
 #pragma omp parallel for
-  for(int ii = 0; ii < (mesh->local_nx+1)*(mesh->local_ny+1); ++ii) {
+  for(int ii = 0; ii < (local_nx+1)*(local_ny+1); ++ii) {
+    temp2[ii] = 0.0;
+    temp3[ii] = 0.0;
+    temp5[ii] = 0.0;
+    temp6[ii] = 0.0;
+    state->rho_u[ii] = 0.0;
+    state->rho_v[ii] = 0.0;
     state->F_x[ii] = 0.0;
     state->F_y[ii] = 0.0;
-    state->mF_x[ii] = 0.0;
-    state->mF_y[ii] = 0.0;
-    state->Qxx[ii] = 0.0;
-    state->Qyy[ii] = 0.0;
-    state->slope_x1[ii] = 0.0;
-    state->slope_y1[ii] = 0.0;
-    state->rho_u[ii] = 0.0;
-    state->u[ii] = 0.0;
-    state->v[ii] = 0.0;
-    state->rho_v[ii] = 0.0;
+    state->uF_x[ii] = 0.0;
+    state->uF_y[ii] = 0.0;
+    state->vF_x[ii] = 0.0;
+    state->vF_y[ii] = 0.0;
   }
 
-  // Initialise the entire local mesh
-  for(int ii = 0; ii < mesh->local_ny; ++ii) {
-    for(int jj = 0; jj < mesh->local_nx; ++jj) {
-      state->rho[ii*mesh->local_nx+jj] = 0.125;
-      state->e[ii*mesh->local_nx+jj] = 2.0;
+  // TODO: Improve what follows, make it a somewhat more general problem 
+  // selection mechanism for some important stock problems
+  
+  // WET STATE INITIALISATION
+  
+  // Initialise a default state for the energy and density on the mesh
+  for(int ii = 0; ii < local_ny; ++ii) {
+    for(int jj = 0; jj < local_nx; ++jj) {
+      state->rho[ii*local_nx+jj] = 0.125;
+      state->e[ii*local_nx+jj] = 2.0;
     }
   }
 
-  printf("rank %d nx %d ny %d x_off %d y_off %d global_nx %d global_ny %d\n", 
-      mesh->rank, mesh->local_nx, mesh->local_ny, mesh->x_off, mesh->y_off,
-      mesh->global_nx, mesh->global_ny);
-
   // Introduce a problem
-  for(int ii = 0; ii < mesh->local_ny; ++ii) {
-    for(int jj = 0; jj < mesh->local_nx; ++jj) {
+  for(int ii = 0; ii < local_ny; ++ii) {
+    for(int jj = 0; jj < local_nx; ++jj) {
 #if 0
       // CENTER SQUARE TEST
       const int dist = 100;
-      if(jj+mesh->x_off-PAD >= mesh->global_nx/2-dist && 
-          jj+mesh->x_off-PAD < mesh->global_nx/2+dist && 
-          ii+mesh->y_off-PAD >= mesh->global_ny/2-dist && 
-          ii+mesh->y_off-PAD < mesh->global_ny/2+dist) {
-        state->rho[ii*mesh->local_nx+jj] = 1.0;
-        state->e[ii*mesh->local_nx+jj] = 2.5;
+      if(jj+x_off-PAD >= global_nx/2-dist && 
+          jj+x_off-PAD < global_nx/2+dist && 
+          ii+y_off-PAD >= global_ny/2-dist && 
+          ii+y_off-PAD < global_ny/2+dist) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
       }
 #endif // if 0
 #if 0
       // OFF CENTER SQUARE TEST
       const int dist = 100;
-      if(jj+mesh->x_off-PAD >= mesh->global_nx/4-dist && 
-          jj+mesh->x_off-PAD < mesh->global_nx/4+dist && 
-          ii+mesh->y_off-PAD >= mesh->global_ny/2-dist && 
-          ii+mesh->y_off-PAD < mesh->global_ny/2+dist) {
-        state->rho[ii*mesh->local_nx+jj] = 1.0;
-        state->e[ii*mesh->local_nx+jj] = 2.5;
+      if(jj+x_off-PAD >= global_nx/4-dist && 
+          jj+x_off-PAD < global_nx/4+dist && 
+          ii+y_off-PAD >= global_ny/2-dist && 
+          ii+y_off-PAD < global_ny/2+dist) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
       }
 #endif // if 0
-      if(jj+mesh->x_off < (mesh->global_nx/2+2*PAD)) {
-        state->rho[ii*mesh->local_nx+jj] = 1.0;
-        state->e[ii*mesh->local_nx+jj] = 2.5;
+      if(jj+x_off < (global_nx/2+2*PAD)) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
       }
 #if 0
-      if(ii <= mesh->local_ny/2) {
-        state->rho[ii*mesh->local_nx+jj] = 1.0;
-        state->e[ii*mesh->local_nx+jj] = 2.5;
-      }
-#endif // if 0
-#if 0
-      if(ii > mesh->local_ny/2) {
-        state->rho[ii*mesh->local_nx+jj] = 1.0;
-        state->e[ii*mesh->local_nx+jj] = 2.5;
+      if(ii <= local_ny/2) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
       }
 #endif // if 0
 #if 0
-      if(jj > mesh->local_nx/2) {
-        state->rho[ii*mesh->local_nx+jj] = 1.0;
-        state->e[ii*mesh->local_nx+jj] = 2.5;
+      if(ii > local_ny/2) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
+      }
+#endif // if 0
+#if 0
+      if(jj > local_nx/2) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
       }
 #endif // if 0
     }
   }
+
+#if 0
+  // HOT STATE INITIALISATION
+  // Set the initial state
+#pragma omp parallel for
+  for(int ii = 0; ii < local_ny; ++ii) {
+#pragma omp simd
+    for(int jj = 0; jj < local_nx; ++jj) {
+      const int index = ii*local_nx+jj;
+      state->rho[index] = 1.0e3;
+      state->x[index] = 1.0e-5*state->rho[index];
+    }
+  }
+
+  // Crooked pipe problem
+#pragma omp parallel for
+  for(int ii = 0; ii < local_ny; ++ii) {
+#pragma omp simd
+    for(int jj = 0; jj < local_nx; ++jj) {
+      const int ioff = ii+y_off;
+      const int joff = jj+x_off;
+      const int index = ii*local_nx+jj;
+      // Box problem
+      if((ioff >= 7*global_ny/8 || ioff < global_ny/8) ||
+          (joff >= 7*global_nx/8 || joff < global_nx/8)) {
+        if(joff > 20) {
+          state->rho[index] = 0.1;
+          state->x[index] = 0.1*state->rho[index];
+        }
+        else {
+          state->rho[index] = 0.1;
+          state->x[index] = 1.0e3*state->rho[index];
+        }
+      }
+    }
+  }
+#endif // if 0
 }
 
 // Deallocate all of the state memory
 void finalise_state(State* state)
 {
-  _mm_free(state->F_x);
-  _mm_free(state->F_y);
-  _mm_free(state->rho);
-  _mm_free(state->rho_old);
-  _mm_free(state->slope_x0);
-  _mm_free(state->slope_y0);
-  _mm_free(state->slope_x1);
-  _mm_free(state->slope_y1);
-  _mm_free(state->u);
-  _mm_free(state->v);
-  _mm_free(state->P);
-  _mm_free(state->e);
+  deallocate_data(state->rho);
+  deallocate_data(state->e); 
+  deallocate_data(state->rho_u);
+  deallocate_data(state->rho_v);
+  deallocate_data(state->F_x);
+  deallocate_data(state->F_y);
+  deallocate_data(state->uF_x);
+  deallocate_data(state->uF_y);
+  deallocate_data(state->vF_x);
+  deallocate_data(state->vF_y);
+
+  // Only free one of the paired states
+  deallocate_data(state->Ap);
+  deallocate_data(state->s_x);
+  deallocate_data(state->s_y);
+  deallocate_data(state->r);
+  deallocate_data(state->x);
+  deallocate_data(state->p);
 }
 

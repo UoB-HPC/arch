@@ -15,6 +15,10 @@
 struct Profile compute_profile;
 struct Profile comms_profile;
 
+// Wrappers for data (de)allocation
+void allocate_data(double** buf, size_t len);
+void deallocate_data(double* buf);
+
 // Write out data for visualisation in visit
 void write_to_visit(
     const int nx, const int ny, const int x_off, const int y_off, 

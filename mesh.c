@@ -1,14 +1,16 @@
 #include "shared.h"
 #include "mesh.h"
+#include "comms.h"
 
 // Initialise the mesh describing variables
 void initialise_mesh(
     Mesh* mesh)
 {
-  mesh->edgedx = (double*)_mm_malloc(sizeof(double)*mesh->local_nx+1, VEC_ALIGN);
-  mesh->celldx = (double*)_mm_malloc(sizeof(double)*mesh->local_nx, VEC_ALIGN);
-  mesh->edgedy = (double*)_mm_malloc(sizeof(double)*mesh->local_ny+1, VEC_ALIGN);
-  mesh->celldy = (double*)_mm_malloc(sizeof(double)*mesh->local_ny, VEC_ALIGN);
+  allocate_data(&mesh->edgedx, sizeof(double)*mesh->local_nx+1);
+  allocate_data(&mesh->celldx, sizeof(double)*mesh->local_nx);
+  allocate_data(&mesh->edgedy, sizeof(double)*mesh->local_ny+1);
+  allocate_data(&mesh->celldy, sizeof(double)*mesh->local_ny);
+
   mesh->dt = 0.01*C_T*MAX_DT;
   mesh->dt_h = 0.01*C_T*MAX_DT;
 
@@ -26,31 +28,30 @@ void initialise_mesh(
     mesh->celldx[ii] = 10.0 / (mesh->global_nx);
   }
 
-  mesh->north_buffer_out 
-    = (double*)malloc(sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  mesh->east_buffer_out  
-    = (double*)malloc(sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  mesh->south_buffer_out 
-    = (double*)malloc(sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  mesh->west_buffer_out  
-    = (double*)malloc(sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  mesh->north_buffer_in  
-    = (double*)malloc(sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  mesh->east_buffer_in   
-    = (double*)malloc(sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  mesh->south_buffer_in  
-    = (double*)malloc(sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  mesh->west_buffer_in   
-    = (double*)malloc(sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->north_buffer_out, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->east_buffer_out, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->south_buffer_out, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->west_buffer_out, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->north_buffer_in, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->east_buffer_in, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->south_buffer_in, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->west_buffer_in, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
 }
 
 // Deallocate all of the mesh memory
 void finalise_mesh(Mesh* mesh)
 {
-  _mm_free(mesh->edgedy);
-  _mm_free(mesh->celldy);
-  _mm_free(mesh->edgedx);
-  _mm_free(mesh->celldx);
+  deallocate_data(mesh->edgedy);
+  deallocate_data(mesh->celldy);
+  deallocate_data(mesh->edgedx);
+  deallocate_data(mesh->celldx);
+  deallocate_data(mesh->north_buffer_out);
+  deallocate_data(mesh->east_buffer_out);
+  deallocate_data(mesh->south_buffer_out);
+  deallocate_data(mesh->west_buffer_out);
+  deallocate_data(mesh->north_buffer_in);
+  deallocate_data(mesh->east_buffer_in);
+  deallocate_data(mesh->south_buffer_in);
+  deallocate_data(mesh->west_buffer_in);
 }
-
 

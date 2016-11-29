@@ -30,7 +30,6 @@ void initialise_comms(
         mesh->global_nx, mesh->global_ny, mesh->niters);
 }
 
-
 #ifdef MPI
 static inline double mpi_all_reduce(
     const double local_val, MPI_Op op)
@@ -130,5 +129,13 @@ void decompose_2d_cartesian(
   printf("rank %d neighbours %d %d %d %d\n",
       rank, neighbours[NORTH], neighbours[EAST], 
       neighbours[SOUTH], neighbours[WEST]);
+}
+
+// Finalise the communications
+void finalise_comms()
+{
+#ifdef MPI
+  MPI_Finalize();
+#endif
 }
 

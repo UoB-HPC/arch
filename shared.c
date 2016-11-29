@@ -2,9 +2,23 @@
 #include <stdlib.h>
 #include <math.h>
 #include "shared.h"
+#include "mesh.h"
+#include "comms.h"
 
 struct Profile compute_profile = {0};
 struct Profile comms_profile = {0};
+
+// Allocates some double precision data
+void allocate_data(double** buf, size_t len)
+{
+  *buf = _mm_malloc(len, VEC_ALIGN);
+}
+
+// Allocates a data array
+void deallocate_data(double* buf)
+{
+  _mm_free(buf);
+}
 
 // Write out data for visualisation in visit
 void write_to_visit(
