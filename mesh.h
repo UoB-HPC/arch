@@ -1,6 +1,6 @@
 #pragma once
 
-#define SIM_END .3      // The end time in seconds for the simulation
+#define SIM_END 10.0     // The end time in seconds for the simulation
 #define VEC_ALIGN 32    // The vector alignment to be used by memory allocators
 #define PAD 2           // The depth of halo padding, currently for all applications
 #define LOAD_BALANCE 0  // Whether decomposition should attempt to load balance
@@ -10,7 +10,7 @@
 #define NNEIGHBOURS 4   // The number of neighbours, as expected from 2d
 
 // This is directly from wet - need to determine how best to do the timestepping
-#define C_T 0.5
+#define C_T 0.6
 
 // Contains all of the data regarding a particular mesh
 typedef struct

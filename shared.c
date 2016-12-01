@@ -42,7 +42,7 @@ void write_to_visit(
   fprintf(bovfp, "DATA_FILE: %s\n", datname);
   fprintf(bovfp, "DATA_SIZE: %d %d 1\n", nx, ny);
   fprintf(bovfp, "DATA_FORMAT: DOUBLE\n");
-  fprintf(bovfp, "VARIABLE: density");
+  fprintf(bovfp, "VARIABLE: density\n");
   fprintf(bovfp, "DATA_ENDIAN: LITTLE\n");
   fprintf(bovfp, "CENTERING: zone\n");
 
@@ -61,7 +61,7 @@ void write_to_visit(
     exit(1);
   }
 
-  fwrite(data, sizeof(data), nx*ny, datfp);
+  fwrite(data, sizeof(double), nx*ny, datfp);
   fclose(datfp);
 #endif
 }
@@ -71,7 +71,7 @@ void write_to_visit(
 void write_all_ranks_to_visit(
     const int global_nx, const int global_ny, const int local_nx, 
     const int local_ny, const int x_off, const int y_off, const int rank, 
-    const int nranks, double* local_arr, 
+    const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time)
 {
   // If MPI is enabled need to collect the data from all 
@@ -86,30 +86,36 @@ void write_all_ranks_to_visit(
   }
 
   for(int ii = 0; ii < nranks; ++ii) {
-    int dims[4];
+    int nparams = 8;
+    int dims[nparams];
     dims[0] = local_nx;
     dims[1] = local_ny;
     dims[2] = x_off;
     dims[3] = y_off;
+    dims[4] = (neighbours[NORTH] == EDGE) ? 0 : PAD;
+    dims[5] = (neighbours[EAST] == EDGE) ? 0 : PAD;
+    dims[6] = (neighbours[SOUTH] == EDGE) ? 0 : PAD;
+    dims[7] = (neighbours[WEST] == EDGE) ? 0 : PAD;
 
     if(rank == MASTER) {
       if(ii > MASTER) {
-        MPI_Recv(&dims, 4, MPI_INT, ii, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+        MPI_Recv(&dims, nparams, MPI_INT, ii, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
         remote_data[ii] = (double*)malloc(sizeof(double)*dims[0]*dims[1]);
         MPI_Recv(
             remote_data[ii], dims[0]*dims[1], MPI_DOUBLE, ii, 1, 
             MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
       }
 
-      for(int jj = PAD; jj < dims[1]-PAD; ++jj) {
-        for(int kk = PAD; kk < dims[0]-PAD; ++kk) {
-          global_arr[(dims[3]+(jj-PAD))*global_nx+((kk-PAD)+dims[2])] =
+      // TODO: fix or remove this horrible piece
+      for(int jj = dims[7]; jj < dims[1]-dims[5]; ++jj) {
+        for(int kk = dims[6]; kk < dims[0]-dims[4]; ++kk) {
+          global_arr[(dims[3]+(jj-dims[7]))*global_nx+((kk-dims[6])+dims[2])] =
             remote_data[ii][jj*dims[0]+kk];
         }
       }
     }
     else if(ii == rank) {
-      MPI_Send(&dims, 4, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
+      MPI_Send(&dims, nparams, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
       MPI_Send(local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, 1, MPI_COMM_WORLD);
     }
   }

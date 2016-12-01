@@ -83,9 +83,9 @@ void initialise_state(
   // TODO: Improve what follows, make it a somewhat more general problem 
   // selection mechanism for some important stock problems
 
-#if 0
   // WET STATE INITIALISATION
 
+  printf("%d %d\n", local_nx, local_ny);
   // Initialise a default state for the energy and density on the mesh
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
@@ -97,17 +97,16 @@ void initialise_state(
   // Introduce a problem
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
-#if 0
       // CENTER SQUARE TEST
       const int dist = 100;
-      if(jj+x_off-PAD >= global_nx/2-dist && 
-          jj+x_off-PAD < global_nx/2+dist && 
-          ii+y_off-PAD >= global_ny/2-dist && 
-          ii+y_off-PAD < global_ny/2+dist) {
+      if(jj+x_off >= (global_nx+2*PAD)/2-dist && 
+          jj+x_off < (global_nx+2*PAD)/2+dist && 
+          ii+y_off >= (global_ny+2*PAD)/2-dist && 
+          ii+y_off < (global_ny+2*PAD)/2+dist) {
         state->rho[ii*local_nx+jj] = 1.0;
         state->e[ii*local_nx+jj] = 2.5;
       }
-#endif // if 0
+
 #if 0
       // OFF CENTER SQUARE TEST
       const int dist = 100;
@@ -119,32 +118,38 @@ void initialise_state(
         state->e[ii*local_nx+jj] = 2.5;
       }
 #endif // if 0
-      if(jj+x_off < (global_nx/2+2*PAD)) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-      }
+
 #if 0
-      if(ii <= local_ny/2) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-#if 0
-      if(ii > local_ny/2) {
+      if(jj+x_off < ((global_nx+2*PAD)/2)) {
         state->rho[ii*local_nx+jj] = 1.0;
         state->e[ii*local_nx+jj] = 2.5;
       }
 #endif // if 0
+
 #if 0
-      if(jj > local_nx/2) {
+      if(ii+y_off < (global_ny+2*PAD)/2) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
+      }
+#endif // if 0
+
+#if 0
+      if(ii+y_off > (global_ny+2*PAD)/2) {
+        state->rho[ii*local_nx+jj] = 1.0;
+        state->e[ii*local_nx+jj] = 2.5;
+      }
+#endif // if 0
+
+#if 0
+      if(jj+x_off > (global_nx+2*PAD)/2) {
         state->rho[ii*local_nx+jj] = 1.0;
         state->e[ii*local_nx+jj] = 2.5;
       }
 #endif // if 0
     }
   }
-#endif // if 0
 
+#if 0
   // HOT STATE INITIALISATION
   // Set the initial state
 #pragma omp parallel for
@@ -175,6 +180,7 @@ void initialise_state(
       }
     }
   }
+#endif // if 0
 }
 
 // Deallocate all of the state memory
