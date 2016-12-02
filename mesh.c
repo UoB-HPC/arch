@@ -11,8 +11,8 @@ void initialise_mesh(
   allocate_data(&mesh->edgedy, sizeof(double)*mesh->local_ny+1);
   allocate_data(&mesh->celldy, sizeof(double)*mesh->local_ny);
 
-  mesh->dt = (1.0-C_T)*(1.0-C_T)*MAX_DT;
-  mesh->dt_h = (1.0-C_T)*(1.0-C_T)*MAX_DT;
+  mesh->dt = 0.01*(1.0-C_T)*(1.0-C_T)*MAX_DT;
+  mesh->dt_h = 0.01*(1.0-C_T)*(1.0-C_T)*MAX_DT;
 
   // Simple uniform rectilinear initialisation
   for(int ii = 0; ii < mesh->local_ny+1; ++ii) {
