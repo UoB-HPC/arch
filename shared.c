@@ -114,11 +114,20 @@ void write_all_ranks_to_visit(
             MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
       }
 
+      int lnx = dims[0];
+      int lny = dims[1];
+      int lx_off = dims[2];
+      int ly_off = dims[3];
+      int north = dims[4];
+      int east = dims[5];
+      int south = dims[6];
+      int west = dims[7];
+
       // TODO: fix or remove this horrible piece
-      for(int jj = dims[7]; jj < dims[1]-dims[5]; ++jj) {
-        for(int kk = dims[6]; kk < dims[0]-dims[4]; ++kk) {
-          global_arr[(dims[3]+(jj-dims[7]))*global_nx+((kk-dims[6])+dims[2])] =
-            remote_data[ii][(jj+PAD-dims[7])*dims[0]+(kk+PAD-dims[6])];
+      for(int jj = south; jj < lny-north; ++jj) {
+        for(int kk = east; kk < lnx-west; ++kk) {
+          global_arr[(jj-south+ly_off+south)*global_nx+(kk-east+lx_off+east)] =
+            remote_data[ii][jj*lnx+kk];
         }
       }
     }
@@ -126,8 +135,8 @@ void write_all_ranks_to_visit(
       MPI_Send(&dims, nparams, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
       MPI_Send(local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, 1, MPI_COMM_WORLD);
     }
+    MPI_Barrier(MPI_COMM_WORLD);
   }
-  MPI_Barrier(MPI_COMM_WORLD);
 #else
   double* global_arr = local_arr;
 #endif
@@ -135,5 +144,7 @@ void write_all_ranks_to_visit(
   if(rank == MASTER) {
     write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt, elapsed_sim_time);
   }
+
+  MPI_Barrier(MPI_COMM_WORLD);
 }
 
