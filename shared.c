@@ -118,7 +118,7 @@ void write_all_ranks_to_visit(
       for(int jj = dims[7]; jj < dims[1]-dims[5]; ++jj) {
         for(int kk = dims[6]; kk < dims[0]-dims[4]; ++kk) {
           global_arr[(dims[3]+(jj-dims[7]))*global_nx+((kk-dims[6])+dims[2])] =
-            remote_data[ii][jj*dims[0]+kk];
+            remote_data[ii][(jj+PAD-dims[7])*dims[0]+(kk+PAD-dims[6])];
         }
       }
     }

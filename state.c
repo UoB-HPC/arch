@@ -84,13 +84,12 @@ void initialise_state(
   // selection mechanism for some important stock problems
 
   // WET STATE INITIALISATION
-
-  printf("%d %d\n", local_nx, local_ny);
   // Initialise a default state for the energy and density on the mesh
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
       state->rho[ii*local_nx+jj] = 0.125;
       state->e[ii*local_nx+jj] = 2.0;
+      state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
     }
   }
 
@@ -105,6 +104,7 @@ void initialise_state(
           ii+y_off < (global_ny+2*PAD)/2+dist) {
         state->rho[ii*local_nx+jj] = 1.0;
         state->e[ii*local_nx+jj] = 2.5;
+        state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
       }
 
 #if 0
@@ -148,39 +148,6 @@ void initialise_state(
 #endif // if 0
     }
   }
-
-#if 0
-  // HOT STATE INITIALISATION
-  // Set the initial state
-#pragma omp parallel for
-  for(int ii = 0; ii < local_ny; ++ii) {
-#pragma omp simd
-    for(int jj = 0; jj < local_nx; ++jj) {
-      const int index = ii*local_nx+jj;
-      state->rho[index] = 0.1;
-      state->e[index] = state->rho[index] * 0.1;
-    }
-  }
-
-  // Crooked pipe problem
-#pragma omp parallel for
-  for(int ii = 0; ii < local_ny; ++ii) {
-#pragma omp simd
-    for(int jj = 0; jj < local_nx; ++jj) {
-      const int index = ii*local_nx+jj;
-      const int ioff = ii+y_off;
-      const int joff = jj+x_off;
-
-      // Box problem
-      if(ioff > 7*(global_ny+2*PAD)/8 || ioff <= (global_ny+2*PAD)/8 ||
-          joff > 7*(global_nx+2*PAD)/8 || joff <= (global_nx+2*PAD)/8) {
-        state->rho[index] = 100.0;
-        state->x[index] = state->rho[index]*0.1;
-        state->e[index] = state->x[index];
-      }
-    }
-  }
-#endif // if 0
 }
 
 // Deallocate all of the state memory
