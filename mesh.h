@@ -9,7 +9,6 @@
 #define MAX_DT 0.04     // The maximum allowed timestep
 #define NNEIGHBOURS 4   // The number of neighbours, as expected from 2d
 
-// This is directly from wet - need to determine how best to do the timestepping
 #define C_T 0.5
 
 // Contains all of the data regarding a particular mesh
