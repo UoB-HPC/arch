@@ -29,11 +29,11 @@ void decompose_2d_cartesian(
 
 // Reduces the value across all ranks and returns the sum
 double reduce_all_sum(
-    const double local_val);
+    double local_val);
 
 // Reduces the value across all ranks and returns minimum result
 double reduce_all_min(
-    const double local_val);
+    double local_val);
 
 // Enforce reflective boundary conditions on the problem state
 void handle_boundary(

@@ -32,7 +32,7 @@ void initialise_comms(
 
 #ifdef MPI
 static inline double mpi_all_reduce(
-    const double local_val, MPI_Op op)
+    double local_val, MPI_Op op)
 {
   double global_val = local_val;
   START_PROFILING(&compute_profile);
@@ -43,21 +43,21 @@ static inline double mpi_all_reduce(
 #endif
 
 // Reduces the value across all ranks and returns minimum result
-double reduce_all_min(const double local_val)
+double reduce_all_min(double local_val)
 {
   double global_val = local_val;
 #ifdef MPI
-  mpi_all_reduce(local_val, MPI_SUM);
+  global_val = mpi_all_reduce(local_val, MPI_MIN);
 #endif
   return global_val;
 }
 
 // Reduces the value across all ranks and returns the sum
-double reduce_all_sum(const double local_val)
+double reduce_all_sum(double local_val)
 {
   double global_val = local_val;
 #ifdef MPI
-  mpi_all_reduce(local_val, MPI_SUM);
+  global_val = mpi_all_reduce(local_val, MPI_SUM);
 #endif
   return global_val;
 }
@@ -71,7 +71,7 @@ void decompose_2d_cartesian(
   int ranks_x = 0;
   int ranks_y = 0;
   int found_even = 0;
-  float min_ratio = 0.0f;
+  float mratio = 0.0f;
 
   // Determine decomposition that minimises perimeter to area ratio
   for(int ff = 1; ff <= sqrt(nranks); ++ff) {
@@ -92,8 +92,8 @@ void decompose_2d_cartesian(
 
     // Update if we minimise the ratio further, only if we don't care about load
     // balancing or have found an even split
-    if((found_even <= is_even) && (min_ratio == 0.0f || potential_ratio < min_ratio)) {
-      min_ratio = potential_ratio;
+    if((found_even <= is_even) && (mratio == 0.0f || potential_ratio < mratio)) {
+      mratio = potential_ratio;
       // If we didn't find even split, prefer longer mesh edge on x dimension
       ranks_x = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_y : new_ranks_x;
       ranks_y = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_x : new_ranks_y;
@@ -140,8 +140,7 @@ void handle_boundary(
 
 #ifdef MPI
   int nmessages = 0;
-  MPI_Request out_req[NNEIGHBOURS];
-  MPI_Request in_req[NNEIGHBOURS];
+  MPI_Request req[NNEIGHBOURS];
 #endif
 
   double x_inversion_coeff = (invert == INVERT_X) ? -1.0 : 1.0;
@@ -165,9 +164,9 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->west_buffer_out, ny*PAD, MPI_DOUBLE,
-        mesh->neighbours[WEST], 3, MPI_COMM_WORLD, &out_req[WEST]);
+        mesh->neighbours[WEST], 3, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->west_buffer_in, ny*PAD, MPI_DOUBLE, 
-        mesh->neighbours[WEST], 2, MPI_COMM_WORLD, &in_req[nmessages++]);
+        mesh->neighbours[WEST], 2, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
@@ -190,9 +189,9 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->east_buffer_out, ny*PAD, MPI_DOUBLE, 
-        mesh->neighbours[EAST], 2, MPI_COMM_WORLD, &out_req[EAST]);
+        mesh->neighbours[EAST], 2, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->east_buffer_in, ny*PAD, MPI_DOUBLE,
-        mesh->neighbours[EAST], 3, MPI_COMM_WORLD, &in_req[nmessages++]);
+        mesh->neighbours[EAST], 3, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
@@ -217,9 +216,9 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->north_buffer_out, nx*PAD, MPI_DOUBLE, 
-        mesh->neighbours[NORTH], 1, MPI_COMM_WORLD, &out_req[NORTH]);
+        mesh->neighbours[NORTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->north_buffer_in, nx*PAD, MPI_DOUBLE,
-        mesh->neighbours[NORTH], 0, MPI_COMM_WORLD, &in_req[nmessages++]);
+        mesh->neighbours[NORTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
@@ -242,16 +241,16 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->south_buffer_out, nx*PAD, MPI_DOUBLE, 
-        mesh->neighbours[SOUTH], 0, MPI_COMM_WORLD, &out_req[SOUTH]);
+        mesh->neighbours[SOUTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->south_buffer_in, nx*PAD, MPI_DOUBLE,
-        mesh->neighbours[SOUTH], 1, MPI_COMM_WORLD, &in_req[nmessages++]);
+        mesh->neighbours[SOUTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
   // Unpack the buffers
 #ifdef MPI
   if(pack) {
-    MPI_Waitall(nmessages, in_req, MPI_STATUSES_IGNORE);
+    MPI_Waitall(nmessages, req, MPI_STATUSES_IGNORE);
 
     if(mesh->neighbours[NORTH] != EDGE) {
 #pragma omp parallel for collapse(2)
