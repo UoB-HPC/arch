@@ -14,7 +14,7 @@ void allocate_data(double** buf, size_t len)
 #ifdef INTEL
   *buf = (double*)_mm_malloc(sizeof(double)*len, VEC_ALIGN);
 #else
-  *buf = (double*)malloc(len);
+  *buf = (double*)malloc(sizeof(double)*len);
 #endif
 }
 

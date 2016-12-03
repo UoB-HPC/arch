@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <math.h>
+#include <stdlib.h>
 #include "shared.h"
 #include "comms.h"
 
@@ -147,7 +148,7 @@ void handle_boundary(
   int* neighbours = mesh->neighbours;
 #ifdef MPI
   int nmessages = 0;
-  MPI_Request req[NNEIGHBOURS];
+  MPI_Request req[2*NNEIGHBOURS];
 #endif
 
   double x_inversion_coeff = (invert == INVERT_X) ? -1.0 : 1.0;
