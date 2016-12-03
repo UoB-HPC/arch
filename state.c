@@ -85,11 +85,10 @@ void initialise_state(
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
       // CENTER SQUARE TEST
-      const int dist = 100;
-      if(jj+x_off >= (global_nx+2*PAD)/2-dist && 
-          jj+x_off < (global_nx+2*PAD)/2+dist && 
-          ii+y_off >= (global_ny+2*PAD)/2-dist && 
-          ii+y_off < (global_ny+2*PAD)/2+dist) {
+      if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
+          jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
+          ii+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
+          ii+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
         state->rho[ii*local_nx+jj] = 1.0;
         state->e[ii*local_nx+jj] = 2.5;
         state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
