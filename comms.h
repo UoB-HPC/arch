@@ -14,10 +14,12 @@ enum { NO_PACK, PACK }; // Whether a buffer should be packed and communicated
 enum { EDGE = -1, NORTH, EAST, SOUTH, WEST }; // Directional enumeration
 enum { NO_INVERT, INVERT_X, INVERT_Y }; // Whether an inversion is required
 
+void init_mpi(
+    int argc, char** argv, int* rank, int* nranks);
 
 // Initialise the communications, potentially invoking MPI
 void initialise_comms(
-    int argc, char** argv, Mesh* mesh);
+    Mesh* mesh);
 
 #ifdef MPI
 // Decomposes the ranks, potentially load balancing and minimising the

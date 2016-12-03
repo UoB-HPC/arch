@@ -6,10 +6,10 @@
 void initialise_mesh(
     Mesh* mesh)
 {
-  allocate_data(&mesh->edgedx, sizeof(double)*mesh->local_nx+1);
-  allocate_data(&mesh->celldx, sizeof(double)*mesh->local_nx);
-  allocate_data(&mesh->edgedy, sizeof(double)*mesh->local_ny+1);
-  allocate_data(&mesh->celldy, sizeof(double)*mesh->local_ny);
+  allocate_data(&mesh->edgedx, (mesh->local_nx+1));
+  allocate_data(&mesh->celldx, (mesh->local_nx+1));
+  allocate_data(&mesh->edgedy, (mesh->local_ny+1));
+  allocate_data(&mesh->celldy, (mesh->local_ny+1));
 
   mesh->dt = 0.01*(1.0-C_T)*(1.0-C_T)*MAX_DT;
   mesh->dt_h = 0.01*(1.0-C_T)*(1.0-C_T)*MAX_DT;
@@ -28,14 +28,14 @@ void initialise_mesh(
     mesh->celldx[ii] = 10.0 / (mesh->global_nx);
   }
 
-  allocate_data(&mesh->north_buffer_out, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->east_buffer_out, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->south_buffer_out, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->west_buffer_out, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->north_buffer_in, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->east_buffer_in, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->south_buffer_in, sizeof(double)*(mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->west_buffer_in, sizeof(double)*(mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->north_buffer_out, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->east_buffer_out, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->south_buffer_out, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->west_buffer_out, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->north_buffer_in, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->east_buffer_in, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->south_buffer_in, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->west_buffer_in, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
 }
 
 // Deallocate all of the mesh memory

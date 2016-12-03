@@ -12,7 +12,7 @@ struct Profile comms_profile = {0};
 void allocate_data(double** buf, size_t len)
 {
 #ifdef INTEL
-  *buf = (double*)_mm_malloc(len, VEC_ALIGN);
+  *buf = (double*)_mm_malloc(sizeof(double)*len, VEC_ALIGN);
 #else
   *buf = (double*)malloc(sizeof(double)*len);
 #endif

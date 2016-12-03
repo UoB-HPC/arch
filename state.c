@@ -8,68 +8,56 @@ void initialise_state(
     const int x_off, const int y_off, State* state) 
 {
   // Shared state
-  allocate_data(&state->rho, sizeof(double)*local_nx*local_ny);
-  allocate_data(&state->e, sizeof(double)*local_nx*local_ny);
+  allocate_data(&state->rho, local_nx*local_ny);
+  allocate_data(&state->e, local_nx*local_ny);
 
   // Currently flattening the capacity by sharing some of the state containers
   // between the different solves for different applications. This might not
   // be maintainable and/or desirable but seems like a reasonable optimisation
   // for now...
-  double* temp1;
-  allocate_data(&temp1, sizeof(double)*local_nx*local_ny);
-  state->rho_old = temp1;
-  state->Ap = temp1;
+  allocate_data(&state->rho_old, local_nx*local_ny);
+  state->Ap = state->rho_old;
 
-  double* temp2;
-  allocate_data(&temp2, sizeof(double)*(local_nx+1)*(local_ny+1));
-  state->s_x = temp2;
-  state->Qxx = temp2;
+  allocate_data(&state->s_x, (local_nx+1)*(local_ny+1));
+  state->Qxx = state->s_x;
 
-  double* temp3;
-  allocate_data(&temp3, sizeof(double)*(local_nx+1)*(local_ny+1));
-  state->s_y = temp3;
-  state->Qyy = temp3;
+  allocate_data(&state->s_y, (local_nx+1)*(local_ny+1));
+  state->Qyy = state->s_y;
 
-  double* temp4;
-  allocate_data(&temp4, sizeof(double)*local_nx*local_ny);
-  state->r = temp4;
-  state->P = temp4;
+  allocate_data(&state->r, local_nx*local_ny);
+  state->P = state->r;
 
-  double* temp5;
-  allocate_data(&temp5, sizeof(double)*(local_nx+1)*(local_ny+1));
-  state->x = temp5;
-  state->u = temp5;
+  allocate_data(&state->x, (local_nx+1)*(local_ny+1));
+  state->u = state->x;
 
-  double* temp6;
-  allocate_data(&temp6, sizeof(double)*(local_nx+1)*(local_ny+1));
-  state->p = temp6;
-  state->v = temp6;
+  allocate_data(&state->p, (local_nx+1)*(local_ny+1));
+  state->v = state->p;
 
   // Wet-specific state
-  allocate_data(&state->rho_u, sizeof(double)*(local_nx+1)*(local_ny+1));
-  allocate_data(&state->rho_v, sizeof(double)*(local_nx+1)*(local_ny+1));
-  allocate_data(&state->F_x, sizeof(double)*(local_nx+1)*(local_ny+1));
-  allocate_data(&state->F_y, sizeof(double)*(local_nx+1)*(local_ny+1));
-  allocate_data(&state->uF_x, sizeof(double)*(local_nx+1)*(local_ny+1));
-  allocate_data(&state->uF_y, sizeof(double)*(local_nx+1)*(local_ny+1));
-  allocate_data(&state->vF_x, sizeof(double)*(local_nx+1)*(local_ny+1));
-  allocate_data(&state->vF_y, sizeof(double)*(local_nx+1)*(local_ny+1));
+  allocate_data(&state->rho_u, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->rho_v, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->F_x, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->F_y, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->uF_x, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->uF_y, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->vF_x, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->vF_y, (local_nx+1)*(local_ny+1));
 
   // Initialise all of the state to 0, but is this best for NUMA?
 #pragma omp parallel for
   for(int ii = 0; ii < local_nx*local_ny; ++ii) {
     state->rho[ii] = 0.0;
     state->e[ii] = 0.0;
-    temp1[ii] = 0.0;
-    temp4[ii] = 0.0;
+    state->rho_old[ii] = 0.0;
+    state->P[ii] = 0.0;
   }
 
 #pragma omp parallel for
   for(int ii = 0; ii < (local_nx+1)*(local_ny+1); ++ii) {
-    temp2[ii] = 0.0;
-    temp3[ii] = 0.0;
-    temp5[ii] = 0.0;
-    temp6[ii] = 0.0;
+    state->Qxx[ii] = 0.0;
+    state->Qyy[ii] = 0.0;
+    state->x[ii] = 0.0;
+    state->p[ii] = 0.0;
     state->rho_u[ii] = 0.0;
     state->rho_v[ii] = 0.0;
     state->F_x[ii] = 0.0;

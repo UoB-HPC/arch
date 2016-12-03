@@ -3,19 +3,25 @@
 #include "shared.h"
 #include "comms.h"
 
+void init_mpi(
+    int argc, char** argv, int* rank, int* nranks)
+{
+#ifdef MPI
+  MPI_Init(&argc, &argv);
+  MPI_Comm_rank(MPI_COMM_WORLD, rank);
+  MPI_Comm_size(MPI_COMM_WORLD, nranks);
+#endif
+}
+
 // Initialise the communications, potentially invoking MPI
 void initialise_comms(
-    int argc, char** argv, Mesh* mesh)
+    Mesh* mesh)
 {
   for(int ii = 0; ii < NNEIGHBOURS; ++ii) {
     mesh->neighbours[ii] = EDGE;
   }
 
 #ifdef MPI
-  MPI_Init(&argc, &argv);
-  MPI_Comm_rank(MPI_COMM_WORLD, &mesh->rank);
-  MPI_Comm_size(MPI_COMM_WORLD, &mesh->nranks);
-
   decompose_2d_cartesian(
       mesh->rank, mesh->nranks, mesh->global_nx, mesh->global_ny, 
       mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->x_off, &mesh->y_off);
@@ -106,7 +112,7 @@ void decompose_2d_cartesian(
   for(int xx = 0; xx <= x_rank; ++xx) {
     *x_off = off;
     const int x_floor = global_nx/ranks_x;
-    const int x_pad_req = (global_nx < (off + (ranks_x-xx)*x_floor));
+    const int x_pad_req = (global_nx != (off + (ranks_x-xx)*x_floor));
     *local_nx = x_pad_req ? x_floor+1 : x_floor;
     off += *local_nx;
   }
@@ -115,7 +121,7 @@ void decompose_2d_cartesian(
   for(int yy = 0; yy <= y_rank; ++yy) {
     *y_off = off;
     const int y_floor = global_ny/ranks_y;
-    const int y_pad_req = (global_ny < (off + (ranks_y-yy)*y_floor));
+    const int y_pad_req = (global_ny != (off + (ranks_y-yy)*y_floor));
     *local_ny = y_pad_req ? y_floor+1 : y_floor;
     off += *local_ny;
   }
@@ -138,6 +144,7 @@ void handle_boundary(
 {
   START_PROFILING(&comms_profile);
 
+  int* neighbours = mesh->neighbours;
 #ifdef MPI
   int nmessages = 0;
   MPI_Request req[NNEIGHBOURS];
@@ -145,7 +152,7 @@ void handle_boundary(
 
   double x_inversion_coeff = (invert == INVERT_X) ? -1.0 : 1.0;
 
-  if(mesh->neighbours[WEST] == EDGE) {
+  if(neighbours[WEST] == EDGE) {
     // reflect at the west
 #pragma omp parallel for collapse(2)
     for(int ii = 0; ii < ny; ++ii) {
@@ -164,14 +171,14 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->west_buffer_out, ny*PAD, MPI_DOUBLE,
-        mesh->neighbours[WEST], 3, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[WEST], 3, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->west_buffer_in, ny*PAD, MPI_DOUBLE, 
-        mesh->neighbours[WEST], 2, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[WEST], 2, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
   // Reflect at the east
-  if(mesh->neighbours[EAST] == EDGE) {
+  if(neighbours[EAST] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int ii = 0; ii < ny; ++ii) {
       for(int dd = 0; dd < PAD; ++dd) {
@@ -189,16 +196,16 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->east_buffer_out, ny*PAD, MPI_DOUBLE, 
-        mesh->neighbours[EAST], 2, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[EAST], 2, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->east_buffer_in, ny*PAD, MPI_DOUBLE,
-        mesh->neighbours[EAST], 3, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[EAST], 3, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
   double y_inversion_coeff = (invert == INVERT_Y) ? -1.0 : 1.0;
 
   // Reflect at the north
-  if(mesh->neighbours[NORTH] == EDGE) {
+  if(neighbours[NORTH] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int dd = 0; dd < PAD; ++dd) {
       for(int jj = 0; jj < nx; ++jj) {
@@ -216,14 +223,14 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->north_buffer_out, nx*PAD, MPI_DOUBLE, 
-        mesh->neighbours[NORTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[NORTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->north_buffer_in, nx*PAD, MPI_DOUBLE,
-        mesh->neighbours[NORTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[NORTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
   // reflect at the south
-  if(mesh->neighbours[SOUTH] == EDGE) {
+  if(neighbours[SOUTH] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int dd = 0; dd < PAD; ++dd) {
       for(int jj = 0; jj < nx; ++jj) {
@@ -241,9 +248,9 @@ void handle_boundary(
     }
 
     MPI_Isend(mesh->south_buffer_out, nx*PAD, MPI_DOUBLE, 
-        mesh->neighbours[SOUTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[SOUTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
     MPI_Irecv(mesh->south_buffer_in, nx*PAD, MPI_DOUBLE,
-        mesh->neighbours[SOUTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
+        neighbours[SOUTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
   }
 #endif
 
@@ -252,7 +259,7 @@ void handle_boundary(
   if(pack) {
     MPI_Waitall(nmessages, req, MPI_STATUSES_IGNORE);
 
-    if(mesh->neighbours[NORTH] != EDGE) {
+    if(neighbours[NORTH] != EDGE) {
 #pragma omp parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {
         for(int jj = 0; jj < nx; ++jj) {
@@ -261,7 +268,7 @@ void handle_boundary(
       }
     }
 
-    if(mesh->neighbours[SOUTH] != EDGE) {
+    if(neighbours[SOUTH] != EDGE) {
 #pragma omp parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {
         for(int jj = 0; jj < nx; ++jj) {
@@ -270,7 +277,7 @@ void handle_boundary(
       }
     }
 
-    if(mesh->neighbours[WEST] != EDGE) {
+    if(neighbours[WEST] != EDGE) {
 #pragma omp parallel for collapse(2)
       for(int ii = 0; ii < ny; ++ii) {
         for(int dd = 0; dd < PAD; ++dd) {
@@ -279,7 +286,7 @@ void handle_boundary(
       }
     }
 
-    if(mesh->neighbours[EAST] != EDGE) {
+    if(neighbours[EAST] != EDGE) {
 #pragma omp parallel for collapse(2)
       for(int ii = 0; ii < ny; ++ii) {
         for(int dd = 0; dd < PAD; ++dd) {
