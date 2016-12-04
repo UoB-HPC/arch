@@ -43,100 +43,11 @@ void initialise_state(
   allocate_data(&state->vF_x, (local_nx+1)*(local_ny+1));
   allocate_data(&state->vF_y, (local_nx+1)*(local_ny+1));
 
-  // Initialise all of the state to 0, but is this best for NUMA?
-#pragma omp parallel for
-  for(int ii = 0; ii < local_nx*local_ny; ++ii) {
-    state->rho[ii] = 0.0;
-    state->e[ii] = 0.0;
-    state->rho_old[ii] = 0.0;
-    state->P[ii] = 0.0;
-  }
-
-#pragma omp parallel for
-  for(int ii = 0; ii < (local_nx+1)*(local_ny+1); ++ii) {
-    state->Qxx[ii] = 0.0;
-    state->Qyy[ii] = 0.0;
-    state->x[ii] = 0.0;
-    state->p[ii] = 0.0;
-    state->rho_u[ii] = 0.0;
-    state->rho_v[ii] = 0.0;
-    state->F_x[ii] = 0.0;
-    state->F_y[ii] = 0.0;
-    state->uF_x[ii] = 0.0;
-    state->uF_y[ii] = 0.0;
-    state->vF_x[ii] = 0.0;
-    state->vF_y[ii] = 0.0;
-  }
-
-  // TODO: Improve what follows, make it a somewhat more general problem 
-  // selection mechanism for some important stock problems
-
-  // WET STATE INITIALISATION
-  // Initialise a default state for the energy and density on the mesh
-  for(int ii = 0; ii < local_ny; ++ii) {
-    for(int jj = 0; jj < local_nx; ++jj) {
-      state->rho[ii*local_nx+jj] = 0.125;
-      state->e[ii*local_nx+jj] = 2.0;
-      state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
-    }
-  }
-
-  // Introduce a problem
-  for(int ii = 0; ii < local_ny; ++ii) {
-    for(int jj = 0; jj < local_nx; ++jj) {
-#if 0
-      // CENTER SQUARE TEST
-      if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
-          jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
-          ii+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
-          ii+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-        state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
-      }
-#endif // if 0
-
-      // OFF CENTER SQUARE TEST
-      const int dist = 100;
-      if(jj+x_off-PAD >= global_nx/4-dist && 
-          jj+x_off-PAD < global_nx/4+dist && 
-          ii+y_off-PAD >= global_ny/2-dist && 
-          ii+y_off-PAD < global_ny/2+dist) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-        state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*state->e[ii*local_nx+jj];
-      }
-
-#if 0
-      if(jj+x_off < ((global_nx+2*PAD)/2)) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-        state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
-      }
-#endif // if 0
-
-#if 0
-      if(ii+y_off < (global_ny+2*PAD)/2) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-
-#if 0
-      if(ii+y_off > (global_ny+2*PAD)/2) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-
-#if 0
-      if(jj+x_off > (global_nx+2*PAD)/2) {
-        state->rho[ii*local_nx+jj] = 1.0;
-        state->e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-    }
-  }
+  data_init(
+      local_nx, local_ny, global_nx, global_ny, x_off, y_off,
+      state->rho, state->e, state->rho_old, state->P, state->Qxx, state->Qyy,
+      state->x, state->p, state->rho_u, state->rho_v, state->F_x, state->F_y,
+      state->uF_x, state->uF_y, state->vF_x, state->vF_y);
 }
 
 // Deallocate all of the state memory
