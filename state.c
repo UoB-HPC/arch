@@ -84,6 +84,7 @@ void initialise_state(
   // Introduce a problem
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
+#if 0
       // CENTER SQUARE TEST
       if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
           jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
@@ -93,8 +94,8 @@ void initialise_state(
         state->e[ii*local_nx+jj] = 2.5;
         state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
       }
+#endif // if 0
 
-#if 0
       // OFF CENTER SQUARE TEST
       const int dist = 100;
       if(jj+x_off-PAD >= global_nx/4-dist && 
@@ -103,13 +104,14 @@ void initialise_state(
           ii+y_off-PAD < global_ny/2+dist) {
         state->rho[ii*local_nx+jj] = 1.0;
         state->e[ii*local_nx+jj] = 2.5;
+        state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*state->e[ii*local_nx+jj];
       }
-#endif // if 0
 
 #if 0
       if(jj+x_off < ((global_nx+2*PAD)/2)) {
         state->rho[ii*local_nx+jj] = 1.0;
         state->e[ii*local_nx+jj] = 2.5;
+        state->x[ii*local_nx+jj] = state->rho[ii*local_nx+jj]*0.1;
       }
 #endif // if 0
 

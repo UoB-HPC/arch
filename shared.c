@@ -125,8 +125,8 @@ void write_all_ranks_to_visit(
 
       // TODO: fix or remove this horrible piece
       for(int jj = south; jj < lny-north; ++jj) {
-        for(int kk = east; kk < lnx-west; ++kk) {
-          global_arr[(jj-south+ly_off+south)*global_nx+(kk-east+lx_off+east)] =
+        for(int kk = west; kk < lnx-east; ++kk) {
+          global_arr[(jj-south+ly_off+south)*global_nx+(kk-west+lx_off+west)] =
             remote_data[ii][jj*lnx+kk];
         }
       }
