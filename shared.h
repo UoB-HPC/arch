@@ -3,6 +3,7 @@
 #include "profiler.h"
 
 #define ENABLE_VISIT_DUMPS 1 // Enables visit dumps in the descendent applications
+#define VEC_ALIGN 32    // The vector alignment to be used by memory allocators
 
 // Helper macros
 #define strmatch(a, b) (strcmp(a, b) == 0)

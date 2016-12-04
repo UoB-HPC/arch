@@ -1,7 +1,6 @@
 #pragma once
 
 #define SIM_END 10.0    // The end time in seconds for the simulation
-#define VEC_ALIGN 32    // The vector alignment to be used by memory allocators
 #define PAD 2           // The depth of halo padding, currently for all applications
 #define LOAD_BALANCE 0  // Whether decomposition should attempt to load balance
 #define WIDTH 10.0      // The width of the problem domain 
