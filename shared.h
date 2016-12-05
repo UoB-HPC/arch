@@ -13,6 +13,8 @@
 #define absmin(a, b) ((fabs(a) < fabs(b)) ? (a) : (b))
 #define minmod(a, b) (samesign(a, b) ? (absmin(a, b)) : (0.0))
 
+enum { RECV, SEND }; // Whether data is sent to/received from device
+
 // Global profile hooks
 struct Profile compute_profile;
 struct Profile comms_profile;
@@ -20,7 +22,7 @@ struct Profile comms_profile;
 // Wrappers for data (de)allocation
 void allocate_data(double** buf, size_t len);
 void deallocate_data(double* buf);
-void fetch_data(const int nx, const int ny, double* arr);
+void sync_data(const int nx, const int ny, double* arr, int send);
 
 // Write out data for visualisation in visit
 void write_to_visit(
