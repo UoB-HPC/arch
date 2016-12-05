@@ -14,19 +14,9 @@ void initialise_mesh(
   mesh->dt = 0.01*(1.0-C_T)*(1.0-C_T)*MAX_DT;
   mesh->dt_h = 0.01*(1.0-C_T)*(1.0-C_T)*MAX_DT;
 
-  // Simple uniform rectilinear initialisation
-  for(int ii = 0; ii < mesh->local_ny+1; ++ii) {
-    mesh->edgedy[ii] = 10.0 / (mesh->global_ny);
-  }
-  for(int ii = 0; ii < mesh->local_ny; ++ii) {
-    mesh->celldy[ii] = 10.0 / (mesh->global_ny);
-  }
-  for(int ii = 0; ii < mesh->local_nx+1; ++ii) {
-    mesh->edgedx[ii] = 10.0 / (mesh->global_nx);
-  }
-  for(int ii = 0; ii < mesh->local_nx; ++ii) {
-    mesh->celldx[ii] = 10.0 / (mesh->global_nx);
-  }
+  mesh_data_init(
+      mesh->local_nx, mesh->local_ny, mesh->global_nx, mesh->global_ny, 
+      mesh->edgedx, mesh->edgedy, mesh->celldx, mesh->celldy);
 
   allocate_data(&mesh->north_buffer_out, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
   allocate_data(&mesh->east_buffer_out, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);

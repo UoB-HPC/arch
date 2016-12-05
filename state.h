@@ -46,6 +46,13 @@ void initialise_state(
     const int global_nx, const int global_ny, const int local_nx, const int local_ny, 
     const int x_off, const int y_off, State* state);
 
+void state_data_init(
+    const int local_nx, const int local_ny, const int global_nx, const int global_ny,
+    const int x_off, const int y_off,
+    double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
+    double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
+    double* uF_x, double* uF_y, double* vF_x, double* vF_y);
+
 // Deallocate all of the state memory
 void finalise_state(
     State* state);

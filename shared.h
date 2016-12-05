@@ -20,6 +20,7 @@ struct Profile comms_profile;
 // Wrappers for data (de)allocation
 void allocate_data(double** buf, size_t len);
 void deallocate_data(double* buf);
+void fetch_data(const int nx, const int ny, double* arr);
 
 // Write out data for visualisation in visit
 void write_to_visit(
@@ -33,11 +34,4 @@ void write_all_ranks_to_visit(
     const int local_ny, const int x_off, const int y_off, const int rank, 
     const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time);
-
-void data_init(
-    const int local_nx, const int local_ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off,
-    double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
-    double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
-    double* uF_x, double* uF_y, double* vF_x, double* vF_y);
 

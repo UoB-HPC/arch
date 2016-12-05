@@ -8,7 +8,7 @@
 #define MAX_DT 0.04     // The maximum allowed timestep
 #define NNEIGHBOURS 4   // The number of neighbours, as expected from 2d
 
-#define C_T 0.5
+#define C_T 0.4
 
 // Contains all of the data regarding a particular mesh
 typedef struct
@@ -54,6 +54,10 @@ typedef struct
 // Initialises the mesh
 void initialise_mesh(
     Mesh* mesh);
+
+void mesh_data_init(
+    const int local_nx, const int local_ny, const int global_nx, const int global_ny,
+    double* edgedx, double* edgedy, double* celldx, double* celldy);
 
 // Finalises the mesh
 void finalise_mesh(

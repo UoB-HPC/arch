@@ -43,7 +43,7 @@ void initialise_state(
   allocate_data(&state->vF_x, (local_nx+1)*(local_ny+1));
   allocate_data(&state->vF_y, (local_nx+1)*(local_ny+1));
 
-  data_init(
+  state_data_init(
       local_nx, local_ny, global_nx, global_ny, x_off, y_off,
       state->rho, state->e, state->rho_old, state->P, state->Qxx, state->Qyy,
       state->x, state->p, state->rho_u, state->rho_v, state->F_x, state->F_y,
