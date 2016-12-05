@@ -4,7 +4,7 @@
 #include "shared.h"
 #include "comms.h"
 
-void init_mpi(
+void initialise_mpi(
     int argc, char** argv, int* rank, int* nranks)
 {
 #ifdef MPI

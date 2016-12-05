@@ -62,6 +62,8 @@ void write_all_ranks_to_visit(
     const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time)
 {
+  fetch_data(local_nx, local_ny, local_arr);
+
   // If MPI is enabled need to collect the data from all 
 #if defined(MPI) && defined(ENABLE_VISIT_DUMPS)
   double* global_arr;
