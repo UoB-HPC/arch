@@ -3,8 +3,8 @@
 #define SIM_END 10.0    // The end time in seconds for the simulation
 #define PAD 2           // The depth of halo padding, currently for all applications
 #define LOAD_BALANCE 0  // Whether decomposition should attempt to load balance
-#define WIDTH 10.0      // The width of the problem domain 
-#define HEIGHT 10.0     // The height of the problem domain
+#define WIDTH 100.0      // The width of the problem domain 
+#define HEIGHT 100.0     // The height of the problem domain
 #define MAX_DT 0.04     // The maximum allowed timestep
 #define NNEIGHBOURS 4   // The number of neighbours, as expected from 2d
 

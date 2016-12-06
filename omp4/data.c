@@ -44,19 +44,19 @@ void mesh_data_init(
   // Simple uniform rectilinear initialisation
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_ny+1; ++ii) {
-    edgedy[ii] = 10.0 / (global_ny);
+    edgedy[ii] = HEIGHT / (global_ny);
   }
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_ny; ++ii) {
-    celldy[ii] = 10.0 / (global_ny);
+    celldy[ii] = HEIGHT / (global_ny);
   }
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_nx+1; ++ii) {
-    edgedx[ii] = 10.0 / (global_nx);
+    edgedx[ii] = WIDTH / (global_nx);
   }
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_nx; ++ii) {
-    celldx[ii] = 10.0 / (global_nx);
+    celldx[ii] = WIDTH / (global_nx);
   }
 }
 

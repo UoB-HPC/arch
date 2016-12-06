@@ -11,8 +11,8 @@ void initialise_mesh(
   allocate_data(&mesh->edgedy, (mesh->local_ny+1));
   allocate_data(&mesh->celldy, (mesh->local_ny+1));
 
-  mesh->dt = 0.01*MAX_DT;
-  mesh->dt_h = 0.01*MAX_DT;
+  mesh->dt = 0.1*C_T*MAX_DT;
+  mesh->dt_h = 0.1*C_T*MAX_DT;
 
   mesh_data_init(
       mesh->local_nx, mesh->local_ny, mesh->global_nx, mesh->global_ny, 
