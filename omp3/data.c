@@ -23,7 +23,7 @@ void deallocate_data(double* buf)
 }
 
 // Synchronise data
-void sync_data(const int nx, const int ny, double* arr, int send)
+void sync_data(const int len, double* src, double* dst, int send)
 {
   // Don't need to move data with shared memory
 }

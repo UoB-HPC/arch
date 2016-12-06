@@ -39,6 +39,8 @@ typedef struct
   double* vF_x;     // Momentum in the y direction flux in the x direction
   double* vF_y;     // Momentum in the y direction flux in the y direction
 
+  double* reduce_array;
+
 } State;
 
 // Initialises the state variables

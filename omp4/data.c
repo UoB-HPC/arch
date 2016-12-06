@@ -26,13 +26,13 @@ void deallocate_data(double* buf)
 }
 
 // Synchronise data
-void sync_data(const int nx, const int ny, double* arr, int send)
+void sync_data(const int len, double* src, double* dst, int send)
 {
   if(send) {
-#pragma omp target update to(arr[:nx*ny])
+#pragma omp target update to(dst[:len])
   }
   else {
-#pragma omp target update from(arr[:nx*ny])
+#pragma omp target update from(src[:len])
   }
 }
 

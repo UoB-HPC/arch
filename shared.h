@@ -22,7 +22,7 @@ struct Profile comms_profile;
 // Wrappers for data (de)allocation
 void allocate_data(double** buf, size_t len);
 void deallocate_data(double* buf);
-void sync_data(const int nx, const int ny, double* arr, int send);
+void sync_data(const int len, double* src, double* dst, int send);
 
 // Write out data for visualisation in visit
 void write_to_visit(

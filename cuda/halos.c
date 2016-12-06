@@ -1,0 +1,294 @@
+#include "../comms.h"
+#include "../mesh.h"
+
+__global__ void fill_east(
+    const int nx, double* east_buffer_out, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int ii = gid / PAD;
+  const int dd = gid % PAD;
+
+  if(ii < PAD || ii >= ny-PAD) return;
+
+  east_buffer_out[(ii-PAD)*PAD+dd] = arr[(ii*nx)+(nx-2*PAD+dd)]
+}
+
+__global__ void retrieve_east(
+    const int nx, double* east_buffer_in, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int ii = gid / PAD;
+  const int dd = gid % PAD;
+
+  if(ii < PAD || ii >= ny-PAD) return;
+
+  arr[ii*nx + (nx-PAD+dd)] = east_buffer_in[(ii-PAD)*PAD+dd];
+}
+
+__global__ void fill_west(
+    const int nx, double* west_buffer_out, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int ii = gid / PAD;
+  const int dd = gid % PAD;
+
+  if(ii < PAD || ii >= ny-PAD) return;
+
+  west_buffer_out[(ii-PAD)*PAD+dd] = arr[(ii*nx)+(PAD+dd)];
+}
+
+__global__ void retrieve_west(
+    const int nx, double* west_buffer_in, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int ii = gid / PAD;
+  const int dd = gid % PAD;
+
+  if(ii < PAD || ii >= ny-PAD) return;
+
+  arr[ii*nx + dd] = west_buffer_in[(ii-PAD)*PAD+dd];
+}
+
+__global__ void fill_north(
+    const int nx, const int ny, double* north_buffer_out, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int dd = gid / nx;
+  const int jj = gid % nx;
+
+  if(jj < PAD || jj >= nx-PAD) return;
+
+  north_buffer_out[dd*(nx-2*PAD)+(jj-PAD)] = arr[(ny-2*PAD+dd)*nx+jj];
+}
+
+__global__ void retrieve_north(
+    const int nx, const int ny, double* north_buffer_in, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int dd = gid / nx;
+  const int jj = gid % nx;
+
+  if(jj < PAD || jj >= nx-PAD) return;
+
+  arr[(ny-PAD+dd)*nx+jj] = north_buffer_in[dd*(nx-2*PAD)+(jj-PAD)];
+}
+
+__global__ void fill_south(
+    const int nx, const int ny, double* south_buffer_out, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int dd = gid / nx;
+  const int jj = gid % nx;
+
+  if(jj < PAD || jj >= nx-PAD) return;
+
+  south_buffer_out[dd*(nx-2*PAD)+(jj-PAD)] = arr[(PAD+dd)*nx+jj];
+}
+
+__global__ void retrieve_south(
+    const int nx, const int ny, double* south_buffer_in, double* arr)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int dd = gid / nx;
+  const int jj = gid % nx;
+
+  if(jj < PAD || jj >= nx-PAD) return;
+
+  arr[dd*nx + jj] = south_buffer_in[dd*(nx-2*PAD)+(jj-PAD)];
+}
+
+__global__ void north_boundary(
+    const int nx, const int ny, const int y_inversion_coeff, double* arr) 
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int dd = gid / nx;
+  const int jj = gid % nx;
+
+  if(jj < PAD || jj >= nx-PAD) return;
+
+  arr[(ny - PAD + dd)*nx + jj] = y_inversion_coeff*arr[(ny - 1 - PAD - dd)*nx + jj];
+}
+
+__global__ void south_boundary(
+    const int nx, const int ny, const int y_inversion_coeff, double* arr) 
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int dd = gid / nx;
+  const int jj = gid % nx;
+
+  if(jj < PAD || jj >= nx-PAD) return;
+
+  arr[(PAD - 1 - dd)*nx + jj] = y_inversion_coeff*arr[(PAD + dd)*nx + jj];
+}
+
+__global__ void east_boundary(
+    const int nx, const int ny, const int x_inversion_coeff, double* arr) 
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int ii = gid / PAD;
+  const int dd = gid % PAD;
+
+  if(ii < PAD || ii >= ny-PAD) return;
+
+  arr[ii*nx + (nx - PAD + dd)] = x_inversion_coeff*arr[ii*nx + (nx - 1 - PAD - dd)];
+}
+
+__global__ void west_boundary(
+    const int nx, const int ny, const int x_inversion_coeff, double* arr) 
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int ii = gid / PAD;
+  const int dd = gid % PAD;
+
+  if(ii < PAD || ii >= ny-PAD) return;
+
+  arr[ii*nx + (PAD - 1 - dd)] = x_inversion_coeff*arr[ii*nx + (PAD + dd)];
+}
+
+// Enforce reflective boundary conditions on the problem state
+void handle_boundary(
+    const int nx, const int ny, Mesh* mesh, double* arr, 
+    const int invert, const int fill)
+{
+  START_PROFILING(&comms_profile);
+
+  double* north_buffer_out = mesh->north_buffer_out;
+  double* east_buffer_out = mesh->east_buffer_out;
+  double* south_buffer_out = mesh->south_buffer_out;
+  double* west_buffer_out = mesh->west_buffer_out;
+  double* north_buffer_in = mesh->north_buffer_in;
+  double* east_buffer_in = mesh->east_buffer_in;
+  double* south_buffer_in = mesh->south_buffer_in;
+  double* west_buffer_in = mesh->west_buffer_in;
+  int* neighbours = mesh->neighbours;
+
+#ifdef MPI
+  int nmessages = 0;
+  MPI_Request req[2*NNEIGHBOURS];
+#endif
+
+#ifdef MPI
+  if(fill) {
+    // fill east and west
+    if(neighbours[EAST] != EDGE) {
+      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
+      fill_east<<<nthreads_per_block, NBLOCKS>>>(
+          nx, east_buffer_out, arr);
+
+      sync_data(PAD*ny, east_buffer_out, east_buffer_out, RECV);
+
+      MPI_Isend(east_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE, 
+          neighbours[EAST], 2, MPI_COMM_WORLD, &req[nmessages++]);
+      MPI_Irecv(east_buffer_in, (ny-2*PAD)*PAD, MPI_DOUBLE,
+          neighbours[EAST], 3, MPI_COMM_WORLD, &req[nmessages++]);
+    }
+
+    if(neighbours[WEST] != EDGE) {
+      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
+      fill_west<<<nthreads_per_block, NBLOCKS>>>(
+          nx, west_buffer_out, arr);
+
+      sync_data(PAD*ny, west_buffer_out, west_buffer_out, RECV);
+
+      MPI_Isend(west_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE,
+          neighbours[WEST], 3, MPI_COMM_WORLD, &req[nmessages++]);
+      MPI_Irecv(west_buffer_in, (ny-2*PAD)*PAD, MPI_DOUBLE, 
+          neighbours[WEST], 2, MPI_COMM_WORLD, &req[nmessages++]);
+    }
+
+    // fill north and south
+    if(neighbours[NORTH] != EDGE) {
+      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
+      fill_north<<<nthreads_per_block, NBLOCKS>>>(
+          nx, ny, north_buffer_out, arr);
+
+      sync_data(nx*PAD, north_buffer_out, north_buffer_out, RECV);
+
+      MPI_Isend(north_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
+          neighbours[NORTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
+      MPI_Irecv(north_buffer_in, (nx-2*PAD)*PAD, MPI_DOUBLE,
+          neighbours[NORTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
+    }
+
+    if(neighbours[SOUTH] != EDGE) {
+      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
+      fill_south<<<nthreads_per_block, NBLOCKS>>>(
+          nx, ny, south_buffer_out, arr);
+
+      sync_data(nx*PAD, south_buffer_out, south_buffer_out, RECV);
+
+      MPI_Isend(south_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
+          neighbours[SOUTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
+      MPI_Irecv(south_buffer_in, (nx-2*PAD)*PAD, MPI_DOUBLE,
+          neighbours[SOUTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
+    }
+
+    MPI_Waitall(nmessages, req, MPI_STATUSES_IGNORE);
+
+    // Unfill east and west
+    if(neighbours[WEST] != EDGE) {
+      sync_data(PAD*ny, west_buffer_in, west_buffer_in, SEND);
+
+      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
+      retrieve_west<<<nthreads_per_block, NBLOCKS>>>(
+          nx, west_buffer_in, arr);
+    }
+
+    if(neighbours[EAST] != EDGE) {
+      sync_data(PAD*ny, east_buffer_in, east_buffer_in, SEND);
+
+      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
+      retrieve_east<<<nthreads_per_block, NBLOCKS>>>(
+          nx, east_buffer_in, arr);
+    }
+
+    // Unfill north and south
+    if(neighbours[NORTH] != EDGE) {
+      sync_data(nx*PAD, north_buffer_in, north_buffer_in, SEND);
+
+      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
+      retrieve_north<<<nthreads_per_block, NBLOCKS>>>(
+          nx, ny, north_buffer_in, arr);
+    }
+
+    if(neighbours[SOUTH] != EDGE) {
+      sync_data(nx*PAD, south_buffer_in, south_buffer_in, SEND);
+
+      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
+      retrieve_south<<<nthreads_per_block, NBLOCKS>>>(
+          nx, ny, south_buffer_in, arr);
+    }
+  }
+#endif
+
+  // Perform the boundary reflections, potentially with the data updated from neighbours
+  double x_inversion_coeff = (invert == INVERT_X) ? -1.0 : 1.0;
+  double y_inversion_coeff = (invert == INVERT_Y) ? -1.0 : 1.0;
+
+  // Reflect at the north
+  if(neighbours[NORTH] == EDGE) {
+    int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
+    north_boundary<<<nthreads_per_block, NBLOCKS>>>(
+        nx, ny, y_inversion_coeff, arr);
+  }
+  // reflect at the south
+  if(neighbours[SOUTH] == EDGE) {
+    int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
+    south_boundary<<<nthreads_per_block, NBLOCKS>>>(
+        nx, ny, y_inversion_coeff, arr);
+  }
+  // reflect at the east
+  if(neighbours[EAST] == EDGE) {
+    int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
+    east_boundary<<<nthreads_per_block, NBLOCKS>>>(
+        nx, ny, x_inversion_coeff, arr);
+  }
+  // reflect at the west
+  if(neighbours[WEST] == EDGE) {
+    int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
+    west_boundary<<<nthreads_per_block, NBLOCKS>>>(
+        nx, ny, x_inversion_coeff, arr);
+  }
+  STOP_PROFILING(&comms_profile, __func__);
+}
+

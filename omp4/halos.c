@@ -34,7 +34,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(PAD, ny, east_buffer_out, RECV);
+      sync_data(PAD*ny, east_buffer_out, east_buffer_out, RECV);
 
       MPI_Isend(east_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE, 
           neighbours[EAST], 2, MPI_COMM_WORLD, &req[nmessages++]);
@@ -50,7 +50,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(PAD, ny, west_buffer_out, RECV);
+      sync_data(PAD*ny, west_buffer_out, west_buffer_out, RECV);
 
       MPI_Isend(west_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE,
           neighbours[WEST], 3, MPI_COMM_WORLD, &req[nmessages++]);
@@ -67,7 +67,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(nx, PAD, north_buffer_out, RECV);
+      sync_data(nx*PAD, north_buffer_out, north_buffer_out, RECV);
 
       MPI_Isend(north_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
           neighbours[NORTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
@@ -83,7 +83,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(nx, PAD, south_buffer_out, RECV);
+      sync_data(nx*PAD, south_buffer_out, south_buffer_out, RECV);
 
       MPI_Isend(south_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
           neighbours[SOUTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
@@ -95,7 +95,7 @@ void handle_boundary(
 
     // Unpack east and west
     if(neighbours[WEST] != EDGE) {
-      sync_data(PAD, ny, west_buffer_in, SEND);
+      sync_data(PAD*ny, west_buffer_in, west_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int ii = PAD; ii < ny-PAD; ++ii) {
@@ -106,7 +106,7 @@ void handle_boundary(
     }
 
     if(neighbours[EAST] != EDGE) {
-      sync_data(PAD, ny, east_buffer_in, SEND);
+      sync_data(PAD*ny, east_buffer_in, east_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int ii = PAD; ii < ny-PAD; ++ii) {
@@ -118,7 +118,7 @@ void handle_boundary(
 
     // Unpack north and south
     if(neighbours[NORTH] != EDGE) {
-      sync_data(nx, PAD, north_buffer_in, SEND);
+      sync_data(nx*PAD, north_buffer_in, north_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {
@@ -129,7 +129,7 @@ void handle_boundary(
     }
 
     if(neighbours[SOUTH] != EDGE) {
-      sync_data(nx, PAD, south_buffer_in, SEND);
+      sync_data(nx*PAD, south_buffer_in, south_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {
