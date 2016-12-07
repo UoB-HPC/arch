@@ -42,7 +42,7 @@ void initialise_state(
   allocate_data(&state->uF_y, (local_nx+1)*(local_ny+1));
   allocate_data(&state->vF_x, (local_nx+1)*(local_ny+1));
   allocate_data(&state->vF_y, (local_nx+1)*(local_ny+1));
-  allocate_data(&state->min_timesteps, (local_nx+1)*(local_ny+1));
+  allocate_data(&state->reduce_array, (local_nx+1)*(local_ny+1));
 
   state_data_init(
       local_nx, local_ny, global_nx, global_ny, x_off, y_off,

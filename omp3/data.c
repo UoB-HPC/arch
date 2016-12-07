@@ -23,9 +23,10 @@ void deallocate_data(double* buf)
 }
 
 // Synchronise data
-void sync_data(const int len, double* src, double* dst, int send)
+void sync_data(const size_t len, double** src, double** dst, int send)
 {
   // Don't need to move data with shared memory
+  *dst = *src;
 }
 
 // Initialises mesh data in device specific manner

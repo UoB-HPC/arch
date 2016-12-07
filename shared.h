@@ -16,13 +16,13 @@
 enum { RECV, SEND }; // Whether data is sent to/received from device
 
 // Global profile hooks
-struct Profile compute_profile;
-struct Profile comms_profile;
+extern struct Profile compute_profile;
+extern struct Profile comms_profile;
 
 // Wrappers for data (de)allocation
 void allocate_data(double** buf, size_t len);
 void deallocate_data(double* buf);
-void sync_data(const int len, double* src, double* dst, int send);
+void sync_data(const size_t len, double** src, double** dst, int send);
 
 // Write out data for visualisation in visit
 void write_to_visit(

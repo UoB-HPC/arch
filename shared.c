@@ -62,7 +62,8 @@ void write_all_ranks_to_visit(
     const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time)
 {
-  sync_data(local_nx*local_ny, local_arr, local_arr, RECV);
+  double* temp_arr = (double*)malloc(sizeof(double)*local_nx*local_ny);
+  sync_data(local_nx*local_ny, &local_arr, &temp_arr, RECV);
 
   // If MPI is enabled need to collect the data from all 
 #if defined(MPI) && defined(ENABLE_VISIT_DUMPS)
@@ -72,7 +73,7 @@ void write_all_ranks_to_visit(
   if(rank == MASTER) {
     global_arr = (double*)malloc(sizeof(double)*global_nx*global_ny);
     remote_data = (double**)malloc(sizeof(double*)*nranks);
-    remote_data[MASTER] = local_arr;
+    remote_data[MASTER] = temp_arr;
   }
 
   for(int ii = 0; ii < nranks; ++ii) {
@@ -115,12 +116,12 @@ void write_all_ranks_to_visit(
     }
     else if(ii == rank) {
       MPI_Send(&dims, nparams, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
-      MPI_Send(local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, 1, MPI_COMM_WORLD);
+      MPI_Send(temp_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, 1, MPI_COMM_WORLD);
     }
     MPI_Barrier(MPI_COMM_WORLD);
   }
 #else
-  double* global_arr = local_arr;
+  double* global_arr = temp_arr;
 #endif
 
   if(rank == MASTER) {
@@ -130,5 +131,7 @@ void write_all_ranks_to_visit(
 #ifdef MPI
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
+
+  free(temp_arr);
 }
 
