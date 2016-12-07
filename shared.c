@@ -131,7 +131,5 @@ void write_all_ranks_to_visit(
 #ifdef MPI
   MPI_Barrier(MPI_COMM_WORLD);
 #endif
-
-  free(temp_arr);
 }
 
