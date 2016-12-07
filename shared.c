@@ -62,7 +62,7 @@ void write_all_ranks_to_visit(
     const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time)
 {
-  sync_data(local_nx, local_ny, local_arr, RECV);
+  sync_data(local_nx*local_ny, local_arr, local_arr, RECV);
 
   // If MPI is enabled need to collect the data from all 
 #if defined(MPI) && defined(ENABLE_VISIT_DUMPS)
@@ -127,6 +127,8 @@ void write_all_ranks_to_visit(
     write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt, elapsed_sim_time);
   }
 
+#ifdef MPI
   MPI_Barrier(MPI_COMM_WORLD);
+#endif
 }
 

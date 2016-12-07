@@ -1,8 +1,9 @@
 #include "../comms.h"
 #include "../mesh.h"
+#include "config.h"
 
 __global__ void fill_east(
-    const int nx, double* east_buffer_out, double* arr)
+    const int nx, const int ny, double* east_buffer_out, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int ii = gid / PAD;
@@ -10,11 +11,11 @@ __global__ void fill_east(
 
   if(ii < PAD || ii >= ny-PAD) return;
 
-  east_buffer_out[(ii-PAD)*PAD+dd] = arr[(ii*nx)+(nx-2*PAD+dd)]
+  east_buffer_out[(ii-PAD)*PAD+dd] = arr[(ii*nx)+(nx-2*PAD+dd)];
 }
 
 __global__ void retrieve_east(
-    const int nx, double* east_buffer_in, double* arr)
+    const int nx, const int ny, double* east_buffer_in, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int ii = gid / PAD;
@@ -26,7 +27,7 @@ __global__ void retrieve_east(
 }
 
 __global__ void fill_west(
-    const int nx, double* west_buffer_out, double* arr)
+    const int nx, const int ny, double* west_buffer_out, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int ii = gid / PAD;
@@ -38,7 +39,7 @@ __global__ void fill_west(
 }
 
 __global__ void retrieve_west(
-    const int nx, double* west_buffer_in, double* arr)
+    const int nx, const int ny, double* west_buffer_in, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int ii = gid / PAD;
@@ -152,6 +153,7 @@ void handle_boundary(
 {
   START_PROFILING(&comms_profile);
 
+#ifdef MPI
   double* north_buffer_out = mesh->north_buffer_out;
   double* east_buffer_out = mesh->east_buffer_out;
   double* south_buffer_out = mesh->south_buffer_out;
@@ -160,12 +162,12 @@ void handle_boundary(
   double* east_buffer_in = mesh->east_buffer_in;
   double* south_buffer_in = mesh->south_buffer_in;
   double* west_buffer_in = mesh->west_buffer_in;
-  int* neighbours = mesh->neighbours;
 
-#ifdef MPI
   int nmessages = 0;
   MPI_Request req[2*NNEIGHBOURS];
 #endif
+
+  int* neighbours = mesh->neighbours;
 
 #ifdef MPI
   if(fill) {
@@ -173,7 +175,7 @@ void handle_boundary(
     if(neighbours[EAST] != EDGE) {
       int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
       fill_east<<<nthreads_per_block, NBLOCKS>>>(
-          nx, east_buffer_out, arr);
+          nx, ny, east_buffer_out, arr);
 
       sync_data(PAD*ny, east_buffer_out, east_buffer_out, RECV);
 
@@ -186,7 +188,7 @@ void handle_boundary(
     if(neighbours[WEST] != EDGE) {
       int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
       fill_west<<<nthreads_per_block, NBLOCKS>>>(
-          nx, west_buffer_out, arr);
+          nx, ny, west_buffer_out, arr);
 
       sync_data(PAD*ny, west_buffer_out, west_buffer_out, RECV);
 
@@ -231,7 +233,7 @@ void handle_boundary(
 
       int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
       retrieve_west<<<nthreads_per_block, NBLOCKS>>>(
-          nx, west_buffer_in, arr);
+          nx, ny, west_buffer_in, arr);
     }
 
     if(neighbours[EAST] != EDGE) {
@@ -239,7 +241,7 @@ void handle_boundary(
 
       int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
       retrieve_east<<<nthreads_per_block, NBLOCKS>>>(
-          nx, east_buffer_in, arr);
+          nx, ny, east_buffer_in, arr);
     }
 
     // Unfill north and south
