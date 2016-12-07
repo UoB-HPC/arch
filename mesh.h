@@ -8,7 +8,7 @@
 #define MAX_DT 0.04     // The maximum allowed timestep
 #define NNEIGHBOURS 4   // The number of neighbours, as expected from 2d
 
-#define C_T 0.4
+#define C_T 0.3
 
 // Contains all of the data regarding a particular mesh
 typedef struct

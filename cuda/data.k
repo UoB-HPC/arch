@@ -3,30 +3,33 @@ __global__ void mesh_data_init_dx(
     const int nx, const int ny, const int global_nx, const int global_ny,
     double* edgedx, double* edgedy, double* celldx, double* celldy)
 {
-  edgedx[threadIdx.x+blockIdx.x*blockDim.x] = WIDTH / (global_nx);
-  celldx[threadIdx.x+blockIdx.x*blockDim.x] = WIDTH / (global_nx);
+  set_cuda_indices(0);
+  if(ind0 >= nx*ny) return;
+  edgedx[ind0] = WIDTH / (global_nx);
+  celldx[ind0] = WIDTH / (global_nx);
 }
 
 __global__ void mesh_data_init_dy(
     const int nx, const int ny, const int global_nx, const int global_ny,
     double* edgedx, double* edgedy, double* celldx, double* celldy)
 {
-  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
-  edgedy[gid] = HEIGHT / (global_ny);
-  celldy[gid] = HEIGHT / (global_ny);
+  set_cuda_indices(0);
+  if(ind0 >= nx*ny) return;
+  edgedy[ind0] = HEIGHT / (global_ny);
+  celldy[ind0] = HEIGHT / (global_ny);
 }
 
 __global__ void zero_cell_arrays(
     const int nx, const int ny, const int x_off, const int y_off, 
     double* rho, double* e, double* rho_old, double* P)
 {
-  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
-  if(gid >= nx*ny) return;
+  set_cuda_indices(0);
+  if(ind0 >= nx*ny) return;
 
-  rho[gid] = 0.0;
-  e[gid] = 0.0;
-  rho_old[gid] = 0.0;
-  P[gid] = 0.0;
+  rho[ind0] = 0.0;
+  e[ind0] = 0.0;
+  rho_old[ind0] = 0.0;
+  P[ind0] = 0.0;
 }
 
 __global__ void zero_edge_arrays(
@@ -34,33 +37,33 @@ __global__ void zero_edge_arrays(
     double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
     double* uF_x, double* uF_y, double* vF_x, double* vF_y)
 {
-  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
-  if(gid >= (nx+1)*(ny+1)) return;
+  set_cuda_indices(1);
+  if(ind0 >= (nx+1)*(ny+1)) return;
 
-  Qxx[gid] = 0.0;
-  Qyy[gid] = 0.0;
-  x[gid] = 0.0;
-  p[gid] = 0.0;
-  rho_u[gid] = 0.0;
-  rho_v[gid] = 0.0;
-  F_x[gid] = 0.0;
-  F_y[gid] = 0.0;
-  uF_x[gid] = 0.0;
-  uF_y[gid] = 0.0;
-  vF_x[gid] = 0.0;
-  vF_y[gid] = 0.0;
+  Qxx[ind1] = 0.0;
+  Qyy[ind1] = 0.0;
+  x[ind1] = 0.0;
+  p[ind1] = 0.0;
+  rho_u[ind1] = 0.0;
+  rho_v[ind1] = 0.0;
+  F_x[ind1] = 0.0;
+  F_y[ind1] = 0.0;
+  uF_x[ind1] = 0.0;
+  uF_y[ind1] = 0.0;
+  vF_x[ind1] = 0.0;
+  vF_y[ind1] = 0.0;
 }
 
 __global__ void initialise_default_state(
     const int nx, const int ny, 
     double* rho, double* e, double* rho_old, double* x)
 {
-  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
-  if(gid >= nx*ny) return;
+  set_cuda_indices(0);
+  if(ind0 >= nx*ny) return;
 
-  rho[gid] = 0.125;
-  e[gid] = 2.0;
-  x[gid] = rho[gid]*0.1;
+  rho[ind0] = 0.125;
+  e[ind0] = 2.0;
+  x[ind0] = rho[ind0]*0.1;
 }
 
 __global__ void initialise_problem_state(
@@ -69,17 +72,16 @@ __global__ void initialise_problem_state(
     double* rho, double* e, double* rho_old, double* x)
 {
   set_cuda_indices(0);
-
-  if(gid >= nx*ny) return;
+  if(ind0 >= nx*ny) return;
 
   // CENTER SQUARE TEST
   if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
       jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
       ii+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
       ii+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
-    rho[gid] = 1.0;
-    e[gid] = 2.5;
-    x[gid] = rho[ii*nx+jj]*0.1;
+    rho[ind0] = 1.0;
+    e[ind0] = 2.5;
+    x[ind0] = rho[ii*nx+jj]*0.1;
   }
 
 #if 0
