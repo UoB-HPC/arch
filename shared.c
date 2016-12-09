@@ -66,6 +66,11 @@ void write_all_ranks_to_visit(
     const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time)
 {
+#ifdef DEBUG
+  if(rank == MASTER)
+    printf("writing results to visit file %s\n", name);
+#endif
+
   double* temp_arr = (double*)malloc(sizeof(double)*local_nx*local_ny);
   sync_data(local_nx*local_ny, &local_arr, &temp_arr, RECV);
 

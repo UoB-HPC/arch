@@ -20,7 +20,6 @@ void handle_boundary(
 
 #ifdef MPI
   int nmessages = 0;
-  MPI_Request req[2*NNEIGHBOURS];
 #endif
 
 #ifdef MPI
@@ -34,12 +33,9 @@ void handle_boundary(
         }
       }
 
-      sync_data(PAD*ny, east_buffer_out, east_buffer_out, RECV);
-
-      MPI_Isend(east_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[EAST], 2, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(east_buffer_in, (ny-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[EAST], 3, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(PAD*ny, &east_buffer_out, &east_buffer_out, RECV);
+      non_block_send(east_buffer_out, (ny-2*PAD)*PAD, neighbours[EAST], 2, nmessages++);
+      non_block_recv(east_buffer_in, (ny-2*PAD)*PAD, neighbours[EAST], 3, nmessages++);
     }
 
     if(neighbours[WEST] != EDGE) {
@@ -50,12 +46,9 @@ void handle_boundary(
         }
       }
 
-      sync_data(PAD*ny, west_buffer_out, west_buffer_out, RECV);
-
-      MPI_Isend(west_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[WEST], 3, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(west_buffer_in, (ny-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[WEST], 2, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(PAD*ny, &west_buffer_out, &west_buffer_out, RECV);
+      non_block_send(west_buffer_out, (ny-2*PAD)*PAD, neighbours[WEST], 3, nmessages++);
+      non_block_recv(west_buffer_in, (ny-2*PAD)*PAD, neighbours[WEST], 2, nmessages++);
     }
 
     // Pack north and south
@@ -67,13 +60,11 @@ void handle_boundary(
         }
       }
 
-      sync_data(nx*PAD, north_buffer_out, north_buffer_out, RECV);
-
-      MPI_Isend(north_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[NORTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(north_buffer_in, (nx-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[NORTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(nx*PAD, &north_buffer_out, &north_buffer_out, RECV);
+      non_block_send(north_buffer_out, (nx-2*PAD)*PAD, neighbours[NORTH], 1, nmessages++);
+      non_block_recv(north_buffer_in, (nx-2*PAD)*PAD, neighbours[NORTH], 0, nmessages++);
     }
+
 
     if(neighbours[SOUTH] != EDGE) {
 #pragma omp target teams distribute parallel for collapse(2)
@@ -83,19 +74,16 @@ void handle_boundary(
         }
       }
 
-      sync_data(nx*PAD, south_buffer_out, south_buffer_out, RECV);
-
-      MPI_Isend(south_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[SOUTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(south_buffer_in, (nx-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[SOUTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(nx*PAD, &south_buffer_out, &south_buffer_out, RECV);
+      non_block_send(south_buffer_out, (nx-2*PAD)*PAD, neighbours[SOUTH], 0, nmessages++);
+      non_block_recv(south_buffer_in, (nx-2*PAD)*PAD, neighbours[SOUTH], 1, nmessages++);
     }
 
-    MPI_Waitall(nmessages, req, MPI_STATUSES_IGNORE);
+    wait_on_messages(nmessages);
 
     // Unpack east and west
     if(neighbours[WEST] != EDGE) {
-      sync_data(PAD*ny, west_buffer_in, west_buffer_in, SEND);
+      sync_data(PAD*ny, &west_buffer_in, &west_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int ii = PAD; ii < ny-PAD; ++ii) {
@@ -106,7 +94,7 @@ void handle_boundary(
     }
 
     if(neighbours[EAST] != EDGE) {
-      sync_data(PAD*ny, east_buffer_in, east_buffer_in, SEND);
+      sync_data(PAD*ny, &east_buffer_in, &east_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int ii = PAD; ii < ny-PAD; ++ii) {
@@ -118,7 +106,7 @@ void handle_boundary(
 
     // Unpack north and south
     if(neighbours[NORTH] != EDGE) {
-      sync_data(nx*PAD, north_buffer_in, north_buffer_in, SEND);
+      sync_data(nx*PAD, &north_buffer_in, &north_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {
@@ -129,7 +117,7 @@ void handle_boundary(
     }
 
     if(neighbours[SOUTH] != EDGE) {
-      sync_data(nx*PAD, south_buffer_in, south_buffer_in, SEND);
+      sync_data(nx*PAD, &south_buffer_in, &south_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {
