@@ -16,13 +16,20 @@ __device__ void min_reduce_in_shared(
     if (tid < 64) { sdata[tid] = min(sdata[tid], sdata[tid + 64]); } 
     __syncthreads(); 
   }
+  //TODO: WHY THE HELL DO WE NEED THESE DAMN SYNCS?
   if (tid < 32) {
     sdata[tid] = min(sdata[tid], sdata[tid + 32]);
+    __syncthreads();
     sdata[tid] = min(sdata[tid], sdata[tid + 16]);
+    __syncthreads();
     sdata[tid] = min(sdata[tid], sdata[tid + 8]);
+    __syncthreads();
     sdata[tid] = min(sdata[tid], sdata[tid + 4]);
+    __syncthreads();
     sdata[tid] = min(sdata[tid], sdata[tid + 2]);
+    __syncthreads();
     sdata[tid] = min(sdata[tid], sdata[tid + 1]);
+    __syncthreads();
   }
 }
 
@@ -42,6 +49,7 @@ __device__ void sum_reduce_in_shared(
     if (tid < 64) { sdata[tid] += sdata[tid + 64]; } 
     __syncthreads(); 
   }
+  //TODO: WHY THE HELL DO WE NEED THESE DAMN SYNCS?
   if (tid < 32) {
     sdata[tid] += sdata[tid + 32];
     __syncthreads();
