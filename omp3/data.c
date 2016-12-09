@@ -59,7 +59,7 @@ void state_data_init(
     const int x_off, const int y_off,
     double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
     double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
-    double* uF_x, double* uF_y, double* vF_x, double* vF_y)
+    double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
 {
   // Initialise all of the state to 0, but is this best for NUMA?
 //#pragma omp parallel for
@@ -85,6 +85,7 @@ void state_data_init(
     uF_y[ii] = 0.0;
     vF_x[ii] = 0.0;
     vF_y[ii] = 0.0;
+    reduce_array[ii] = 0.0;
   }
 
   // TODO: Improve what follows, make it a somewhat more general problem 
