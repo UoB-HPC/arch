@@ -47,7 +47,7 @@ void mesh_data_init(
 }
 
 // Initialise state data in device specific manner
-void state_data_init(
+void overriden_state_data_init(
     const int nx, const int ny, const int global_nx, const int global_ny,
     const int x_off, const int y_off,
     double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
@@ -80,5 +80,17 @@ void state_data_init(
   initialise_problem_state<<<nblocks, NTHREADS>>>(
       nx, ny, global_nx, global_ny, x_off, y_off, rho, e, rho_old, x);
   gpu_check(cudaDeviceSynchronize());
+}
+
+void state_data_init(
+    const int local_nx, const int local_ny, const int global_nx, const int global_ny,
+    const int x_off, const int y_off,
+    double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
+    double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
+    double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
+{
+  overriden_state_data_init(
+    local_nx, local_ny, global_nx, global_ny, x_off, y_off, rho, e, rho_old, P, Qxx, Qyy,
+    x, p, rho_u, rho_v, F_x, F_y, uF_x, uF_y, vF_x, vF_y, reduce_array);
 }
 

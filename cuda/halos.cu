@@ -21,7 +21,6 @@ void handle_boundary(
   double* west_buffer_in = mesh->west_buffer_in;
 
   int nmessages = 0;
-  MPI_Request req[2*NNEIGHBOURS];
 #endif
 
   int* neighbours = mesh->neighbours;
@@ -34,12 +33,9 @@ void handle_boundary(
       fill_east<<<nblocks, NTHREADS>>>(
           nx, ny, east_buffer_out, arr);
 
-      sync_data(PAD*ny, east_buffer_out, east_buffer_out, RECV);
-
-      MPI_Isend(east_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[EAST], 2, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(east_buffer_in, (ny-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[EAST], 3, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(PAD*ny, &east_buffer_out, &east_buffer_out, RECV);
+      non_block_send(east_buffer_out, (ny-2*PAD)*PAD, neighbours[EAST], 2, nmessages++);
+      non_block_recv(east_buffer_in, (ny-2*PAD)*PAD, neighbours[EAST], 3, nmessages++);
     }
 
     if(neighbours[WEST] != EDGE) {
@@ -47,12 +43,9 @@ void handle_boundary(
       fill_west<<<nblocks, NTHREADS>>>(
           nx, ny, west_buffer_out, arr);
 
-      sync_data(PAD*ny, west_buffer_out, west_buffer_out, RECV);
-
-      MPI_Isend(west_buffer_out, (ny-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[WEST], 3, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(west_buffer_in, (ny-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[WEST], 2, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(PAD*ny, &west_buffer_out, &west_buffer_out, RECV);
+      non_block_send(west_buffer_out, (ny-2*PAD)*PAD, neighbours[WEST], 3, nmessages++);
+      non_block_recv(west_buffer_in, (ny-2*PAD)*PAD, neighbours[WEST], 2, nmessages++);
     }
 
     // fill north and south
@@ -61,12 +54,9 @@ void handle_boundary(
       fill_north<<<nblocks, NTHREADS>>>(
           nx, ny, north_buffer_out, arr);
 
-      sync_data(nx*PAD, north_buffer_out, north_buffer_out, RECV);
-
-      MPI_Isend(north_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[NORTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(north_buffer_in, (nx-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[NORTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(nx*PAD, &north_buffer_out, &north_buffer_out, RECV);
+      non_block_send(north_buffer_out, (nx-2*PAD)*PAD, neighbours[NORTH], 1, nmessages++);
+      non_block_recv(north_buffer_in, (nx-2*PAD)*PAD, neighbours[NORTH], 0, nmessages++);
     }
 
     if(neighbours[SOUTH] != EDGE) {
@@ -74,19 +64,16 @@ void handle_boundary(
       fill_south<<<nblocks, NTHREADS>>>(
           nx, ny, south_buffer_out, arr);
 
-      sync_data(nx*PAD, south_buffer_out, south_buffer_out, RECV);
-
-      MPI_Isend(south_buffer_out, (nx-2*PAD)*PAD, MPI_DOUBLE, 
-          neighbours[SOUTH], 0, MPI_COMM_WORLD, &req[nmessages++]);
-      MPI_Irecv(south_buffer_in, (nx-2*PAD)*PAD, MPI_DOUBLE,
-          neighbours[SOUTH], 1, MPI_COMM_WORLD, &req[nmessages++]);
+      sync_data(nx*PAD, &south_buffer_out, &south_buffer_out, RECV);
+      non_block_send(south_buffer_out, (nx-2*PAD)*PAD, neighbours[SOUTH], 0, nmessages++);
+      non_block_recv(south_buffer_in, (nx-2*PAD)*PAD, neighbours[SOUTH], 1, nmessages++);
     }
 
-    MPI_Waitall(nmessages, req, MPI_STATUSES_IGNORE);
+    wait_on_messages(nmessages);
 
     // Unfill east and west
     if(neighbours[WEST] != EDGE) {
-      sync_data(PAD*ny, west_buffer_in, west_buffer_in, SEND);
+      sync_data(PAD*ny, &west_buffer_in, &west_buffer_in, SEND);
 
       int nblocks = ceil(ny*PAD/(double)NTHREADS);
       retrieve_west<<<nblocks, NTHREADS>>>(
@@ -94,7 +81,7 @@ void handle_boundary(
     }
 
     if(neighbours[EAST] != EDGE) {
-      sync_data(PAD*ny, east_buffer_in, east_buffer_in, SEND);
+      sync_data(PAD*ny, &east_buffer_in, &east_buffer_in, SEND);
 
       int nblocks = ceil(ny*PAD/(double)NTHREADS);
       retrieve_east<<<nblocks, NTHREADS>>>(
@@ -103,7 +90,7 @@ void handle_boundary(
 
     // Unfill north and south
     if(neighbours[NORTH] != EDGE) {
-      sync_data(nx*PAD, north_buffer_in, north_buffer_in, SEND);
+      sync_data(nx*PAD, &north_buffer_in, &north_buffer_in, SEND);
 
       int nblocks = ceil(nx*PAD/(double)NTHREADS);
       retrieve_north<<<nblocks, NTHREADS>>>(
@@ -111,7 +98,7 @@ void handle_boundary(
     }
 
     if(neighbours[SOUTH] != EDGE) {
-      sync_data(nx*PAD, south_buffer_in, south_buffer_in, SEND);
+      sync_data(nx*PAD, &south_buffer_in, &south_buffer_in, SEND);
 
       int nblocks = ceil(nx*PAD/(double)NTHREADS);
       retrieve_south<<<nblocks, NTHREADS>>>(

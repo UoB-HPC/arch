@@ -5,6 +5,10 @@
 #include "mesh.h"
 #include "comms.h"
 
+#ifdef MPI
+#include "mpi.h"
+#endif
+
 struct Profile compute_profile = {0};
 struct Profile comms_profile = {0};
 
@@ -118,7 +122,7 @@ void write_all_ranks_to_visit(
       MPI_Send(&dims, nparams, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
       MPI_Send(temp_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, 1, MPI_COMM_WORLD);
     }
-    MPI_Barrier(MPI_COMM_WORLD);
+    barrier();
   }
 #else
   double* global_arr = temp_arr;
@@ -128,8 +132,6 @@ void write_all_ranks_to_visit(
     write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt, elapsed_sim_time);
   }
 
-#ifdef MPI
-  MPI_Barrier(MPI_COMM_WORLD);
-#endif
+  barrier();
 }
 

@@ -19,6 +19,11 @@ enum { RECV=0, SEND=1 }; // Whether data is sent to/received from device
 extern struct Profile compute_profile;
 extern struct Profile comms_profile;
 
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Wrappers for data (de)allocation
 void allocate_data(double** buf, size_t len);
 void deallocate_data(double* buf);
@@ -36,4 +41,8 @@ void write_all_ranks_to_visit(
     const int local_ny, const int x_off, const int y_off, const int rank, 
     const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time);
+
+#ifdef __cplusplus
+}
+#endif
 

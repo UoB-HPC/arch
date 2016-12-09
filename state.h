@@ -1,7 +1,10 @@
 #pragma once 
 
-#include "state.h"
 #include "mesh.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 // Contains all of the state information for the solver
 typedef struct
@@ -58,4 +61,8 @@ void state_data_init(
 // Deallocate all of the state memory
 void finalise_state(
     State* state);
+
+#ifdef __cplusplus
+}
+#endif
 

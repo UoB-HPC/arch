@@ -10,6 +10,10 @@
 
 #define C_T 0.3
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Contains all of the data regarding a particular mesh
 typedef struct
 {
@@ -63,3 +67,6 @@ void mesh_data_init(
 void finalise_mesh(
     Mesh* mesh);
 
+#ifdef __cplusplus
+}
+#endif

@@ -4,6 +4,16 @@
 #include "shared.h"
 #include "comms.h"
 
+#ifdef MPI
+#include "mpi.h"
+#endif
+
+struct mpi_message_state {
+#ifdef MPI
+  MPI_Request req[2*NNEIGHBOURS];
+#endif
+} msg_state;
+
 void initialise_mpi(
     int argc, char** argv, int* rank, int* nranks)
 {
@@ -38,7 +48,7 @@ void initialise_comms(
 }
 
 #ifdef MPI
-static inline double mpi_all_reduce(
+static inline double all_reduce(
     double local_val, MPI_Op op)
 {
   double global_val = local_val;
@@ -54,7 +64,7 @@ double reduce_all_min(double local_val)
 {
   double global_val = local_val;
 #ifdef MPI
-  global_val = mpi_all_reduce(local_val, MPI_MIN);
+  global_val = all_reduce(local_val, MPI_MIN);
 #endif
   return global_val;
 }
@@ -64,9 +74,56 @@ double reduce_all_sum(double local_val)
 {
   double global_val = local_val;
 #ifdef MPI
-  global_val = mpi_all_reduce(local_val, MPI_SUM);
+  global_val = all_reduce(local_val, MPI_SUM);
 #endif
   return global_val;
+}
+
+// Reduce across ranks into master
+double reduce_to_master(
+    double local_val)
+{
+  double global_val = local_val;
+
+#ifdef MPI
+  MPI_Reduce(&local_val, &global_val, 1, MPI_DOUBLE, MPI_SUM, MASTER, MPI_COMM_WORLD);
+#endif
+
+  return global_val;
+}
+
+// Performs an mpi barrier
+void barrier()
+{
+#ifdef MPI
+  MPI_Barrier(MPI_COMM_WORLD);
+#endif
+}
+
+// Performs a non-blocking mpi send
+void non_block_send(
+    double* buffer_out, const int len, const int to, const int tag, const int req_index) 
+{
+#ifdef MPI
+  MPI_Isend(buffer_out, len, MPI_DOUBLE, to, tag, MPI_COMM_WORLD, &msg_state.req[req_index]);
+#endif
+}
+
+// Performs a non-blocking mpi recv
+void non_block_recv(
+    double* buffer_in, const int len, const int from, const int tag, const int req_index) 
+{
+#ifdef MPI
+  MPI_Irecv(buffer_in, len, MPI_DOUBLE, from, tag, MPI_COMM_WORLD, &msg_state.req[req_index]);
+#endif
+}
+
+// Waits on any queued messages
+void wait_on_messages(const int nmessages)
+{
+#ifdef MPI
+  MPI_Waitall(nmessages, msg_state.req, MPI_STATUSES_IGNORE);
+#endif
 }
 
 // Decomposes the ranks, potentially load balancing and minimising the

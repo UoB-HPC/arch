@@ -17,6 +17,10 @@
 #define PROFILER_MAX_NAME 128
 #define PROFILER_MAX_ENTRIES 2048
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 struct ProfileEntry
 {
     int calls;
@@ -72,4 +76,8 @@ struct ProfileEntry profiler_get_profile_entry(struct Profile* profile, const ch
 
 #endif
 
+#endif
+
+#ifdef __cplusplus
+}
 #endif
