@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include "../cuda/config.h"
+#include "../cuda/shared.h"
 #include "../shared.h"
 #include "../mesh.h"
 #include "data.k"
@@ -33,14 +33,14 @@ void mesh_data_init(
     double* edgedx, double* edgedy, double* celldx, double* celldy)
 {
   // Simple uniform rectilinear initialisation
-  int nthreads_per_block = ceil((nx+1)/(double)NBLOCKS);
-  mesh_data_init_dx<<<nthreads_per_block, NBLOCKS>>>(
+  int nblocks = ceil((nx+1)/(double)NTHREADS);
+  mesh_data_init_dx<<<nblocks, NTHREADS>>>(
       nx, ny, global_nx, global_ny,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
 
-  nthreads_per_block = ceil((ny+1)/(double)NBLOCKS);
-  mesh_data_init_dy<<<nthreads_per_block, NBLOCKS>>>(
+  nblocks = ceil((ny+1)/(double)NTHREADS);
+  mesh_data_init_dy<<<nblocks, NTHREADS>>>(
       nx, ny, global_nx, global_ny,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
@@ -52,32 +52,32 @@ void state_data_init(
     const int x_off, const int y_off,
     double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
     double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
-    double* uF_x, double* uF_y, double* vF_x, double* vF_y)
+    double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
 {
   // TODO: Improve what follows, make it a somewhat more general problem 
   // selection mechanism for some important stock problems
 
-  int nthreads_per_block = ceil(nx*ny/(double)NBLOCKS);
-  zero_cell_arrays<<<nthreads_per_block, NBLOCKS>>>(
+  int nblocks = ceil(nx*ny/(double)NTHREADS);
+  zero_cell_arrays<<<nblocks, NTHREADS>>>(
       nx, ny, x_off, y_off, rho, e, rho_old, P);
   gpu_check(cudaDeviceSynchronize());
 
-  nthreads_per_block = ceil((nx+1)*(ny+1)/(double)NBLOCKS);
-  zero_edge_arrays<<<nthreads_per_block, NBLOCKS>>>(
+  nblocks = ceil((nx+1)*(ny+1)/(double)NTHREADS);
+  zero_edge_arrays<<<nblocks, NTHREADS>>>(
       nx, ny, Qxx, Qyy, x, p, rho_u, rho_v, F_x, F_y,
-      uF_x, uF_y, vF_x, vF_y);
+      uF_x, uF_y, vF_x, vF_y, reduce_array);
   gpu_check(cudaDeviceSynchronize());
 
   // WET STATE INITIALISATION
   // Initialise a default state for the energy and density on the mesh
-  nthreads_per_block = ceil(nx*ny/(double)NBLOCKS);
-  initialise_default_state<<<nthreads_per_block, NBLOCKS>>>(
+  nblocks = ceil(nx*ny/(double)NTHREADS);
+  initialise_default_state<<<nblocks, NTHREADS>>>(
       nx, ny, rho, e, rho_old, x);
   gpu_check(cudaDeviceSynchronize());
 
   // Introduce a problem
-  nthreads_per_block = ceil(nx*ny/(double)NBLOCKS);
-  initialise_problem_state<<<nthreads_per_block, NBLOCKS>>>(
+  nblocks = ceil(nx*ny/(double)NTHREADS);
+  initialise_problem_state<<<nblocks, NTHREADS>>>(
       nx, ny, global_nx, global_ny, x_off, y_off, rho, e, rho_old, x);
   gpu_check(cudaDeviceSynchronize());
 }

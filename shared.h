@@ -13,7 +13,7 @@
 #define absmin(a, b) ((fabs(a) < fabs(b)) ? (a) : (b))
 #define minmod(a, b) (samesign(a, b) ? (absmin(a, b)) : (0.0))
 
-enum { RECV, SEND }; // Whether data is sent to/received from device
+enum { RECV=0, SEND=1 }; // Whether data is sent to/received from device
 
 // Global profile hooks
 extern struct Profile compute_profile;

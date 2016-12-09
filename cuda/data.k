@@ -35,7 +35,7 @@ __global__ void zero_cell_arrays(
 __global__ void zero_edge_arrays(
     const int nx, const int ny, double* Qxx, double* Qyy, double* x, 
     double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
-    double* uF_x, double* uF_y, double* vF_x, double* vF_y)
+    double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
 {
   set_cuda_indices(1);
   if(ind0 >= (nx+1)*(ny+1)) return;
@@ -52,6 +52,7 @@ __global__ void zero_edge_arrays(
   uF_y[ind1] = 0.0;
   vF_x[ind1] = 0.0;
   vF_y[ind1] = 0.0;
+  reduce_array[ind1] = 0.0;
 }
 
 __global__ void initialise_default_state(

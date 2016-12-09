@@ -1,7 +1,7 @@
 #include "../comms.h"
 #include "../mesh.h"
 #include "halos.k"
-#include "config.h"
+#include "shared.h"
 
 // Enforce reflective boundary conditions on the problem state
 void handle_boundary(
@@ -30,8 +30,8 @@ void handle_boundary(
   if(fill) {
     // fill east and west
     if(neighbours[EAST] != EDGE) {
-      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
-      fill_east<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(ny*PAD/(double)NTHREADS);
+      fill_east<<<nblocks, NTHREADS>>>(
           nx, ny, east_buffer_out, arr);
 
       sync_data(PAD*ny, east_buffer_out, east_buffer_out, RECV);
@@ -43,8 +43,8 @@ void handle_boundary(
     }
 
     if(neighbours[WEST] != EDGE) {
-      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
-      fill_west<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(ny*PAD/(double)NTHREADS);
+      fill_west<<<nblocks, NTHREADS>>>(
           nx, ny, west_buffer_out, arr);
 
       sync_data(PAD*ny, west_buffer_out, west_buffer_out, RECV);
@@ -57,8 +57,8 @@ void handle_boundary(
 
     // fill north and south
     if(neighbours[NORTH] != EDGE) {
-      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
-      fill_north<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(nx*PAD/(double)NTHREADS);
+      fill_north<<<nblocks, NTHREADS>>>(
           nx, ny, north_buffer_out, arr);
 
       sync_data(nx*PAD, north_buffer_out, north_buffer_out, RECV);
@@ -70,8 +70,8 @@ void handle_boundary(
     }
 
     if(neighbours[SOUTH] != EDGE) {
-      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
-      fill_south<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(nx*PAD/(double)NTHREADS);
+      fill_south<<<nblocks, NTHREADS>>>(
           nx, ny, south_buffer_out, arr);
 
       sync_data(nx*PAD, south_buffer_out, south_buffer_out, RECV);
@@ -88,16 +88,16 @@ void handle_boundary(
     if(neighbours[WEST] != EDGE) {
       sync_data(PAD*ny, west_buffer_in, west_buffer_in, SEND);
 
-      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
-      retrieve_west<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(ny*PAD/(double)NTHREADS);
+      retrieve_west<<<nblocks, NTHREADS>>>(
           nx, ny, west_buffer_in, arr);
     }
 
     if(neighbours[EAST] != EDGE) {
       sync_data(PAD*ny, east_buffer_in, east_buffer_in, SEND);
 
-      int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
-      retrieve_east<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(ny*PAD/(double)NTHREADS);
+      retrieve_east<<<nblocks, NTHREADS>>>(
           nx, ny, east_buffer_in, arr);
     }
 
@@ -105,16 +105,16 @@ void handle_boundary(
     if(neighbours[NORTH] != EDGE) {
       sync_data(nx*PAD, north_buffer_in, north_buffer_in, SEND);
 
-      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
-      retrieve_north<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(nx*PAD/(double)NTHREADS);
+      retrieve_north<<<nblocks, NTHREADS>>>(
           nx, ny, north_buffer_in, arr);
     }
 
     if(neighbours[SOUTH] != EDGE) {
       sync_data(nx*PAD, south_buffer_in, south_buffer_in, SEND);
 
-      int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
-      retrieve_south<<<nthreads_per_block, NBLOCKS>>>(
+      int nblocks = ceil(nx*PAD/(double)NTHREADS);
+      retrieve_south<<<nblocks, NTHREADS>>>(
           nx, ny, south_buffer_in, arr);
     }
   }
@@ -126,26 +126,26 @@ void handle_boundary(
 
   // Reflect at the north
   if(neighbours[NORTH] == EDGE) {
-    int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
-    north_boundary<<<nthreads_per_block, NBLOCKS>>>(
+    int nblocks = ceil(nx*PAD/(double)NTHREADS);
+    north_boundary<<<nblocks, NTHREADS>>>(
         nx, ny, y_inversion_coeff, arr);
   }
   // reflect at the south
   if(neighbours[SOUTH] == EDGE) {
-    int nthreads_per_block = ceil(nx*PAD/(double)NBLOCKS);
-    south_boundary<<<nthreads_per_block, NBLOCKS>>>(
+    int nblocks = ceil(nx*PAD/(double)NTHREADS);
+    south_boundary<<<nblocks, NTHREADS>>>(
         nx, ny, y_inversion_coeff, arr);
   }
   // reflect at the east
   if(neighbours[EAST] == EDGE) {
-    int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
-    east_boundary<<<nthreads_per_block, NBLOCKS>>>(
+    int nblocks = ceil(ny*PAD/(double)NTHREADS);
+    east_boundary<<<nblocks, NTHREADS>>>(
         nx, ny, x_inversion_coeff, arr);
   }
   // reflect at the west
   if(neighbours[WEST] == EDGE) {
-    int nthreads_per_block = ceil(ny*PAD/(double)NBLOCKS);
-    west_boundary<<<nthreads_per_block, NBLOCKS>>>(
+    int nblocks = ceil(ny*PAD/(double)NTHREADS);
+    west_boundary<<<nblocks, NTHREADS>>>(
         nx, ny, x_inversion_coeff, arr);
   }
   STOP_PROFILING(&comms_profile, __func__);

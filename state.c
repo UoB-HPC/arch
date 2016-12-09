@@ -48,7 +48,7 @@ void initialise_state(
       local_nx, local_ny, global_nx, global_ny, x_off, y_off,
       state->rho, state->e, state->rho_old, state->P, state->Qxx, state->Qyy,
       state->x, state->p, state->rho_u, state->rho_v, state->F_x, state->F_y,
-      state->uF_x, state->uF_y, state->vF_x, state->vF_y);
+      state->uF_x, state->uF_y, state->vF_x, state->vF_y, state->reduce_array);
 }
 
 // Deallocate all of the state memory

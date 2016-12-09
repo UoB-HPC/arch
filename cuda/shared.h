@@ -2,7 +2,7 @@
 
 #include <stdio.h>
 
-#define NBLOCKS 128
+#define NTHREADS 128
 
 #define set_cuda_indices(padx) \
   const int gid = threadIdx.x+blockIdx.x*blockDim.x; \
@@ -22,4 +22,9 @@ inline void gpu_assert(cudaError_t code, const char *file, int line, bool abort=
     if (abort) exit(code);
   }
 }
+
+void finish_min_reduce(
+    int nblocks1, double* reduce_array, double* result);
+void finish_sum_reduce(
+    int nblocks1, double* reduce_array, double* result);
 
