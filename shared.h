@@ -28,7 +28,9 @@ extern "C" {
 
   // Wrappers for data (de)allocation
   void allocate_data(double** buf, size_t len);
+  void allocate_host_data(double** buf, size_t len);
   void deallocate_data(double* buf);
+  void deallocate_host_data(double* buf);
   void sync_data(const size_t len, double** src, double** dst, int send);
 
   // Write out data for visualisation in visit

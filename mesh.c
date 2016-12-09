@@ -25,6 +25,14 @@ void initialise_mesh(
   allocate_data(&mesh->east_buffer_in, (mesh->local_ny+1)*PAD);
   allocate_data(&mesh->south_buffer_in, (mesh->local_nx+1)*PAD);
   allocate_data(&mesh->west_buffer_in, (mesh->local_ny+1)*PAD);
+  allocate_host_data(&mesh->h_north_buffer_out, (mesh->local_nx+1)*PAD);
+  allocate_host_data(&mesh->h_east_buffer_out, (mesh->local_ny+1)*PAD);
+  allocate_host_data(&mesh->h_south_buffer_out, (mesh->local_nx+1)*PAD);
+  allocate_host_data(&mesh->h_west_buffer_out, (mesh->local_ny+1)*PAD);
+  allocate_host_data(&mesh->h_north_buffer_in, (mesh->local_nx+1)*PAD);
+  allocate_host_data(&mesh->h_east_buffer_in, (mesh->local_ny+1)*PAD);
+  allocate_host_data(&mesh->h_south_buffer_in, (mesh->local_nx+1)*PAD);
+  allocate_host_data(&mesh->h_west_buffer_in, (mesh->local_ny+1)*PAD);
 }
 
 // Deallocate all of the mesh memory

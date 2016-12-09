@@ -8,23 +8,47 @@
 // Allocates some double precision data
 void allocate_data(double** buf, const size_t len)
 {
-  gpu_check(cudaMalloc((void**)buf, sizeof(double)*len));
+  gpu_check(
+      cudaMalloc((void**)buf, sizeof(double)*len));
+}
+
+// Allocates some double precision data
+void allocate_host_data(double** buf, const size_t len)
+{
+#ifdef INTEL
+  *buf = (double*)_mm_malloc(sizeof(double)*len, VEC_ALIGN);
+#else
+  *buf = (double*)malloc(sizeof(double)*len);
+#endif
 }
 
 // Allocates a data array
 void deallocate_data(double* buf)
 {
-  gpu_check(cudaFree(buf));
+  gpu_check(
+      cudaFree(buf));
+}
+
+// Allocates a data array
+void deallocate_host_data(double* buf)
+{
+#ifdef INTEL
+  _mm_free(buf);
+#else
+  free(buf);
+#endif
 }
 
 // Synchronise data
 void sync_data(const size_t len, double** src, double** dst, int send)
 {
   if(send) {
-    gpu_check(cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyHostToDevice));
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyHostToDevice));
   }
   else {
-    gpu_check(cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyDeviceToHost));
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyDeviceToHost));
   }
 }
 

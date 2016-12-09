@@ -53,6 +53,16 @@ typedef struct
   double* south_buffer_in;
   double* west_buffer_in;
 
+  // Host copies of buffers for MPI communication
+  // Note that these are only allocated when the model requires them, e.g. CUDA
+  double* h_north_buffer_out;
+  double* h_east_buffer_out;
+  double* h_south_buffer_out;
+  double* h_west_buffer_out;
+  double* h_north_buffer_in;
+  double* h_east_buffer_in;
+  double* h_south_buffer_in;
+  double* h_west_buffer_in;
 } Mesh;
 
 // Initialises the mesh

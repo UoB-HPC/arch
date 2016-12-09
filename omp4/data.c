@@ -10,9 +10,12 @@ void allocate_data(double** buf, size_t len)
 #else
   *buf = (double*)malloc(sizeof(double)*len);
 #endif
+}
 
-  double* b = *buf;
-#pragma omp target enter data map(to: b[:len])
+// Allocates some double precision data on the host
+void allocate_host_data(double** buf, size_t len)
+{
+  // Not necessary as pointers don't need duplication with OpenMP 4
 }
 
 // Allocates a data array
@@ -23,6 +26,12 @@ void deallocate_data(double* buf)
 #else
   free(buf);
 #endif
+}
+
+// Allocates a data array
+void deallocate_host_data(double* buf)
+{
+  // Not necessary as pointers don't need duplication with OpenMP 4
 }
 
 // Synchronise data

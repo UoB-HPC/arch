@@ -12,6 +12,12 @@ void allocate_data(double** buf, size_t len)
 #endif
 }
 
+// Allocates a host copy of some buffer
+void allocate_host_data(double** buf, size_t len)
+{
+  // Not necessary as host-only
+}
+
 // Allocates a data array
 void deallocate_data(double* buf)
 {
@@ -20,6 +26,12 @@ void deallocate_data(double* buf)
 #else
   free(buf);
 #endif
+}
+
+// Allocates a data array
+void deallocate_host_data(double* buf)
+{
+  // Not necessary as host-only
 }
 
 // Synchronise data

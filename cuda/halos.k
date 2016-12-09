@@ -1,14 +1,14 @@
 
-__global__ void fill_east(
+__global__ void prepare_east(
     const int nx, const int ny, double* east_buffer_out, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int ii = gid / PAD;
   const int dd = gid % PAD;
 
-  if(ii < PAD || ii >= ny-PAD) return;
-
-  east_buffer_out[(ii-PAD)*PAD+dd] = arr[(ii*nx)+(nx-2*PAD+dd)];
+  if(gid < ny*PAD && ii >= PAD && ii < ny-PAD) {
+    east_buffer_out[gid] = arr[(ii*nx)+(nx-2*PAD+dd)];
+  }
 }
 
 __global__ void retrieve_east(
@@ -18,21 +18,21 @@ __global__ void retrieve_east(
   const int ii = gid / PAD;
   const int dd = gid % PAD;
 
-  if(ii < PAD || ii >= ny-PAD) return;
-
-  arr[ii*nx + (nx-PAD+dd)] = east_buffer_in[(ii-PAD)*PAD+dd];
+  if(gid < ny*PAD && ii >= PAD && ii < ny-PAD) {
+    arr[ii*nx + (nx-PAD+dd)] = east_buffer_in[gid];
+  }
 }
 
-__global__ void fill_west(
+__global__ void prepare_west(
     const int nx, const int ny, double* west_buffer_out, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int ii = gid / PAD;
   const int dd = gid % PAD;
 
-  if(ii < PAD || ii >= ny-PAD) return;
-
-  west_buffer_out[(ii-PAD)*PAD+dd] = arr[(ii*nx)+(PAD+dd)];
+  if(gid < ny*PAD && ii >= PAD && ii < ny-PAD) {
+    west_buffer_out[gid] = arr[(ii*nx)+(PAD+dd)];
+  }
 }
 
 __global__ void retrieve_west(
@@ -42,21 +42,21 @@ __global__ void retrieve_west(
   const int ii = gid / PAD;
   const int dd = gid % PAD;
 
-  if(ii < PAD || ii >= ny-PAD) return;
-
-  arr[ii*nx + dd] = west_buffer_in[(ii-PAD)*PAD+dd];
+  if(gid < ny*PAD && ii >= PAD && ii < ny-PAD) {
+    arr[ii*nx + dd] = west_buffer_in[gid];
+  }
 }
 
-__global__ void fill_north(
+__global__ void prepare_north(
     const int nx, const int ny, double* north_buffer_out, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int dd = gid / nx;
   const int jj = gid % nx;
 
-  if(jj < PAD || jj >= nx-PAD) return;
-
-  north_buffer_out[dd*(nx-2*PAD)+(jj-PAD)] = arr[(ny-2*PAD+dd)*nx+jj];
+  if(gid < nx*PAD && jj >= PAD && jj < nx-PAD) {
+    north_buffer_out[gid] = arr[(ny-2*PAD+dd)*nx+jj];
+  }
 }
 
 __global__ void retrieve_north(
@@ -66,21 +66,21 @@ __global__ void retrieve_north(
   const int dd = gid / nx;
   const int jj = gid % nx;
 
-  if(jj < PAD || jj >= nx-PAD) return;
-
-  arr[(ny-PAD+dd)*nx+jj] = north_buffer_in[dd*(nx-2*PAD)+(jj-PAD)];
+  if(gid < nx*PAD && jj >= PAD && jj < nx-PAD) {
+    arr[(ny-PAD+dd)*nx+jj] = north_buffer_in[gid];
+  }
 }
 
-__global__ void fill_south(
+__global__ void prepare_south(
     const int nx, const int ny, double* south_buffer_out, double* arr)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int dd = gid / nx;
   const int jj = gid % nx;
 
-  if(jj < PAD || jj >= nx-PAD) return;
-
-  south_buffer_out[dd*(nx-2*PAD)+(jj-PAD)] = arr[(PAD+dd)*nx+jj];
+  if(gid < nx*PAD && jj >= PAD && jj < nx-PAD) {
+    south_buffer_out[gid] = arr[(PAD+dd)*nx+jj];
+  }
 }
 
 __global__ void retrieve_south(
@@ -90,9 +90,9 @@ __global__ void retrieve_south(
   const int dd = gid / nx;
   const int jj = gid % nx;
 
-  if(jj < PAD || jj >= nx-PAD) return;
-
-  arr[dd*nx + jj] = south_buffer_in[dd*(nx-2*PAD)+(jj-PAD)];
+  if(gid < nx*PAD && jj >= PAD && jj < nx-PAD) {
+    arr[dd*nx + jj] = south_buffer_in[gid];
+  }
 }
 
 __global__ void north_boundary(
@@ -102,9 +102,9 @@ __global__ void north_boundary(
   const int dd = gid / nx;
   const int jj = gid % nx;
 
-  if(jj < PAD || jj >= nx-PAD) return;
-
-  arr[(ny - PAD + dd)*nx + jj] = y_inversion_coeff*arr[(ny - 1 - PAD - dd)*nx + jj];
+  if(gid < nx*PAD && jj >= PAD && jj < nx-PAD) {
+    arr[(ny - PAD + dd)*nx + jj] = y_inversion_coeff*arr[(ny - 1 - PAD - dd)*nx + jj];
+  }
 }
 
 __global__ void south_boundary(
@@ -114,9 +114,9 @@ __global__ void south_boundary(
   const int dd = gid / nx;
   const int jj = gid % nx;
 
-  if(jj < PAD || jj >= nx-PAD) return;
-
-  arr[(PAD - 1 - dd)*nx + jj] = y_inversion_coeff*arr[(PAD + dd)*nx + jj];
+  if(gid < nx*PAD && jj >= PAD && jj < nx-PAD) {
+    arr[(PAD - 1 - dd)*nx + jj] = y_inversion_coeff*arr[(PAD + dd)*nx + jj];
+  }
 }
 
 __global__ void east_boundary(
@@ -126,9 +126,9 @@ __global__ void east_boundary(
   const int ii = gid / PAD;
   const int dd = gid % PAD;
 
-  if(ii < PAD || ii >= ny-PAD) return;
-
-  arr[ii*nx + (nx - PAD + dd)] = x_inversion_coeff*arr[ii*nx + (nx - 1 - PAD - dd)];
+  if(gid < ny*PAD && ii >= PAD && ii < ny-PAD) {
+    arr[ii*nx + (nx - PAD + dd)] = x_inversion_coeff*arr[ii*nx + (nx - 1 - PAD - dd)];
+  }
 }
 
 __global__ void west_boundary(
@@ -138,8 +138,8 @@ __global__ void west_boundary(
   const int ii = gid / PAD;
   const int dd = gid % PAD;
 
-  if(ii < PAD || ii >= ny-PAD) return;
-
-  arr[ii*nx + (PAD - 1 - dd)] = x_inversion_coeff*arr[ii*nx + (PAD + dd)];
+  if(gid < ny*PAD && ii >= PAD && ii < ny-PAD) {
+    arr[ii*nx + (PAD - 1 - dd)] = x_inversion_coeff*arr[ii*nx + (PAD + dd)];
+  }
 }
 
