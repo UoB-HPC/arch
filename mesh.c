@@ -1,6 +1,5 @@
 #include "shared.h"
 #include "mesh.h"
-#include "comms.h"
 
 // Initialise the mesh describing variables
 void initialise_mesh(
@@ -18,14 +17,14 @@ void initialise_mesh(
       mesh->local_nx, mesh->local_ny, mesh->global_nx, mesh->global_ny, 
       mesh->edgedx, mesh->edgedy, mesh->celldx, mesh->celldy);
 
-  allocate_data(&mesh->north_buffer_out, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->east_buffer_out, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->south_buffer_out, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->west_buffer_out, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->north_buffer_in, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->east_buffer_in, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->south_buffer_in, (mesh->local_nx+1)*PAD*NVARS_TO_COMM);
-  allocate_data(&mesh->west_buffer_in, (mesh->local_ny+1)*PAD*NVARS_TO_COMM);
+  allocate_data(&mesh->north_buffer_out, (mesh->local_nx+1)*PAD);
+  allocate_data(&mesh->east_buffer_out, (mesh->local_ny+1)*PAD);
+  allocate_data(&mesh->south_buffer_out, (mesh->local_nx+1)*PAD);
+  allocate_data(&mesh->west_buffer_out, (mesh->local_ny+1)*PAD);
+  allocate_data(&mesh->north_buffer_in, (mesh->local_nx+1)*PAD);
+  allocate_data(&mesh->east_buffer_in, (mesh->local_ny+1)*PAD);
+  allocate_data(&mesh->south_buffer_in, (mesh->local_nx+1)*PAD);
+  allocate_data(&mesh->west_buffer_in, (mesh->local_ny+1)*PAD);
 }
 
 // Deallocate all of the mesh memory
