@@ -22,9 +22,9 @@ void handle_boundary(
       prepare_east<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->east_buffer_out, arr);
 
-      sync_data((ny-2*PAD)*PAD, &mesh->east_buffer_out, &mesh->h_east_buffer_out, RECV);
-      non_block_send(mesh->h_east_buffer_out, (ny-2*PAD)*PAD, neighbours[EAST], 2, nmessages++);
-      non_block_recv(mesh->h_east_buffer_in, (ny-2*PAD)*PAD, neighbours[EAST], 3, nmessages++);
+      sync_data(ny*PAD, &mesh->east_buffer_out, &mesh->h_east_buffer_out, RECV);
+      non_block_send(mesh->h_east_buffer_out, ny*PAD, neighbours[EAST], 2, nmessages++);
+      non_block_recv(mesh->h_east_buffer_in, ny*PAD, neighbours[EAST], 3, nmessages++);
     }
 
     if(neighbours[WEST] != EDGE) {
@@ -32,9 +32,9 @@ void handle_boundary(
       prepare_west<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->west_buffer_out, arr);
 
-      sync_data((ny-2*PAD)*PAD, &mesh->west_buffer_out, &mesh->h_west_buffer_out, RECV);
-      non_block_send(mesh->h_west_buffer_out, (ny-2*PAD)*PAD, neighbours[WEST], 3, nmessages++);
-      non_block_recv(mesh->h_west_buffer_in, (ny-2*PAD)*PAD, neighbours[WEST], 2, nmessages++);
+      sync_data(ny*PAD, &mesh->west_buffer_out, &mesh->h_west_buffer_out, RECV);
+      non_block_send(mesh->h_west_buffer_out, ny*PAD, neighbours[WEST], 3, nmessages++);
+      non_block_recv(mesh->h_west_buffer_in, ny*PAD, neighbours[WEST], 2, nmessages++);
     }
 
     // prepare north and south
@@ -43,9 +43,9 @@ void handle_boundary(
       prepare_north<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->north_buffer_out, arr);
 
-      sync_data((nx-2*PAD)*PAD, &mesh->north_buffer_out, &mesh->h_north_buffer_out, RECV);
-      non_block_send(mesh->h_north_buffer_out, (nx-2*PAD)*PAD, neighbours[NORTH], 1, nmessages++);
-      non_block_recv(mesh->h_north_buffer_in, (nx-2*PAD)*PAD, neighbours[NORTH], 0, nmessages++);
+      sync_data(nx*PAD, &mesh->north_buffer_out, &mesh->h_north_buffer_out, RECV);
+      non_block_send(mesh->h_north_buffer_out, nx*PAD, neighbours[NORTH], 1, nmessages++);
+      non_block_recv(mesh->h_north_buffer_in, nx*PAD, neighbours[NORTH], 0, nmessages++);
     }
 
     if(neighbours[SOUTH] != EDGE) {
@@ -53,16 +53,16 @@ void handle_boundary(
       prepare_south<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->south_buffer_out, arr);
 
-      sync_data((nx-2*PAD)*PAD, &mesh->south_buffer_out, &mesh->h_south_buffer_out, RECV);
-      non_block_send(mesh->h_south_buffer_out, (nx-2*PAD)*PAD, neighbours[SOUTH], 0, nmessages++);
-      non_block_recv(mesh->h_south_buffer_in, (nx-2*PAD)*PAD, neighbours[SOUTH], 1, nmessages++);
+      sync_data(nx*PAD, &mesh->south_buffer_out, &mesh->h_south_buffer_out, RECV);
+      non_block_send(mesh->h_south_buffer_out, nx*PAD, neighbours[SOUTH], 0, nmessages++);
+      non_block_recv(mesh->h_south_buffer_in, nx*PAD, neighbours[SOUTH], 1, nmessages++);
     }
 
     wait_on_messages(nmessages);
 
     // Unprepare east and west
     if(neighbours[WEST] != EDGE) {
-      sync_data((ny-2*PAD)*PAD, &mesh->h_west_buffer_in, &mesh->west_buffer_in, SEND);
+      sync_data(ny*PAD, &mesh->h_west_buffer_in, &mesh->west_buffer_in, SEND);
 
       int nblocks = ceil(ny*PAD/(double)NTHREADS);
       retrieve_west<<<nblocks, NTHREADS>>>(
@@ -70,7 +70,7 @@ void handle_boundary(
     }
 
     if(neighbours[EAST] != EDGE) {
-      sync_data((ny-2*PAD)*PAD, &mesh->h_east_buffer_in, &mesh->east_buffer_in, SEND);
+      sync_data(ny*PAD, &mesh->h_east_buffer_in, &mesh->east_buffer_in, SEND);
 
       int nblocks = ceil(ny*PAD/(double)NTHREADS);
       retrieve_east<<<nblocks, NTHREADS>>>(
@@ -79,7 +79,7 @@ void handle_boundary(
 
     // Unprepare north and south
     if(neighbours[NORTH] != EDGE) {
-      sync_data((nx-2*PAD)*PAD, &mesh->h_north_buffer_in, &mesh->north_buffer_in, SEND);
+      sync_data(nx*PAD, &mesh->h_north_buffer_in, &mesh->north_buffer_in, SEND);
 
       int nblocks = ceil(nx*PAD/(double)NTHREADS);
       retrieve_north<<<nblocks, NTHREADS>>>(
@@ -87,7 +87,7 @@ void handle_boundary(
     }
 
     if(neighbours[SOUTH] != EDGE) {
-      sync_data((nx-2*PAD)*PAD, &mesh->h_south_buffer_in, &mesh->south_buffer_in, SEND);
+      sync_data(nx*PAD, &mesh->h_south_buffer_in, &mesh->south_buffer_in, SEND);
 
       int nblocks = ceil(nx*PAD/(double)NTHREADS);
       retrieve_south<<<nblocks, NTHREADS>>>(
@@ -125,5 +125,7 @@ void handle_boundary(
         nx, ny, x_inversion_coeff, arr);
   }
   STOP_PROFILING(&comms_profile, __func__);
+
+  gpu_check(cudaDeviceSynchronize());
 }
 
