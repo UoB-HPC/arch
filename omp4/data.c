@@ -10,6 +10,9 @@ void allocate_data(double** buf, size_t len)
 #else
   *buf = (double*)malloc(sizeof(double)*len);
 #endif
+
+  double* local_buf = *buf;
+#pragma omp target enter data map(to: local_buf[:len])
 }
 
 // Allocates some double precision data on the host
