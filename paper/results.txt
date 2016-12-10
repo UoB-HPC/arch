@@ -1,0 +1,73 @@
+
+WET - 5000x5000 for 50 iterations
+
+CPU - Haswell 44 core
+1 node - 9.42s
+2 node - 4.92s
+3 node - 3.30s
+4 node - 2.43s
+
+GPU - CUDA K20X
+1 node - 7.45s
+2 node - 3.85s
+3 node - 2.71s
+4 node - 2.04s
+
+GPU - OMP4 K20X
+1 node - 7.92s
+2 node - 4.12s
+3 node - 2.91s
+4 node - 2.13s
+
+GPU - CUDA K40 on CS STORM
+1 GPU on node - 6.65s
+2 GPU on node - 4.81s
+4 GPU on node - 2.79s
+8 GPU on node - 1.90s
+
+GPU - OMP4 K40 on CS STORM
+1 GPU on node - 7.68s
+2 GPU on node - 5.58s
+4 GPU on node - 3.18s
+8 GPU on node - 2.05s
+
+HOT - 5000x5000 for 50 iterations - with max iters capped to 100
+
+CPU - Haswell 44 core
+1 node - 113.72s
+2 node - 58.27s
+3 node - 38.94s
+4 node - 27.64s
+
+GPU - CUDA K20X
+1 node - 85.04s
+2 node - 44.16s
+3 node - 31.08s
+4 node - 23.52s
+
+GPU - OMP4 K20X
+1 node - 109.67s
+2 node - 53.47s
+3 node - 37.19s
+4 node - 27.90s
+
+HOT'N'WET - 5000x5000 for 50 iterations
+
+CPU - Haswell 44 core
+1 node - 123.33s
+2 node - 63.03s
+3 node - 42.37s
+4 node - 30.14s
+
+GPU - CUDA K20X     NOTE: some piss poor results here, check the profiles
+1 node - 92.41s
+2 node - 47.98s
+3 node - 33.77s
+4 node - 25.56s
+
+GPU - OMP4 K20X
+1 node - 117.87s
+2 node - 57.73s
+3 node - 38.70s
+4 node - 29.20s
+
