@@ -7,10 +7,11 @@ from operator import itemgetter
 
 applications = [ 'Hot', 'Wet', 'Hot n Wet', 'Ideal' ]
 labels = [ '1 node', '2 nodes', '3 nodes', '4 nodes' ]
-results = [[1.914634146, 2.854545455, 3.87654321 ],
-[1.951604599, 2.920390344, 4.114327062 ],
-[ 1.956687292, 2.910785933, 4.091904446 ],
-[2, 3, 4]]
+results = [
+[1.935064935, 2.749077491, 3.651960784],
+[1.925724638, 2.736164736, 3.615646259],
+[1.926010838, 2.736452473, 3.614000782],
+[2,3,4]]
 
 icons = [ 'o', 'v', 's', '>', 'p' ]
 label_column = 0
@@ -39,7 +40,7 @@ def Program():
             ncol=4, fancybox=True, shadow=False, prop={'size':12})
 
     ax.grid(zorder=0)
-    plt.title('Performance of Packages Independently and Coupled')
+    plt.title('Performance of Packages Independently and Coupled on NVIDIA K20X')
     plt.ylabel('Speedup (x)', fontsize=12)
     plt.show()
 

@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  10 DEC 2016 23:00
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  11 DEC 2016 18:18
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -264,34 +264,58 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 ) [1
 
 
-{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}]
-Underfull \vbox (badness 1102) has occurred while \output is active []
+{/usr/local/texlive/2015/texmf-var/fonts/map/pdftex/updmap/pdftex.map}] [2]
 
- [2]
-[3] [4] [5] [6] [7] (./multi.bbl
+LaTeX Warning: Citation `Asanovic2006' on page 3 undefined on input line 112.
+
+[3] [4] [5] [6] [7] <hot-wet-flow.png, id=32, 216.5691pt x 67.6929pt>
+File: hot-wet-flow.png Graphic file (type png)
+
+<use hot-wet-flow.png>
+Package pdftex.def Info: hot-wet-flow.png used on input line 219.
+(pdftex.def)             Requested size: 347.12354pt x 108.50296pt.
+ [8 <./hot-wet-flow.png>]
+<cpu_results.png, id=38, 668.99937pt x 331.2375pt>
+File: cpu_results.png Graphic file (type png)
+ <use cpu_results.png>
+Package pdftex.def Info: cpu_results.png used on input line 236.
+(pdftex.def)             Requested size: 356.28294pt x 176.407pt.
+
+Overfull \hbox (9.15941pt too wide) in paragraph at lines 236--237
+ [][] 
+ []
+
+[9 <./cpu_results.png>] <all-four-flow.png, id=43, 278.9622pt x 114.4275pt>
+File: all-four-flow.png Graphic file (type png)
+
+<use all-four-flow.png>
+Package pdftex.def Info: all-four-flow.png used on input line 259.
+(pdftex.def)             Requested size: 347.12354pt x 142.39845pt.
+ [10 <./all-four-flow.png>] (./multi.bbl
 
 LaTeX Warning: Empty `thebibliography' environment on input line 24.
 
-) [8] (./multi.aux) ) 
+) [11] (./multi.aux) ) 
 Here is how much of TeX's memory you used:
- 2285 strings out of 493089
- 30549 string characters out of 6134841
- 96702 words of memory out of 5000000
- 5741 multiletter control sequences out of 15000+600000
- 10434 words of font info for 41 fonts, out of 8000000 for 9000
+ 2312 strings out of 493089
+ 30998 string characters out of 6134841
+ 96735 words of memory out of 5000000
+ 5762 multiletter control sequences out of 15000+600000
+ 11138 words of font info for 43 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 37i,5n,26p,890b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2015/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmbx10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmbx9.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfont
-s/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/
-cm/cmr9.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/
-cmtt9.pfb>
-Output written on multi.pdf (8 pages, 113471 bytes).
+ 37i,7n,26p,890b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/am
+sfonts/cm/cmbx10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/ams
+fonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsf
+onts/cm/cmbx9.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfon
+ts/cm/cmbxti10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfo
+nts/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfont
+s/cm/cmr9.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/c
+m/cmtt9.pfb>
+Output written on multi.pdf (11 pages, 233281 bytes).
 PDF statistics:
- 55 PDF objects out of 1000 (max. 8388607)
- 38 compressed objects within 1 object stream
+ 75 PDF objects out of 1000 (max. 8388607)
+ 48 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 16 words of extra memory for PDF output out of 10000 (max. 10000000)
 

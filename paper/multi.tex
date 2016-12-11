@@ -32,14 +32,14 @@
 \mainmatter  % start of an individual contribution
 
 % first the title is needed
-\title{The Performance of Mini-Apps on Modern Supercomputing Resources}
+\title{On the Dominance of Performance Characteristics in Highly Parallel HPC Packages}
 
 % a short form should be given in case it is too long for the running head
-\titlerunning{The Performance of Mini-Apps}
+\titlerunning{Composing the Dwarfs}
 
 \author{Matt Martineau \and Simon McIntosh-Smith}
 %
-\authorrunning{The Performance of Mini-Apps}
+\authorrunning{Composing the Dwarfs}
 
 % the affiliations are given next; don't give your e-mail address
 % unless you accept that it will be published
@@ -60,12 +60,10 @@
 
 
 \begin{abstract}
-%\emph{abstract} environment.
-  In this paper we introduce a new pair of mini-apps, Hot and Wet, which solve heat diffusion and hydrodynamics. The applications have been developed in order to test the implications of executing multiple diverse algorithms in sequence. 
+  In this paper we discuss the composition of parallel packages, and how this affects performance on highly parallel supercomputing hardware. We introduce four new mini-apps, Fast, Hot, Wet, and Bright, which perform a parallel FFT, solve heat diffusion and hydrodynamics, and track neutral particles. The mini-apps represent four of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together.
 
-  Although much research has been performed that evaluates the performance profile of those applications categorised under the seven dwarves, we feel it is important to consider the coupling of such algorithms and how this might affect performance and scaling on modern supercomputing resources. Using the simplest methods that we could find that gave accurate results and representative performance profiles, we have developed three new mini-apps, Hot, Wet and Bright, which work across a structured mesh and have been written such that they can be coupled together in order to perform studies on their performance as a multi-physics application.
+  Although much research has been performed that evaluates the performance profile of the seven Dwargs, production applications rarely utilise only a single package in solving a scientific problem. We present a motivational comparison of the Dwarfs, considering the theoretical impact of coupling them together. Following this we present performance results of coupling several new mini-apps together and using them to solve test problems on modern hardware including Intel Xeon Broadwell, Xeon Phi, IBM Power8, NVIDIA Kepler, and NVIDIA Pascal.
 
-  We briefly discuss the individual applications, and then how they were coupled, before we explain the performance issues that we encountered and develop upon future work that will be required in order to achieve optimal implementations of the multi-physics application as a total unit (AWKWARD).
 \keywords{performance portability,mini-apps,high performance computing,openmp 4}
 \end{abstract}
 
@@ -85,7 +83,7 @@ It is considered an onerous and complicated task to program GPUs and until recen
 
 Many of our findings and discussions have been limited to individual applications which have, in general, performed well on modern hardware, and with modern parallel programming models. However, they do not represent that true form of large-scale scientific applications, in that they are isolated instances of algorithms that have do not represent the multi-application hierarchies that scientists are truly interested in seeing results for.
 
-Our intention is to use our new suite of applications, individually to expose performance optimisations for their respective algorithms, and as part of a coupled multi-physics system, in order to demonstrate the additional problems that arise when you aggregate applications in a realistic manner.
+Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominantn performance characteristics when combining multiple applications as would be seen in a common scientific production application. We have attempted to make the mini-apps general, but have been careful to ensure that they capture the desired performance profiles of their proxied applications.
 
 \section{Contributions}
 
@@ -100,7 +98,7 @@ As part of this research and throughout this paper we present a number of contri
 
   \item We present the results of running those applications at scale, on those same devices.
 
-    \item We present early results for running the full multi-physics simulation at scale.
+    \item We present early results for running the Hot and Wet mini-apps coupled together into a single multi-package application.
 \end{itemize}
 
 \section{Background}
@@ -108,6 +106,40 @@ As part of this research and throughout this paper we present a number of contri
 In this section we will present some basic details about each application, in order to make clear what each application is intended to simulate. Our intention was to choose the simplest methods possible, whilst achieving a reasonable level of accuracy, and in particuler focused upon capturing the performance profile of their respective classes of algorithms.
 
 In order to give a clear discussion, we will explain the initial development of each application prior to discussing our efforts to couple them together. This means that we will explain how each application was optimally developed, but with the caveat that this would likely have to change once coupling was required. We did not particularly consider the coupling up-front, instead opting to choose the best strategy for each application in isolation, maximising the potential outcomes of the coupling exercise.
+
+\subsection{Composition of Dwarfs}
+
+When considering the coupling of parallel algorithms, there is the potential to consider any number of existing packages. In this research we have chosen to continue on from the work discussed by Asanovic et al. \cite{Asanovic2006}, who outlined a number of Dwarfs, each of which describes a different computational class that features in modern supercomputing applications. They continue to describe an additional 6 Dwarfs, but this paper will only investigate the original seven.
+
+Each of the Dwarfs has a unique set of computational and communicational characteristics that mean that they have different requirements of modern computing hardware. While many of those characteristics have been analysed and optimised heavily on existing architectures, we hope to uncover the extent to which those classes can co-exist within an application. At this stage we will re-iterate that that the majority of production applications that solve significant scientific problems will require packages encompassing a number of the classes described by the Dwarfs.
+
+The classes described by the Dwarfs are broad, and they encapsulate a subset of possible performance characteristics, which may be present in other Dwarfs. We hope to discover which is of those characteristics is most important, in the context of parallel performance on modern hardware, by considering the Structured Grid, Monte Carlo, Sparse Linear Algebra, and Spectral Methods Dwarfs. In particular, we consider four applications of those classes, hydrodynamics (Wet), neutral particle tracking (Bright), implicit heat diffusion (Hot), and the Fast Fourier Transform (Fast).
+
+Some of the most important performance characteristics of those particular applications are listed in Table \ref{tab:perf-char-mini-apps}.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{cccccc}
+      \hline
+      \textbf{Property} & \textbf{Hot} & \textbf{Wet} & \textbf{Fast} & \textbf{Bright} \\
+      \hline
+      \textit{\textbf{Nearest Neighbour}} & Yes & Yes & No & No \\
+      \textit{\textbf{Dynamic Locality}} & No & No & No & Yes \\
+      \textit{\textbf{Inner Iterations}} & Yes & No & No & No \\
+      \textit{\textbf{Iterative}} & No & No & No & Yes \\
+      \textit{\textbf{Mesh-based}} & Yes & Yes & Yes & Yes \\
+    \end{tabular}
+  \end{center}
+  \caption{Performance characteristics of the four mini-apps.}
+  \label{tab:perf-char-mini-apps}
+\end{table}
+
+Our intention is to investigate how the computational and communicational profiles of those applications interact with eachother. Prior to discussing the coupling stage and performance evaluations, we will describe the individual applications and how they are developed.
+
+
+
+\subsection{Fast}
+
 
 \subsection{Hot - Heat Conduction via a CG Solver}
 
@@ -149,6 +181,9 @@ Of course, all of this requires a sufficient random number generator with a larg
 
 Each of the applications was parallelised and tuned in isolation, firstly to target the CPU, and then to target other heterogeneous devices, such as NVIDIA GPUs. In all cases we used MPI + OpenMP 4.5, and MPI + CUDA. This introduced additional effort in the process, but allowed us to make some commentary about the ability for each of the programming models to support the requirements of the applications.
 
+\subsection{Fast}
+
+
 \subsection{Hot}
 
 The algorithm does not expose any load imbalance, and the MPI communication was simply nearest neighbour halo exchanges, performed after each timestep. As each of the core kernels is essentially a simple linear algebra method, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
@@ -177,7 +212,16 @@ As this application is developed by computer scientists and primarily focusses u
 
 We could see two different approaches to coupling the applications, the first of which involves directly coupling their constituent equations and solving the whole system at once. This approach has two important drawbacks: (1) the complexity of this approach is significant, especially considering that we plan to extend this project into a suite of seven algorithms, and (2) boiling the algorithms under a single solve wouldn't capture the potential difficulties of executing diverse routines together.
 
-Given this, our choice of applications allows for a simple coupling stage that requires very little scientific knowledge to achieve a reasonable, albeit inaccurate, outcome. The inputs of the hydro package are density and energy, and momentum in each dimension, while the inputs for the diffusion package are density and temperature. As such we performed a simple conversion between internal energy and temperature between the packages, and ran them sequentially.
+Given this, our choice of applications allows for a simple coupling stage that requires very little scientific knowledge to achieve a reasonable, albeit inaccurate, outcome. Although some variations of all four mini-apps (Hot, Wet, Fast, and Bright) exist, this research presents the results of coupling Hot and Wet together. We chose to start with those applications as they have similar communication patterns but significantly different computational profiles (SOMETHING STRONGER?). The inputs of the hydro package are density and energy, and momentum in each dimension, while the inputs for the diffusion package are density and temperature. As such we performed a simple conversion between internal energy and temperature between the packages, and ran them sequentially.
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\linewidth]{hot-wet-flow}
+\caption{The flow of our coupled Hot and Wet applications.}
+\label{fig:hot-wet-flow}
+\end{figure}
+
+Figure \ref{fig:hot-wet-flow} demonstrates the current coupling, as well as the prospective coupling we plan to extend this work to accommodate. 
 
 \section{Asynchronicity Among Packages}
 
@@ -187,11 +231,39 @@ Modern hardware presents a number of challenges and some important opportunities
 
 As we are presenting two applications that have been developed from scratch, we provide some simple scaling studies to demonstrate that each application performs to an acceptable level. This data gives us some baseline for comparison as we consider the applications within a multi-algorithmic execution setting.
 
+\begin{figure}
+\centering
+\includegraphics[height=6.2cm]{cpu_results}
+\caption{}
+\label{fig:example}
+\end{figure}
 
+\section{Patterns Inhibiting Performance for Multi-Package Applications}
+
+Although both Hot and Wet combined together successfully, our research has uncovered a number of areas that we recognise will inhibit the performance of multi-package applications. In fact, it is possible to categorise those issues:
+
+\begin{itemize}
+  \item \textbf{Dynamic Meshes} - In the event that mesh data has to move between applications, there is significant potential.
+  \item \textbf{Competing Decompositions} - It is possible that different packages within an application might require different decompositions for optimal performance.
+  \item \textbf{Capacity Requirements} - As you increase the number of packages that are 
+\end{itemize}
+
+We hope that our future research can extend the results of this paper to begin to understand the issues we hypthesise here.
+
+\section{Future Couplings}
+
+We believe that it will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven dwarves of parallel programming. There are many possible combinations that can occur within a multi-package applications depending on the requirements of the particular scientific question being solved. It is possible to consider many potential 
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\linewidth]{all-four-flow}
+\caption{The flow of a prospective multi-package application.}
+\label{fig:multi-package-flow}
+\end{figure}
 
 \section{Future Work}
 
-We believe that it will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven dwarves of parallel programming. We further recognise that there are many requirements not handled by our existing applications, such as three-dimensional solves, multiple materials, and complex unstructured geometries.
+We further recognise that there are many requirements not handled by our existing applications, such as three-dimensional solves, multiple materials, and complex unstructured geometries. Each of these has a significant influence on the performance of individual algorithms, and likely introduces new issues for coupling packages together. As such it will be essential to consider new mini-apps that can proxy those particular features and consider their performance on new hardware.
 
 \section{Related Work}
 
