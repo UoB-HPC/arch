@@ -6,13 +6,13 @@ import numpy as np
 from operator import itemgetter
 
 applications = [ 'Hot', 'Wet', 'Hot n Wet', 'Ideal' ]
-labels = [ '1 node', '2 nodes', '3 nodes', '4 nodes' ]
-results = [[1.914634146, 2.854545455, 3.87654321 ],
-[1.951604599, 2.920390344, 4.114327062 ],
-[ 1.956687292, 2.910785933, 4.091904446 ],
-[2, 3, 4]]
+labels = [ '2 GPU', '3 GPU', '4 GPU', '5 GPU', '6 GPU', '7 GPU', '8 GPU' ]
+results = [[1.466813348, 1.755926251, 2.567394095, 2.808988764, 3.352891869, 3.659652333, 4.509582864],
+        [1.382536383, 1.641975309, 2.383512545, 2.57751938, 2.942477876, 3.325, 3.5],
+        [0.929809544, 0.88963964, 0.830387004, 0.809878844, 0.758554469, 0.766043724, 0.700693437],
+        [2, 3, 4, 5, 6, 7, 8]]
 
-icons = [ 'o', 'v', 's', '>', 'p' ]
+icons = [ 'o-', 'v-', 's-', '>-', 'p-' ]
 label_column = 0
 header_row = 0
 result_columns = [ 1, 2, 3 ]
@@ -24,13 +24,15 @@ def Program():
     fig, ax = plt.subplots(facecolor='white')
 
     for rr in range(0, len(results)):
-        x = np.arange(1, len(labels))
-        plt.plot(x, results[rr], label=labels[rr])
+        x = np.arange(0, len(labels))
+        print x
+        print results[rr]
+        plt.plot(x, results[rr], icons[rr], label=applications[rr], ms=8.0)
 
     ind = range(0, len(labels))
     locs, xlabels = plt.xticks(ind, labels, fontsize=11, rotation=90)
     plt.setp(xlabels, rotation=45)
-    ax.set_xlim([1, len(labels)-1])
+    #ax.set_xlim([1, len(labels)-1])
     #ax.set_ylim([0, 100])
 
     handles,axlabels=ax.get_legend_handles_labels()

@@ -1,38 +1,48 @@
 \relax 
-\@writefile{toc}{\contentsline {title}{On the Dominance of Performance Characteristics in Highly Parallel HPC Packages}{1}}
+\@writefile{toc}{\contentsline {title}{Composing Parallel Science Packages and the Dominance of Performance Characteristics}{1}}
 \@writefile{toc}{\authcount {2}}
 \@writefile{toc}{\contentsline {author}{Matt Martineau \and Simon McIntosh-Smith}{1}}
+\@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.1}The Use of Mini-Apps to Optimise for Modern Architectures}{1}}
 \citation{Asanovic2006}
-\@writefile{toc}{\contentsline {section}{\numberline {1}Contributions}{3}}
-\@writefile{toc}{\contentsline {section}{\numberline {2}Background}{3}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.1}Composition of Dwarfs}{3}}
-\citation{}
+\@writefile{toc}{\contentsline {subsection}{\numberline {1.2}Extending the Single Mini-App Focus}{2}}
+\citation{Asanovic2006}
+\@writefile{toc}{\contentsline {section}{\numberline {2}Contributions}{3}}
+\@writefile{toc}{\contentsline {section}{\numberline {3}Background}{3}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Composition of Dwarfs}{3}}
 \@writefile{lot}{\contentsline {table}{\numberline {1}{\ignorespaces Performance characteristics of the four mini-apps.}}{4}}
 \newlabel{tab:perf-char-mini-apps}{{1}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.2}Fast}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.3}Hot - Heat Conduction via a CG Solver}{4}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.4}Wet - Fluid Dynamic via Direct Lagrangian-Eulerian Flux Calculations}{5}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {2.5}Bright - Monte Carlo Particle Transport}{5}}
 \citation{}
-\@writefile{toc}{\contentsline {section}{\numberline {3}Parallelisation}{6}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.1}Fast}{7}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Hot}{7}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Wet}{7}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Bright}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {4}Motivation}{7}}
-\@writefile{toc}{\contentsline {section}{\numberline {5}Coupling}{8}}
-\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The flow of our coupled Hot and Wet applications.}}{8}}
-\newlabel{fig:hot-wet-flow}{{1}{8}}
-\@writefile{toc}{\contentsline {section}{\numberline {6}Asynchronicity Among Packages}{9}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Application Scaling}{9}}
-\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces }}{9}}
-\newlabel{fig:example}{{2}{9}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Patterns Inhibiting Performance for Multi-Package Applications}{9}}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Future Couplings}{10}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The flow of a prospective multi-package application.}}{10}}
-\newlabel{fig:multi-package-flow}{{3}{10}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Future Work}{10}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.2}Fast - Fast Fourier Transform for Poisson's Equation}{5}}
+\@writefile{toc}{\contentsline {subsubsection}{Parallelisation}{5}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.3}Hot - Heat Conduction via a CG Solver}{5}}
+\@writefile{toc}{\contentsline {subsubsection}{Parallelisation}{6}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.4}Wet - Fluid Dynamic via Direct Lagrangian-Eulerian Flux Calculations}{6}}
+\citation{}
+\@writefile{toc}{\contentsline {subsubsection}{Parallelisation}{7}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {3.5}Bright - Monte Carlo Particle Transport}{7}}
+\@writefile{toc}{\contentsline {subsubsection}{Parallelisation}{8}}
+\@writefile{toc}{\contentsline {section}{\numberline {4}Coupling}{8}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The flow of our coupled Hot and Wet applications.}}{9}}
+\newlabel{fig:hot-wet-flow}{{1}{9}}
+\@writefile{toc}{\contentsline {section}{\numberline {5}Asynchronicity Among Packages}{9}}
+\@writefile{toc}{\contentsline {section}{\numberline {6}Results}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.1}Experimental Setup}{9}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.2}Hot'n'Wet}{9}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces Scaling the paired applications on multiple nodes of 44 core Broadwell CPU.}}{10}}
+\newlabel{fig:scaling-hot-wet-broadwell}{{2}{10}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Scaling the paired applications on a CS STORM node containing 8 NVIDIA K40 GPUs.}}{11}}
+\newlabel{fig:scaling-hot-wet-storm}{{3}{11}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Fast'n'Hot or Wet'n'Fast}{11}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Conflict Resolution}{11}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Patterns Affecting Performance for Multi-Package Applications}{11}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {9.1}Diminishing Scalability for Increasing Core Counts}{12}}
+\newlabel{sec:scalability-inhibit}{{9.1}{12}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Future Couplings}{12}}
 \bibstyle{IEEEtran}
 \bibdata{IEEEabrv,multi}
-\@writefile{toc}{\contentsline {section}{\numberline {11}Related Work}{11}}
-\@writefile{toc}{\contentsline {section}{\numberline {12}Conclusion}{11}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The flow of a prospective multi-package application.}}{13}}
+\newlabel{fig:multi-package-flow}{{4}{13}}
+\@writefile{toc}{\contentsline {section}{\numberline {11}Future Work}{13}}
+\@writefile{toc}{\contentsline {section}{\numberline {12}Related Work}{13}}
+\@writefile{toc}{\contentsline {section}{\numberline {13}Conclusion}{13}}

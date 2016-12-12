@@ -19,8 +19,11 @@
 \documentclass[runningheads,a4paper]{llncs}
 
 \usepackage{amssymb}
+\usepackage{amsmath}
 \setcounter{tocdepth}{3}
 \usepackage{graphicx}
+
+\DeclareMathOperator{\fft}{fft}
 
 \usepackage{url}
 \urldef{\mailsa}\path|{m.martineau,cssnmis}@bristol.ac.uk|    
@@ -32,7 +35,7 @@
 \mainmatter  % start of an individual contribution
 
 % first the title is needed
-\title{On the Dominance of Performance Characteristics in Highly Parallel HPC Packages}
+\title{Composing Parallel Science Packages and the Dominance of Performance Characteristics}
 
 % a short form should be given in case it is too long for the running head
 \titlerunning{Composing the Dwarfs}
@@ -62,43 +65,51 @@
 \begin{abstract}
   In this paper we discuss the composition of parallel packages, and how this affects performance on highly parallel supercomputing hardware. We introduce four new mini-apps, Fast, Hot, Wet, and Bright, which perform a parallel FFT, solve heat diffusion and hydrodynamics, and track neutral particles. The mini-apps represent four of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together.
 
-  Although much research has been performed that evaluates the performance profile of the seven Dwargs, production applications rarely utilise only a single package in solving a scientific problem. We present a motivational comparison of the Dwarfs, considering the theoretical impact of coupling them together. Following this we present performance results of coupling several new mini-apps together and using them to solve test problems on modern hardware including Intel Xeon Broadwell, Xeon Phi, IBM Power8, NVIDIA Kepler, and NVIDIA Pascal.
+  Although much research has been performed that evaluates the performance profile of the seven Dwarfs, production applications rarely utilise only a single package for solving a scientific problem. We start by presenting a motivational comparison of the Dwarfs, considering their invidual performance characteristics and which of those characteristics are dominant. Following this we present performance results of coupling Hot, Wet, and Fast together, using them to solve test problems on modern hardware including Intel Xeon Broadwell, Xeon Phi, IBM Power8, NVIDIA Kepler, and NVIDIA Pascal.
+
+  The paper ends with a discussion of some of the most important performance issues that we can forsee when coupling applications together, motivating a whole stream of future work in the area.
 
 \keywords{performance portability,mini-apps,high performance computing,openmp 4}
 \end{abstract}
 
-Modern supercomputing has reached a scale where the core counts at the node level are increasingly significantly each year, and this has major implications for writing portable and performant code. In particular, many of the largest supercomputers in the world include heterogeneous devices, such as accelerators, which greatly increase the core count, and require that significant data-parallelism is exposed within scientific application's algorithms in order to perform well.
+\section{Introduction}
 
-Accelerator devices like the Intel Xeon Phi processors, have greater numbers of cores than existing Intel CPUs, for instance the Knights Landing has between 64 and 72, each with 4 hardware threads, whereas the Intel Xeon Broadwell can have up to 22 cores per socket, with less chance that the 2 available hyperthreads will help performance for HPC applications. The IBM POWER8 CPU also exposes a large core count, with up to 12 cores per socket and 8 hardware threads for a total of 192 (DOUBLE CHECK THIS) threads in total.
+A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers. Some context of the challenges currently faced by the community is important to demonstrate the motivation of this paper. 
 
-Extending the discussion to GPGPUs, NVIDIA's Tesla K40 devices have 15 streaming multi-processors (SMX), each of which support 192 processing elements, for a total of 2880 CUDA cores. While those cores aren't not cores in the traditional sense, given that instructions are issued to warps which operate in lock-step, it is clear that a great deal of parallelism needs to be exposed in order to target them. More recently, NVIDIA released the Tesla P100, which has increased the number of SMXs to 56 and decreased the number of processing elements in each to 64 (two warps), for a total of 3584 CUDA cores in total.
+\subsection{The Use of Mini-Apps to Optimise for Modern Architectures}
 
-Of course, this continual increase in the number of cores available on a node has major implications for the scalability of codes, and this is amplified by the increasing number of nodes that are hosting those devices. 
-
-Our previous work has shown that there are issues with scaling many scientific applications past a certain point, regardless of their node-level performance, as communication becomes the limiting factor. It would appear that we are reaching a stage where the scalability of applications demands that the highly parallel nodes are programmed using shared memory programming, in order to reduce the number of independent ranks that need communication. 
-
-The benefit of GPUs is that they offer good performance and can handle significant portions of a problem and require no partitioning within the devices. More recently supercomputing resources have started to include multiple accelerator devices on a single node, and this offers the opportunity for programmers to exploit massive node-level parallelism to improve the scalability of applications. Of course this requires that there is some suitably performant method for communicating within a node. The upcoming NVLINK technology that will be distributed by NVIDIA is intended to provide fast communications between the GPUs on a node and quite improved performance compared to PCIe when communicating with the host CPU. Our expectation is that if this technology can be used to its full extent, it should offer great potential improvements to the scalability of HPC applications. 
+It is simply not possible 
 
 It is considered an onerous and complicated task to program GPUs and until recently there has been little traction within the community to port existing large-scale applications, even though some of the largest supercomputers in the world, for instance Titan, include both CPUs and GPUs. We have shown in our previous research that GPUs can be programmed effectively, in most cases, using existing programming models. We have shown that productivity can be an important deciding factor in the choice of programming model, and further showed that directive-based models can offer a highly productive interface, that can be portable given good implementations, whilst not significantly sacrificing performance.
 
-Many of our findings and discussions have been limited to individual applications which have, in general, performed well on modern hardware, and with modern parallel programming models. However, they do not represent that true form of large-scale scientific applications, in that they are isolated instances of algorithms that have do not represent the multi-application hierarchies that scientists are truly interested in seeing results for.
+\subsection{Extending the Single Mini-App Focus}
 
-Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominantn performance characteristics when combining multiple applications as would be seen in a common scientific production application. We have attempted to make the mini-apps general, but have been careful to ensure that they capture the desired performance profiles of their proxied applications.
+This paper is a window into a set of work that is attempting to extend the success of mini-apps for evaluating modern architectures and programming environments. Our hope is that we can begin to capture the features of production scientific codes that have been yet unexplored. 
+
+
+Much of the mini-app optimisation focus has been limited to individual applications which have, in general, performed well on modern hardware, using a range modern parallel programming models. Up until this point the individual mini-apps have failed to capture some important aspects of large-scale scientific applications, in that they are isolated instances of algorithms that do not encapsulate the multi-package hierarchies that scientists are truly interested in seeing results for.
+
+We recognise that many of the issues we discuss or uncover will have been discovered by application developers attempting to combine multiple packages together in the past. However, it is essential to the relevance of results obtained by mini-apps that those features are considered.
+
+In order to limit our focus to the most important algorithms that might be encountered within scientific production codes, we will follow the seven Dwarfs of parallel programming. In the 2006 View from Berkely paper \cite{Asanovic2006}, a number of important classes of parallel algorithm were discussed and categoried as computation Dwarfs. Each of the Dwarfs exposes a diverse computational and communicational pattern and can encompass many of the algorithms you are likely to see in production scientific applications.  
+
+Their paper eluded to the necessity for those Dwarfs to be composed together and investigated as coupled application. Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominant performance characteristics when combining multiple packages, as would be seen in a common scientific production application. Each mini-app represents on of a subset of the Dwarfs, and each was developed to ensure they are general, with great care taken to ensure that they capture the desired performance profiles of their proxied applications.
 
 \section{Contributions}
 
-As part of this research and throughout this paper we present a number of contributions:
+This research is primarily focussed upon discussing the implication of composing a subset of the parallel application Dwarfs, and we present a number of important contributions in order to support the discussion:
 
 \begin{itemize}
-    \item We have developed three new mini-apps that serve as proxy applications for important scientific algorithms. A heat conduction application, a fluid dynamics application, and a Monte Carlo Particle Transport application.
+  \item We have developed four mini-apps that serve as proxy applications for important scientific algorithms. An FFT solver for Poisson equations (Fast), a heat conduction application (Hot), a fluid dynamics application (Wet), and a Monte Carlo Particle Transport application (Bright).
 
-\item We demonstrate our approach to coupling those applications, both physically and in terms of the computer science aspects including mesh decomposition strategies.
+\item We present results for those algorithms in isolation on modern supercomputing devices: an NVIDIA Tesla P100, an Intel Xeon Phi Knights Landing processor, an IBM POWER8 CPU, and a Intel Xeon Broadwell.
 
-\item We present results for those algorithms in isolation on modern supercomputing devices: a NVIDIA Tesla P100, an Intel Xeon Phi Knights Landing processor, an IBM POWER8 CPU, and a Intel Xeon Broadwell.
+\item We naively couple the Hot, Wet, and Fast mini-apps together to demonstrate their composed performance profiles.
 
-  \item We present the results of running those applications at scale, on those same devices.
+  \item We present the results of running those applications independently and composed at scale.
 
-    \item We present early results for running the Hot and Wet mini-apps coupled together into a single multi-package application.
+    \item We offer some insights into the issues and opportunities that might be experienced when composing algorithms that goes beyond the scope of our current experiments.
+
 \end{itemize}
 
 \section{Background}
@@ -136,10 +147,30 @@ Some of the most important performance characteristics of those particular appli
 
 Our intention is to investigate how the computational and communicational profiles of those applications interact with eachother. Prior to discussing the coupling stage and performance evaluations, we will describe the individual applications and how they are developed.
 
+We can pre-emptively assess some of the likely effects that running multiple mini-apps at once might observe. For instance, we would expect that there could be an impact on cache utilisation, and a generally increased memory footprint, while some state could be shared potentially improving the overall performance. It is also possible that data structure between the individual applications will require some form of transformation, which we expect to have a major influence on performance. Aside from harming the performance overall, we are hopeful that there will be opportunities to exploit overlapping in some cases, and hide the cost of expensive operations.
 
+\subsection{Fast - Fast Fourier Transform for Poisson's Equation}
 
-\subsection{Fast}
+Later in the paper we will see that there are certain dominant characteristics of packages or algorithms that can have a major impact on the overall perforamce of an application. 
 
+The fast fourier transform (FFT) is an important algorithm to a number of scientific and engineering domains, and the literature is extensive on optimising for parallel execution. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation using an FFT.
+
+The mini-app is flexible and can use a hand-rolled algorithm for the actual FFT and inverse FFT steps, but also provides an option to use the optimised Intel MKL library version of the FFT. We do not believe that the actual implementation of the fundamental FFT is particularly important to the overall impact that including an FFT solver in a multi-package application. This point will be discussed extensively throughut the paper, but the most dominant feature of the FFT is not the computational bound that is created by it's arithmetic intensity, as the communicational patterns and data layouts are far more dominant factors in the performance of the algorithm.
+
+Following on from the discussions in Gholami et al., we utilise the FFT to solve Poisson's equation for some dependent data passed to the solver. The general solve phase is as follows:
+
+\begin{align}
+  f &= -\Delta u \\
+  \fft(f) &= f' \\
+  (f' \circ \Delta^{-1}) &= f'' \\
+  \fft^{-1}(f'') &= f'''
+\end{align}
+
+Clearly the mathematical requirement of this package is quite low, especially when compared to Wet, which requires a cohesion between many numerical methods. The resulting algorithm purposefully simple however, whilst capturing the dominant performance characteristics exhibited by algorithms that take advantage of the FFT.
+
+\subsubsection{Parallelisation}
+
+The parallel decomposition of the FFT operation is architecture dependent, and in particular varies depending on how many computational elements the problem will be executed on. This is particularly important when composing an FFT package with other packages, as different decompositions might negatively impact on the performance of the whole application leading to a larger search space of decisions when optimising an application.
 
 \subsection{Hot - Heat Conduction via a CG Solver}
 
@@ -148,6 +179,12 @@ We have developed a simple conjugate gradient (CG) solver that implicitly solves
 The conjugate gradient method is iterative, and reduces the error of a guessed solution by walking along the eigenvectors of the solution vector. We will not develop or explain the mathematics underpinning the CG solver, and direct interested readers to explore the wealth of existing literature \cite{} (PUT A LOAD OF CG REFERENCES IN). The only physical feature of the application is manifested in the density calculations, where the densities are stored at the cell centers and interpolated to the edges.
 
 The best decomposition for this algorithm is essentially regular, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results. It is also useful when coupling to the other systems.
+
+\subsubsection{Parallelisation}
+
+The algorithm does not expose any load imbalance, and the MPI communication was simply nearest neighbour halo exchanges, performed after each timestep. As each of the core kernels is essentially a simple linear algebra method, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
+
+At each iteration an alpha and beta value is calculated, which needs to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
 
 \subsection{Wet - Fluid Dynamic via Direct Lagrangian-Eulerian Flux Calculations}
 
@@ -158,6 +195,10 @@ The direct Lagrangian-Eulerian algorithm takes Euler's equations, and explicitly
 Directional splitting is used in order to make the application two-dimensional, and we chose to maintain symmetry by alternating the directional calculations with each timestep. Our explicit timestep controls limit the timestep based on the artificial viscosity coefficients and stop any flux extending beyond a single cell.
 
 As with the heat condution application, the boundary conditions we chose for this application are reflective. This is particularly useful for fluid dynamics as tracking of conservation is important in verifying the results.
+
+\subsubsection{Parallelisation}
+
+As with the heat conduction application, the algorithm does not have any inherent load imbalance, and only requires nearest neighbour communication. The explicit nature of the algorithm means that multiple kernels are invoked in order, and the independent kernels are inherently data parallel, allowing them to be easily threaded for CPU and GPU.
 
 \subsection{Bright - Monte Carlo Particle Transport}
 
@@ -177,34 +218,11 @@ In terms of boundary conditions we did select reflective at this stage, as this 
 
 Of course, all of this requires a sufficient random number generator with a large period. In order to fulfil this requirement we leveraged an existing lightweight Mersenne-Twister algorithm, to generate random numbers for the whole system.
 
-\section{Parallelisation}
-
-Each of the applications was parallelised and tuned in isolation, firstly to target the CPU, and then to target other heterogeneous devices, such as NVIDIA GPUs. In all cases we used MPI + OpenMP 4.5, and MPI + CUDA. This introduced additional effort in the process, but allowed us to make some commentary about the ability for each of the programming models to support the requirements of the applications.
-
-\subsection{Fast}
-
-
-\subsection{Hot}
-
-The algorithm does not expose any load imbalance, and the MPI communication was simply nearest neighbour halo exchanges, performed after each timestep. As each of the core kernels is essentially a simple linear algebra method, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
-
-At each iteration an alpha and beta value is calculated, which needs to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
-
-\subsection{Wet}
-
-As with the heat conduction application, the algorithm does not have any inherent load imbalance, and only requires nearest neighbour communication. The explicit nature of the algorithm means that multiple kernels are invoked in order, each of which was simplistic enough that parallelisation was trivial with OpenMP.
-
-\subsection{Bright}
+\subsubsection{Parallelisation}
 
 Unlike the other two applications, the Monte Carlo method exposes some load imbalance. There are a number of approaches to improving this problem, and we explored some of them to select the best for our particular set of requirements. 
 
 In terms of parallelising the algorithm there were several factors to consider, for instance it is important to maintain good data locality in particular for vectorisation on CPUs and coalescense on GPUs. Our initial strategy was to perform a coarse-grained parallelism, splitting the particles into batches in order for them to be processed in parallel. Of course this has implications in terms of the memory layout as the particles are tracked through space.
-
-\section{Motivation}
-
-This paper is a window into a set of work that is attempting to extend the success of mini-apps for evaluating modern architectures and programming environments. Our hope is that we can begin to capture the features of production scientific codes that have been yet unexplored. In particular the coupling of diverse algorithms, and how this affects their performance and scaling.
-
-In order to limit our focus to the most important algorithms that might be encountered within scientific production codes, we will adopt the dwarves of parallel programming and plan to develop a new application that captures the computational and communicational profile of  
 
 \section{Coupling}
 
@@ -216,7 +234,7 @@ Given this, our choice of applications allows for a simple coupling stage that r
 
 \begin{figure}
 \centering
-\includegraphics[width=1.0\linewidth]{hot-wet-flow}
+\includegraphics[width=0.8\linewidth]{hot-wet-flow}
 \caption{The flow of our coupled Hot and Wet applications.}
 \label{fig:hot-wet-flow}
 \end{figure}
@@ -227,28 +245,82 @@ Figure \ref{fig:hot-wet-flow} demonstrates the current coupling, as well as the 
 
 Modern hardware presents a number of challenges and some important opportunities. The balance of different packages within a full application might allow new avenues for overlapping long communications or IO times, and even the potential for overlapping the compute of packages within the full application. We are interested to explore a number of these issues and expect that this could be a future direction for work but have not investigated that point in this research.
 
-\section{Application Scaling}
+\section{Results}
+
+The results presented in this 
+
+\subsection{Experimental Setup}
+
+To fully assess the impact of composing the Dwarfs, we will test our coupled applications on a range of modern HPC hardware. We recognise that the Hot and Wet mini-apps are both memory bandwidth bound, and the Fast application is compute bound, however the 
+
+\subsection{Hot'n'Wet}
 
 As we are presenting two applications that have been developed from scratch, we provide some simple scaling studies to demonstrate that each application performs to an acceptable level. This data gives us some baseline for comparison as we consider the applications within a multi-algorithmic execution setting.
 
 \begin{figure}
 \centering
-\includegraphics[height=6.2cm]{cpu_results}
-\caption{}
-\label{fig:example}
+\includegraphics[width=1.0\linewidth]{cpu_results}
+\caption{Scaling the paired applications on multiple nodes of 44 core Broadwell CPU.}
+\label{fig:scaling-hot-wet-broadwell}
 \end{figure}
 
-\section{Patterns Inhibiting Performance for Multi-Package Applications}
+As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of scaling the application across 32 nodes of 44 core Broadwell CPUs has resulted in a relatively consistent performance profile. Each of the application beats the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two solver at 16 nodes, that greatly reduces by the time that 32 nodes have been reached. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache have been slightly delayed.
 
-Although both Hot and Wet combined together successfully, our research has uncovered a number of areas that we recognise will inhibit the performance of multi-package applications. In fact, it is possible to categorise those issues:
+Overall this scaling profile suggests that the composition of the two application on a CPU has achieved an expected level of performance cohesion. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
+
+\begin{figure}
+\centering
+\includegraphics[width=1.0\linewidth]{gpu_storm}
+\caption{Scaling the paired applications on a CS STORM node containing 8 NVIDIA K40 GPUs.}
+\label{fig:scaling-hot-wet-storm}
+\end{figure}
+
+The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
+
+
+Our results here are fairly unremarkable, and support our hypothesis that the two applications investigated are performance compatible, meaning they do not interfere with the performance profile of eachother. In order to increase the positive or negative influence of 
+
+\section{Fast'n'Hot or Wet'n'Fast}
+
+
+\section{Conflict Resolution}
+
+In the event that the data structures within two packages conflict, we can theorise some potential resolutions:
+
+\begin{itemize}
+  \item \textbf{Pick the best decomposition for the worst package} - This may or may not be easy depending on the restrictions imposed by the other packages. This is likely only suitable when you have a significant difference between the relative costs of the packages.
+  \item \textbf{Choose some mutually beneficial layout} - This could be a complicated decision to make, and might lead to specific novel layouts for particular couplings. If the relative costs of the two packages are very similar, then we expect this to be a good choice.
+  \item \textbf{Perform a transposition of the data between packages} - Considering a simple two package application, with a victim that requires it's data transposed, this would lead to two transposition at entry to and exit from the victim package. Ideally this transposition could be overlapped with independent work.
+\end{itemize}
+
+\section{Patterns Affecting Performance for Multi-Package Applications}
+
+Although both Hot and Wet combined together successfully, our research has uncovered a number of areas that we recognise present risks or opportunities to the performance of multi-package applications. 
 
 \begin{itemize}
   \item \textbf{Dynamic Meshes} - In the event that mesh data has to move between applications, there is significant potential.
-  \item \textbf{Competing Decompositions} - It is possible that different packages within an application might require different decompositions for optimal performance.
-  \item \textbf{Capacity Requirements} - As you increase the number of packages that are 
+  \item \textbf{Competing Decompositions} - It is possible that different packages within an application might require different decompositions for optimal performance. We extend this discussion in Section \ref{sec:scalability-inhibit} to predict a key bottleneck to multi-package scaling.
+  \item \textbf{Capacity Requirements} - As you increase the number of packages that are included in an application, the capacity requirements can be inflated significantly. It will be important to overlap as much of the capacity as possible in order to minimise this effect.
 \end{itemize}
 
 We hope that our future research can extend the results of this paper to begin to understand the issues we hypthesise here.
+
+\subsection{Diminishing Scalability for Increasing Core Counts}
+
+\label{sec:scalability-inhibit}
+
+Modern supercomputing has reached a scale where the core counts at the node level are increasingly significantly each year, and this has major implications for writing portable and performant code. In particular, many of the largest supercomputers in the world include heterogeneous devices, such as accelerators, which greatly increase the core count, and require that significant data-parallelism is exposed within scientific application's algorithms in order to perform well.
+
+Accelerator devices like the Intel Xeon Phi processors, have greater numbers of cores than existing Intel CPUs, for instance the Knights Landing has between 64 and 72, each with 4 hardware threads, whereas the Intel Xeon Broadwell can have up to 22 cores per socket, each core supporting up to 2 hardware threads. The IBM POWER8 CPU also exposes a large core count, with up to 12 cores per socket and 8 hardware threads for a total of 192 threads.
+
+This continual increase in the number of cores available on a node has major implications for the scalability of codes, and this is amplified by the increasing number of nodes that are hosting those devices. It is well known that many algorithms reach a turnover point for strong scaling, past which communication costs begin to overwhelm the performance, and decomposing a problem will experience diminishing returns. Regardless of node-level application performance, as communication becomes the limiting factor, we are reaching a stage where the scalability of applications demands that the highly parallel applications exploit shared memory as much as possible.
+
+We can see here a significant risk to the overall performance of 
+
+
+%Extending the discussion to GPGPUs, NVIDIA's Tesla K40 devices have 15 streaming multi-processors (SMX), each of which support 192 processing elements, for a total of 2880 CUDA cores. While those 'CUDA cores' are not cores in the traditional sense, rather individual processing elements, this does not change the fact that any algorithm targeted at these archiectures will need to expose an increasingly large level of parallelism. More recently, NVIDIA released the Tesla P100, which has increased the number of SMXs to 56 and decreased the number of processing elements in each to 64 (two warps), for a total of 3584 CUDA cores.
+
+%The benefit of GPUs is that they offer good performance and can handle significant portions of a problem and require no partitioning within the devices. More recently supercomputing resources have started to include multiple accelerator devices on a single node, and this offers the opportunity for programmers to exploit massive node-level parallelism to improve the scalability of applications. Of course this requires that there is some suitably performant method for communicating within a node. The upcoming NVLINK technology that will be distributed by NVIDIA is intended to provide fast communications between the GPUs on a node and quite improved performance compared to PCIe when communicating with the host CPU. Our expectation is that if this technology can be used to its full extent, it should offer great potential improvements to the scalability of HPC applications. 
 
 \section{Future Couplings}
 
@@ -256,7 +328,7 @@ We believe that it will be useful to extend this work to investigate the perform
 
 \begin{figure}
 \centering
-\includegraphics[width=1.0\linewidth]{all-four-flow}
+\includegraphics[width=0.8\linewidth]{all-four-flow}
 \caption{The flow of a prospective multi-package application.}
 \label{fig:multi-package-flow}
 \end{figure}
@@ -270,6 +342,8 @@ We further recognise that there are many requirements not handled by our existin
 (SPEAK TO W ABOUT THIS SECTION, WHAT IS ACCEPTABLE TO BE TIED TO THIS PAPER)
 
 \section{Conclusion}
+
+Importantly we have been able to observe an important fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the application that the dominant conflicting performance characteristics present amongst the applications.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,multi}
