@@ -1,0 +1,340 @@
+rank 0 neighbours -1 -1 -1 -1
+Problem dimensions 2000x2000 for 50 iterations.
+Iteration 1
+performed 100 diffusion iterations
+dt 1.233865691046e-03 dt_h 1.267731382093e-03
+total mass: 1.060000000000e+06
+total energy: 2.432730278633e+06
+simulation time: 0.0012(s)
+Iteration 2
+performed 100 diffusion iterations
+dt 1.180497463904e-03 dt_h 1.180497463904e-03
+total mass: 1.060000000000e+06
+total energy: 2.429301677062e+06
+simulation time: 0.0023(s)
+Iteration 3
+performed 100 diffusion iterations
+dt 1.168391185846e-03 dt_h 1.156284907788e-03
+total mass: 1.060000000000e+06
+total energy: 2.426772668591e+06
+simulation time: 0.0034(s)
+Iteration 4
+performed 100 diffusion iterations
+dt 1.091450181308e-03 dt_h 1.026615454827e-03
+total mass: 1.060000000000e+06
+total energy: 2.424811047551e+06
+simulation time: 0.0044(s)
+Iteration 5
+performed 100 diffusion iterations
+dt 9.985844287733e-04 dt_h 9.705534027192e-04
+total mass: 1.060000000000e+06
+total energy: 2.423215899693e+06
+simulation time: 0.0054(s)
+Iteration 6
+performed 100 diffusion iterations
+dt 1.009988231170e-03 dt_h 1.049423059620e-03
+total mass: 1.060000000000e+06
+total energy: 2.421723746708e+06
+simulation time: 0.0065(s)
+Iteration 7
+performed 100 diffusion iterations
+dt 1.085983808992e-03 dt_h 1.122544558365e-03
+total mass: 1.060000000000e+06
+total energy: 2.420263280511e+06
+simulation time: 0.0076(s)
+Iteration 8
+performed 100 diffusion iterations
+dt 1.072639264000e-03 dt_h 1.022733969636e-03
+total mass: 1.060000000000e+06
+total energy: 2.418957970607e+06
+simulation time: 0.0086(s)
+Iteration 9
+performed 100 diffusion iterations
+dt 1.036198873541e-03 dt_h 1.049663777447e-03
+total mass: 1.060000000000e+06
+total energy: 2.417744242792e+06
+simulation time: 0.0097(s)
+Iteration 10
+performed 100 diffusion iterations
+dt 1.081183448728e-03 dt_h 1.112703120009e-03
+total mass: 1.060000000000e+06
+total energy: 2.416547214287e+06
+simulation time: 0.0108(s)
+Iteration 11
+performed 100 diffusion iterations
+dt 1.098286890439e-03 dt_h 1.083870660869e-03
+total mass: 1.060000000000e+06
+total energy: 2.415416050655e+06
+simulation time: 0.0119(s)
+Iteration 12
+performed 100 diffusion iterations
+dt 1.065669055516e-03 dt_h 1.047467450163e-03
+total mass: 1.060000000000e+06
+total energy: 2.414361837173e+06
+simulation time: 0.0130(s)
+Iteration 13
+performed 100 diffusion iterations
+dt 1.098470161054e-03 dt_h 1.149472871946e-03
+total mass: 1.060000000000e+06
+total energy: 2.413303558133e+06
+simulation time: 0.0141(s)
+Iteration 14
+performed 100 diffusion iterations
+dt 1.117622805635e-03 dt_h 1.085772739325e-03
+total mass: 1.060000000000e+06
+total energy: 2.412306208465e+06
+simulation time: 0.0152(s)
+Iteration 15
+performed 100 diffusion iterations
+dt 1.081400656279e-03 dt_h 1.077028573233e-03
+total mass: 1.060000000000e+06
+total energy: 2.411358516147e+06
+simulation time: 0.0163(s)
+Iteration 16
+performed 100 diffusion iterations
+dt 1.127920726783e-03 dt_h 1.178812880334e-03
+total mass: 1.060000000000e+06
+total energy: 2.410399250608e+06
+simulation time: 0.0174(s)
+Iteration 17
+performed 100 diffusion iterations
+dt 1.133475051774e-03 dt_h 1.088137223215e-03
+total mass: 1.060000000000e+06
+total energy: 2.409505861226e+06
+simulation time: 0.0185(s)
+Iteration 18
+performed 100 diffusion iterations
+dt 1.098067461247e-03 dt_h 1.107997699278e-03
+total mass: 1.060000000000e+06
+total energy: 2.408642077325e+06
+simulation time: 0.0197(s)
+Iteration 19
+performed 100 diffusion iterations
+dt 1.141824484079e-03 dt_h 1.175651268879e-03
+total mass: 1.060000000000e+06
+total energy: 2.407778825191e+06
+simulation time: 0.0208(s)
+Iteration 20
+performed 100 diffusion iterations
+dt 1.132136027937e-03 dt_h 1.088620786994e-03
+total mass: 1.060000000000e+06
+total energy: 2.406971889212e+06
+simulation time: 0.0219(s)
+Iteration 21
+performed 100 diffusion iterations
+dt 1.108480165734e-03 dt_h 1.128339544475e-03
+total mass: 1.060000000000e+06
+total energy: 2.406180205036e+06
+simulation time: 0.0231(s)
+Iteration 22
+performed 100 diffusion iterations
+dt 1.137281057046e-03 dt_h 1.146222569617e-03
+total mass: 1.060000000000e+06
+total energy: 2.405404659927e+06
+simulation time: 0.0242(s)
+Iteration 23
+performed 100 diffusion iterations
+dt 1.120651662971e-03 dt_h 1.095080756325e-03
+total mass: 1.060000000000e+06
+total energy: 2.404663984110e+06
+simulation time: 0.0253(s)
+Iteration 24
+performed 100 diffusion iterations
+dt 1.127003139409e-03 dt_h 1.158925522494e-03
+total mass: 1.060000000000e+06
+total energy: 2.403923305459e+06
+simulation time: 0.0265(s)
+Iteration 25
+performed 100 diffusion iterations
+dt 1.142236273964e-03 dt_h 1.125547025434e-03
+total mass: 1.060000000000e+06
+total energy: 2.403213203126e+06
+simulation time: 0.0276(s)
+Iteration 26
+performed 100 diffusion iterations
+dt 1.118420756668e-03 dt_h 1.111294487901e-03
+total mass: 1.060000000000e+06
+total energy: 2.402519486173e+06
+simulation time: 0.0287(s)
+Iteration 27
+performed 100 diffusion iterations
+dt 1.145017996047e-03 dt_h 1.178741504193e-03
+total mass: 1.060000000000e+06
+total energy: 2.401822877548e+06
+simulation time: 0.0299(s)
+Iteration 28
+performed 100 diffusion iterations
+dt 1.143521392651e-03 dt_h 1.108301281110e-03
+total mass: 1.060000000000e+06
+total energy: 2.401163358301e+06
+simulation time: 0.0310(s)
+Iteration 29
+performed 100 diffusion iterations
+dt 1.117076158393e-03 dt_h 1.125851035676e-03
+total mass: 1.060000000000e+06
+total energy: 2.400509791398e+06
+simulation time: 0.0321(s)
+Iteration 30
+performed 100 diffusion iterations
+dt 1.158629169213e-03 dt_h 1.191407302751e-03
+total mass: 1.060000000000e+06
+total energy: 2.399850126035e+06
+simulation time: 0.0333(s)
+Iteration 31
+performed 100 diffusion iterations
+dt 1.148058554921e-03 dt_h 1.104709807091e-03
+total mass: 1.060000000000e+06
+total energy: 2.399225706880e+06
+simulation time: 0.0344(s)
+Iteration 32
+performed 100 diffusion iterations
+dt 1.122425855594e-03 dt_h 1.140141904096e-03
+total mass: 1.060000000000e+06
+total energy: 2.398602914245e+06
+simulation time: 0.0356(s)
+Iteration 33
+performed 100 diffusion iterations
+dt 1.154765922501e-03 dt_h 1.169389940906e-03
+total mass: 1.060000000000e+06
+total energy: 2.397983006135e+06
+simulation time: 0.0367(s)
+Iteration 34
+performed 100 diffusion iterations
+dt 1.140565370205e-03 dt_h 1.111740799503e-03
+total mass: 1.060000000000e+06
+total energy: 2.397385042359e+06
+simulation time: 0.0378(s)
+Iteration 35
+performed 100 diffusion iterations
+dt 1.131875664882e-03 dt_h 1.152010530261e-03
+total mass: 1.060000000000e+06
+total energy: 2.396786680044e+06
+simulation time: 0.0390(s)
+Iteration 36
+performed 100 diffusion iterations
+dt 1.152640320627e-03 dt_h 1.153270110992e-03
+total mass: 1.060000000000e+06
+total energy: 2.396197142989e+06
+simulation time: 0.0401(s)
+Iteration 37
+performed 100 diffusion iterations
+dt 1.136486009630e-03 dt_h 1.119701908269e-03
+total mass: 1.060000000000e+06
+total energy: 2.395620168637e+06
+simulation time: 0.0413(s)
+Iteration 38
+performed 100 diffusion iterations
+dt 1.142858551567e-03 dt_h 1.166015194866e-03
+total mass: 1.060000000000e+06
+total energy: 2.395040736548e+06
+simulation time: 0.0424(s)
+Iteration 39
+performed 100 diffusion iterations
+dt 1.151898781953e-03 dt_h 1.137782369041e-03
+total mass: 1.060000000000e+06
+total energy: 2.394476050154e+06
+simulation time: 0.0436(s)
+Iteration 40
+performed 100 diffusion iterations
+dt 1.134501270003e-03 dt_h 1.131220170965e-03
+total mass: 1.060000000000e+06
+total energy: 2.393915341139e+06
+simulation time: 0.0447(s)
+Iteration 41
+performed 100 diffusion iterations
+dt 1.156517338508e-03 dt_h 1.181814506051e-03
+total mass: 1.060000000000e+06
+total energy: 2.393350721455e+06
+simulation time: 0.0459(s)
+Iteration 42
+performed 100 diffusion iterations
+dt 1.153178606968e-03 dt_h 1.124542707886e-03
+total mass: 1.060000000000e+06
+total energy: 2.392806762117e+06
+simulation time: 0.0470(s)
+Iteration 43
+performed 100 diffusion iterations
+dt 1.133138268133e-03 dt_h 1.141733828381e-03
+total mass: 1.060000000000e+06
+total energy: 2.392261618912e+06
+simulation time: 0.0482(s)
+Iteration 44
+performed 100 diffusion iterations
+dt 1.168522579432e-03 dt_h 1.195311330484e-03
+total mass: 1.060000000000e+06
+total energy: 2.391709736367e+06
+simulation time: 0.0493(s)
+Iteration 45
+performed 100 diffusion iterations
+dt 1.158156611494e-03 dt_h 1.121001892505e-03
+total mass: 1.060000000000e+06
+total energy: 2.391180754324e+06
+simulation time: 0.0505(s)
+Iteration 46
+performed 100 diffusion iterations
+dt 1.133720425165e-03 dt_h 1.146438957826e-03
+total mass: 1.060000000000e+06
+total energy: 2.390650372660e+06
+simulation time: 0.0516(s)
+Iteration 47
+performed 100 diffusion iterations
+dt 1.165686283939e-03 dt_h 1.184933610052e-03
+total mass: 1.060000000000e+06
+total energy: 2.390116461057e+06
+simulation time: 0.0528(s)
+Iteration 48
+performed 100 diffusion iterations
+dt 1.153682791879e-03 dt_h 1.122431973705e-03
+total mass: 1.060000000000e+06
+total energy: 2.389600047083e+06
+simulation time: 0.0539(s)
+Iteration 49
+performed 100 diffusion iterations
+dt 1.137238828832e-03 dt_h 1.152045683959e-03
+total mass: 1.060000000000e+06
+total energy: 2.389081912419e+06
+simulation time: 0.0551(s)
+Iteration 50
+performed 100 diffusion iterations
+dt 1.160847895006e-03 dt_h 1.169650106052e-03
+total mass: 1.060000000000e+06
+total energy: 2.388565336302e+06
+simulation time: 0.0562(s)
+
+-------------------------------------------------------------
+
+Profiling Results:
+
+Kernel Name                               Calls                 Runtime (s)
+set_timestep                                 51                  0.05227521
+communications                            10101                  0.00716814
+initialise cg                                50                  0.13343824
+calculate alpha                            5000                  5.81189289
+calculate new r2                           5000                  4.71443675
+update conjugate                           5000                  1.13606898
+equation_of_state                            50                  0.05199812
+pressure_acceleration                        50                  0.12640152
+artificial_viscosity                        100                  0.22499286
+shock_heating_and_work                       50                  0.11737268
+advect_mass_and_energy                      200                  0.33386878
+advect_momentum                             125                  0.39502223
+
+Total elapsed time: 13.105s, entries * are excluded.
+
+-------------------------------------------------------------
+
+
+-------------------------------------------------------------
+
+Profiling Results:
+
+Kernel Name                               Calls                 Runtime (s)
+handle_boundary                           11050                  0.25009742
+
+Total elapsed time: 0.250s, entries * are excluded.
+
+-------------------------------------------------------------
+
+wallclock 13.3932s, Elapsed Simulation Time 0.0562s
+writing results to visit file final_result
+Application 1827526 resources: utime ~603s, stime ~4s, Rss ~569232, inblocks ~6778, outblocks ~80268
