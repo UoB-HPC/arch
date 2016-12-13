@@ -8,7 +8,7 @@
 
 enum { NO_PACK, PACK }; // Whether a buffer should be packed and communicated
 enum { EDGE = -1, NORTH, EAST, SOUTH, WEST, FRONT, BACK }; // Directional enumeration
-enum { NO_INVERT, INVERT_X, INVERT_Y }; // Whether an inversion is required
+enum { NO_INVERT, INVERT_X, INVERT_Y, INVERT_Z }; // Whether an inversion is required
 
 #ifdef __cplusplus
 extern "C" {
