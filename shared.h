@@ -37,6 +37,10 @@ extern "C" {
   void write_to_visit(
       const int nx, const int ny, const int x_off, const int y_off, 
       const double* data, const char* name, const int step, const double time);
+  void write_to_visit_3d(
+      const int nx, const int ny, const int nz, const int x_off, const int y_off, 
+      const int z_off, const double* data, const char* name, const int step, 
+      const double time);
 
   // Collects all of the mesh data from the fleet of ranks and then writes to 
   // visit

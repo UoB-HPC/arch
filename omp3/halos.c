@@ -257,7 +257,7 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int dd = 0; dd < PAD; ++dd) {
-            arr[(ii*nx*ny)+(jj*ny)+(nx-PAD+dd)] = mesh->east_buffer_out[(ii*ny*PAD)+(jj*PAD)+(dd)];
+            arr[(ii*nx*ny)+(jj*nx)+(nx-PAD+dd)] = mesh->east_buffer_out[(ii*ny*PAD)+(jj*PAD)+(dd)];
           }
         }
       }
@@ -291,7 +291,7 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int dd = 0; dd < PAD; ++dd) {
           for(int kk = 0; kk < nx; ++kk) {
-            arr[(ii*nx*ny)+(dd*nx)+(kk)] = mesh->south_buffer_out[(kk*PAD*nx)+(dd*nx)+(kk)];
+            arr[(ii*nx*ny)+(dd*nx)+(kk)] = mesh->south_buffer_out[(ii*PAD*nx)+(dd*nx)+(kk)];
           }
         }
       }
@@ -328,55 +328,55 @@ void handle_boundary_3d(
   double z_inversion_coeff = (invert == INVERT_Z) ? -1.0 : 1.0;
 
   // Reflect at the east
-  if(neighbours[EAST] != EDGE) {
+  if(neighbours[EAST] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int ii = 0; ii < nz; ++ii) {
       for(int jj = 0; jj < ny; ++jj) {
         for(int dd = 0; dd < PAD; ++dd) {
-          arr[(ii*nx*ny)+(jj*ny)+(nx-PAD+dd)] = x_inversion_coeff*arr[(ii*ny*PAD)+(jj*PAD)+(nx-1-PAD-dd)];
+          arr[(ii*nx*ny)+(jj*nx)+(nx-PAD+dd)] = x_inversion_coeff*arr[(ii*nx*ny)+(jj*nx)+(nx-1-PAD-dd)];
         }
       }
     }
   }
 
   // Reflect at the west
-  if(neighbours[WEST] != EDGE) {
+  if(neighbours[WEST] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int ii = 0; ii < nz; ++ii) {
       for(int jj = 0; jj < ny; ++jj) {
         for(int dd = 0; dd < PAD; ++dd) {
-          arr[(ii*nx*ny)+(jj*nx)+(PAD-1-dd)] = mesh->west_buffer_out[(ii*ny*PAD)+(jj*PAD)+(PAD+dd)];
+          arr[(ii*nx*ny)+(jj*nx)+(PAD-1-dd)] = x_inversion_coeff*arr[(ii*nx*ny)+(jj*nx)+(PAD+dd)];
         }
       }
     }
   }
 
   // Reflect at north
-  if(neighbours[NORTH] != EDGE) {
+  if(neighbours[NORTH] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int ii = 0; ii < nz; ++ii) {
       for(int dd = 0; dd < PAD; ++dd) {
         for(int kk = 0; kk < nx; ++kk) {
-          arr[(ii*nx*ny)+((ny-PAD+dd)*nx)+(kk)] = y_inversion_coeff*arr[(ii*PAD*nx)+((ny-1-PAD-dd)*nx)+(kk)];
+          arr[(ii*nx*ny)+((ny-PAD+dd)*nx)+(kk)] = y_inversion_coeff*arr[(ii*nx*ny)+((ny-1-PAD-dd)*nx)+(kk)];
         }
       }
     }
   }
 
   // Reflect at the south
-  if(neighbours[SOUTH] != EDGE) {
+  if(neighbours[SOUTH] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int ii = 0; ii < nz; ++ii) {
       for(int dd = 0; dd < PAD; ++dd) {
         for(int kk = 0; kk < nx; ++kk) {
-          arr[(ii*nx*ny)+((PAD-1-dd)*nx)+(kk)] = y_inversion_coeff*arr[(kk*PAD*nx)+((PAD+dd)*nx)+(kk)];
+          arr[(ii*nx*ny)+((PAD-1-dd)*nx)+(kk)] = y_inversion_coeff*arr[(ii*nx*ny)+((PAD+dd)*nx)+(kk)];
         }
       }
     }
   }
 
   // Reflect at the front
-  if(neighbours[FRONT] != EDGE) {
+  if(neighbours[FRONT] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int dd = 0; dd < PAD; ++dd) {
       for(int jj = 0; jj < ny; ++jj) {
@@ -388,7 +388,7 @@ void handle_boundary_3d(
   }
 
   // Reflect at the back
-  if(neighbours[BACK] != EDGE) {
+  if(neighbours[BACK] == EDGE) {
 #pragma omp parallel for collapse(2)
     for(int dd = 0; dd < PAD; ++dd) {
       for(int jj = 0; jj < ny; ++jj) {
@@ -398,6 +398,7 @@ void handle_boundary_3d(
       }
     }
   }
+
   STOP_PROFILING(&comms_profile, __func__);
 }
 

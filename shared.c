@@ -17,6 +17,9 @@ void write_to_visit(
     const int nx, const int ny, const int x_off, const int y_off, 
     const double* data, const char* name, const int step, const double time)
 {
+  write_to_visit_3d(
+      nx, ny, 1, x_off, y_off, 0, data, name, step, time);
+#if 0
 #ifdef ENABLE_VISIT_DUMPS
   char bovname[256];
   char datname[256];
@@ -54,6 +57,53 @@ void write_to_visit(
   }
 
   fwrite(data, sizeof(double), nx*ny, datfp);
+  fclose(datfp);
+#endif
+#endif // if 0
+}
+
+// Write out data for visualisation in visit
+void write_to_visit_3d(
+    const int nx, const int ny, const int nz, const int x_off, const int y_off, 
+    const int z_off, const double* data, const char* name, const int step, const double time)
+{
+#ifdef ENABLE_VISIT_DUMPS
+  char bovname[256];
+  char datname[256];
+  sprintf(bovname, "%s%d.bov", name, step);
+  sprintf(datname, "%s%d.dat", name, step);
+
+  FILE* bovfp = fopen(bovname, "w");
+
+  if(!bovfp) {
+    printf("Could not open file %s\n", bovname);
+    exit(1);
+  }
+
+  fprintf(bovfp, "TIME: %.4f\n", time);
+  fprintf(bovfp, "DATA_FILE: %s\n", datname);
+  fprintf(bovfp, "DATA_SIZE: %d %d %d\n", nx, ny, nz);
+  fprintf(bovfp, "DATA_FORMAT: DOUBLE\n");
+  fprintf(bovfp, "VARIABLE: density\n");
+  fprintf(bovfp, "DATA_ENDIAN: LITTLE\n");
+  fprintf(bovfp, "CENTERING: zone\n");
+
+#ifdef MPI
+  fprintf(bovfp, "BRICK_ORIGIN: %f %f %f.\n", (float)x_off, (float)y_off, (float)z_off);
+#else
+  fprintf(bovfp, "BRICK_ORIGIN: 0. 0. 0.\n");
+#endif
+
+  fprintf(bovfp, "BRICK_SIZE: %d %d %d\n", nx, ny, nz);
+  fclose(bovfp);
+
+  FILE* datfp = fopen(datname, "wb");
+  if(!datfp) {
+    printf("Could not open file %s\n", datname);
+    exit(1);
+  }
+
+  fwrite(data, sizeof(double), nx*ny*nz, datfp);
   fclose(datfp);
 #endif
 }

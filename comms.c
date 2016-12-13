@@ -247,17 +247,17 @@ void decompose_3d_cartesian(
         // TO BETTER DECOMPOSE IRREGULAR PROBLEM SHAPES
         if(min_sa_to_vol == 0.0f || sa_to_vol < min_sa_to_vol) {
           // Choose edges so that x > y > z for preferred data access
-          if(split_x > split_y && split_x > split_z) {
+          if(split_x >= split_y && split_x >= split_z) {
             ranks_x = split_x;
             ranks_y = (split_y > split_z) ? split_y : split_z;
             ranks_z = (split_y > split_z) ? split_z : split_y;
           }
-          else if(split_y > split_x && split_y > split_x) {
+          else if(split_y >= split_x && split_y > split_z) {
             ranks_x = split_y;
             ranks_y = (split_x > split_z) ? split_x : split_z;
             ranks_z = (split_x > split_z) ? split_z : split_x;
           }
-          else if(split_z > split_x && split_z > split_x) {
+          else if(split_z >= split_x && split_z >= split_y) {
             ranks_x = split_z;
             ranks_y = (split_x > split_y) ? split_x : split_y;
             ranks_z = (split_x > split_y) ? split_y : split_x;
@@ -282,7 +282,7 @@ void decompose_3d_cartesian(
     off += *local_nx;
   }
   off = 0;
-  const int y_rank = (rank/ranks_x);
+  const int y_rank = ((rank/ranks_x)%ranks_y);
   for(int yy = 0; yy <= y_rank; ++yy) {
     *y_off = off;
     const int y_floor = global_ny/ranks_y;
@@ -291,7 +291,7 @@ void decompose_3d_cartesian(
     off += *local_ny;
   }
   off = 0;
-  const int z_rank = (rank/ranks_x);
+  const int z_rank = (rank/(ranks_x*ranks_y));
   for(int zz = 0; zz <= z_rank; ++zz) {
     *z_off = off;
     const int z_floor = global_nz/ranks_z;
@@ -306,11 +306,12 @@ void decompose_3d_cartesian(
   neighbours[FRONT] = (z_rank > 0) ? rank-(ranks_x*ranks_y) : EDGE;
   neighbours[NORTH] = (y_rank < ranks_y-1) ? rank+ranks_x : EDGE;
   neighbours[EAST] = (x_rank < ranks_x-1) ? rank+1 : EDGE;
-  neighbours[BACK] = (z_rank > ranks_z-1) ? rank+(ranks_x*ranks_y) : EDGE;
+  neighbours[BACK] = (z_rank < ranks_z-1) ? rank+(ranks_x*ranks_y) : EDGE;
 
   printf("rank %d neighbours %d %d %d %d %d %d\n",
       rank, neighbours[NORTH], neighbours[EAST], neighbours[BACK],
       neighbours[SOUTH], neighbours[WEST], neighbours[FRONT]);
+  printf("rank %d dims %d %d %d\n", rank, *local_nx, *local_ny, *local_nz);
 }
 
 // Finalise the communications
