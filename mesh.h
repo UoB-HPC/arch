@@ -5,7 +5,7 @@
 #define LOAD_BALANCE 0  // Whether decomposition should attempt to load balance
 #define WIDTH 10.0      // The width of the problem domain 
 #define HEIGHT 10.0     // The height of the problem domain
-#define DEPTH 10.0     // The height of the problem domain
+#define DEPTH 10.0     // The depth of the problem domain
 #define MAX_DT 0.04     // The maximum allowed timestep
 
 #ifdef APP_3D
@@ -32,7 +32,7 @@ typedef struct
   int niters;     // Number of timestep iterations
   int width;      // Width of the problem domain
   int height;     // Height of the problem domain
-  int depth;     // Height of the problem domain
+  int depth;     // Depth of the problem domain
 
   // Mesh differentials
   double* edgedx;
@@ -88,15 +88,13 @@ typedef struct
 // Initialises the mesh
 void initialise_mesh_2d(
     Mesh* mesh);
-
-void initialise_mesh_3d(
-    Mesh* mesh);
-
 void mesh_data_init_2d(
     const int local_nx, const int local_ny, const int global_nx, 
     const int global_ny, double* edgedx, double* edgedy, 
     double* celldx, double* celldy);
 
+void initialise_mesh_3d(
+    Mesh* mesh);
 void mesh_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,

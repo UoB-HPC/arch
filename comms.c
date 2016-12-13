@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "shared.h"
 #include "comms.h"
 
@@ -46,6 +47,11 @@ void initialise_comms(
 #endif
 
 #endif 
+
+  // Add on the halo padding to the local mesh
+  mesh->local_nx += 2*PAD;
+  mesh->local_ny += 2*PAD;
+  mesh->local_nz += 2*PAD;
 
   if(mesh->rank == MASTER) {
 #ifdef APP_3D
@@ -210,10 +216,6 @@ void decompose_2d_cartesian(
   printf("rank %d neighbours %d %d %d %d\n",
       rank, neighbours[NORTH], neighbours[EAST], 
       neighbours[SOUTH], neighbours[WEST]);
-
-  // Add on the halo padding to the local mesh
-  *local_nx += 2*PAD;
-  *local_ny += 2*PAD;
 }
 
 // Decomposes the ranks minimising ratio of perimeter to area
@@ -309,11 +311,6 @@ void decompose_3d_cartesian(
   printf("rank %d neighbours %d %d %d %d %d %d\n",
       rank, neighbours[NORTH], neighbours[EAST], neighbours[BACK],
       neighbours[SOUTH], neighbours[WEST], neighbours[FRONT]);
-
-  // Add on the halo padding to the local mesh
-  *local_nx += 2*PAD;
-  *local_ny += 2*PAD;
-  *local_nz += 2*PAD;
 }
 
 // Finalise the communications

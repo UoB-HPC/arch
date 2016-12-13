@@ -62,8 +62,12 @@ void wait_on_messages(const int nmessages);
 void barrier();
 
 // Enforce reflective boundary conditions on the problem state
-void handle_boundary(
+void handle_boundary_2d(
     const int nx, const int ny, Mesh* mesh, double* arr, 
+    const int invert, const int pack);
+
+void handle_boundary_3d(
+    const int nx, const int ny, const int nz, Mesh* mesh, double* arr, 
     const int invert, const int pack);
 
 // Finalise the communications

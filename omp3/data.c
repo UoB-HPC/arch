@@ -155,9 +155,9 @@ void set_default_state(
   // Initialise a default state for the energy and density on the mesh
 #pragma omp parallel for
   for(int ii = 0; ii < len; ++ii) {
-      rho[len] = 0.125;
-      e[len] = 2.0;
-      x[len] = rho[len]*0.1;
+    rho[ii] = 0.125;
+    e[ii] = 2.0;
+    x[ii] = rho[ii]*0.1;
   }
 }
 
@@ -175,7 +175,7 @@ void state_data_init_2d(
       (local_nx+1)*(local_ny+1), Qxx, Qyy, x, p, rho_u, rho_v, F_x, F_y,
       uF_x, uF_y, vF_x, vF_y, reduce_array);
   set_default_state(
-    local_nx*local_ny, rho, e, x);
+      local_nx*local_ny, rho, e, x);
 
   // Introduce a problem
 #pragma omp parallel for 
@@ -190,48 +190,6 @@ void state_data_init_2d(
         e[ii*local_nx+jj] = 2.5;
         x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
       }
-
-#if 0
-      // OFF CENTER SQUARE TEST
-      const int dist = 100;
-      if(jj+x_off-PAD >= global_nx/4-dist && 
-          jj+x_off-PAD < global_nx/4+dist && 
-          ii+y_off-PAD >= global_ny/2-dist && 
-          ii+y_off-PAD < global_ny/2+dist) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-        x[ii*local_nx+jj] = rho[ii*local_nx+jj]*e[ii*local_nx+jj];
-      }
-#endif // if 0
-
-#if 0
-      if(jj+x_off < ((global_nx+2*PAD)/2)) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-        x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
-      }
-#endif // if 0
-
-#if 0
-      if(ii+y_off < (global_ny+2*PAD)/2) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-
-#if 0
-      if(ii+y_off > (global_ny+2*PAD)/2) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-
-#if 0
-      if(jj+x_off > (global_nx+2*PAD)/2) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
     }
   }
 }
@@ -253,7 +211,7 @@ void state_data_init_3d(
       local_nx, local_ny, local_nz, Qxx, Qyy, Qzz, x, p, rho_u, rho_v, rho_w, 
       F_x, F_y, F_z, uF_x, uF_y, uF_z, vF_x, vF_y, vF_z, wF_x, wF_y, wF_z, reduce_array);
   set_default_state(
-    local_nx*local_ny*local_nz, rho, e, x);
+      local_nx*local_ny*local_nz, rho, e, x);
 
   // Introduce a problem
 #pragma omp parallel for 
@@ -274,3 +232,45 @@ void state_data_init_3d(
     }
   }
 }
+
+#if 0
+// OFF CENTER SQUARE TEST
+const int dist = 100;
+if(jj+x_off-PAD >= global_nx/4-dist && 
+    jj+x_off-PAD < global_nx/4+dist && 
+    ii+y_off-PAD >= global_ny/2-dist && 
+    ii+y_off-PAD < global_ny/2+dist) {
+  rho[ii*local_nx+jj] = 1.0;
+  e[ii*local_nx+jj] = 2.5;
+  x[ii*local_nx+jj] = rho[ii*local_nx+jj]*e[ii*local_nx+jj];
+}
+#endif // if 0
+
+#if 0
+if(jj+x_off < ((global_nx+2*PAD)/2)) {
+  rho[ii*local_nx+jj] = 1.0;
+  e[ii*local_nx+jj] = 2.5;
+  x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
+}
+#endif // if 0
+
+#if 0
+if(ii+y_off < (global_ny+2*PAD)/2) {
+  rho[ii*local_nx+jj] = 1.0;
+  e[ii*local_nx+jj] = 2.5;
+}
+#endif // if 0
+
+#if 0
+if(ii+y_off > (global_ny+2*PAD)/2) {
+  rho[ii*local_nx+jj] = 1.0;
+  e[ii*local_nx+jj] = 2.5;
+}
+#endif // if 0
+
+#if 0
+if(jj+x_off > (global_nx+2*PAD)/2) {
+  rho[ii*local_nx+jj] = 1.0;
+  e[ii*local_nx+jj] = 2.5;
+}
+#endif // if 0

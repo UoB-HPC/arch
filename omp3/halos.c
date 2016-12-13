@@ -151,7 +151,7 @@ void handle_boundary_2d(
 
 // Enforce reflective boundary conditions on the problem state
 void handle_boundary_3d(
-    const int nx, const int ny, Mesh* mesh, double* arr, 
+    const int nx, const int ny, const int nz, Mesh* mesh, double* arr, 
     const int invert, const int pack)
 {
   START_PROFILING(&comms_profile);
