@@ -12,6 +12,7 @@
 #define ind1 (ii*(nx+1) + jj)
 
 // Dummy problem solves the Poisson equation using an FFT
+// Taken from: 
 void solve_fft(
     const int nx, const int ny, Mesh* mesh, const double dt, double* e)
 {
@@ -31,7 +32,7 @@ void solve_fft(
 void fft_1d(
     const int nl, const double* energy0, double* energy1)
 {
-
+  
 }
 
 // Performs a one-dimensional FFT using Intel MKL
