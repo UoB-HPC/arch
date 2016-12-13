@@ -33,18 +33,29 @@ void initialise_comms(
   }
 
 #ifdef MPI
+
+#ifdef APP_3D
+  decompose_3d_cartesian(
+      mesh->rank, mesh->nranks, mesh->global_nx, mesh->global_ny, mesh->global_nz,
+      mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->local_nz, 
+      &mesh->x_off, &mesh->y_off, &mesh->z_off);
+#else
   decompose_2d_cartesian(
       mesh->rank, mesh->nranks, mesh->global_nx, mesh->global_ny, 
       mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->x_off, &mesh->y_off);
+#endif
 
-  // Add on the halo padding to the local mesh
-  mesh->local_nx += 2*PAD;
-  mesh->local_ny += 2*PAD;
 #endif 
 
-  if(mesh->rank == MASTER)
+  if(mesh->rank == MASTER) {
+#ifdef APP_3D
+    printf("Problem dimensions %dx%dx%d for %d iterations.\n", 
+        mesh->global_nx, mesh->global_ny, mesh->global_nz, mesh->niters);
+#else
     printf("Problem dimensions %dx%d for %d iterations.\n", 
         mesh->global_nx, mesh->global_ny, mesh->niters);
+#endif
+  }
 }
 
 #ifdef MPI
@@ -154,6 +165,12 @@ void decompose_2d_cartesian(
     const float potential_ratio = 
       (2*(new_ranks_x+new_ranks_y))/(float)(new_ranks_x*new_ranks_y);
 
+    // TODO: THIS DECOMPOSITION IS OK IF YOU ARE ONLY CONSIDERING SQUARE
+    // PROBLEMS, BUT WHAT ABOUT IF THERE IS SOME MISHAPEN PROBLEM SIZE
+    // THEN THIS WILL NOT BE THE OPTIMAL DECOMPOSITION
+    // REMOVE THE LOAD BALANCING STUFF AND MAKE IT SO THAT THE RATIO TO
+    // PERIMETER CALCULATION ACCOUNTS FOR THE MESH
+
     // Update if we minimise the ratio further, only if we don't care about load
     // balancing or have found an even split
     if((found_even <= is_even) && (mratio == 0.0f || potential_ratio < mratio)) {
@@ -193,6 +210,110 @@ void decompose_2d_cartesian(
   printf("rank %d neighbours %d %d %d %d\n",
       rank, neighbours[NORTH], neighbours[EAST], 
       neighbours[SOUTH], neighbours[WEST]);
+
+  // Add on the halo padding to the local mesh
+  *local_nx += 2*PAD;
+  *local_ny += 2*PAD;
+}
+
+// Decomposes the ranks minimising ratio of perimeter to area
+void decompose_3d_cartesian(
+    const int rank, const int nranks, const int global_nx, const int global_ny, 
+    const int global_nz, int* neighbours, int* local_nx, int* local_ny, 
+    int* local_nz, int* x_off, int* y_off, int* z_off) 
+{
+  int ranks_x = 0;
+  int ranks_y = 0;
+  int ranks_z = 0;
+  float min_sa_to_vol = 0.0f;
+
+  // Determine decomposition that minimises surface area to volume ratio
+  for(int ee = 1; ee <= cbrt(nranks); ++ee) {
+    for(int ff = 1; ff <= cbrt(nranks); ++ff) {
+      for(int gg = 1; gg <= nranks; ++gg) {
+        // Factorise the number of ranks
+        if(nranks % ee || (nranks / ee) % ff || (nranks / (ee*ff)) % gg) continue;
+        int split_x = nranks / ee;
+        int split_y = split_x / ff;
+        int split_z = split_y / gg;
+
+        // Calculate the surface are to volume ratio of the rank split
+        const float sa_to_vol =
+          (2.0*(split_x+split_y+split_z))/(float)(split_x*split_y*split_z);
+
+        // TODO: MINIMISE THE RATIO OF EACH EDGE PAIR ON THE RANKS AND MESH
+        // TO BETTER DECOMPOSE IRREGULAR PROBLEM SHAPES
+        if(min_sa_to_vol == 0.0f || sa_to_vol < min_sa_to_vol) {
+          // Choose edges so that x > y > z for preferred data access
+          if(split_x > split_y && split_x > split_z) {
+            ranks_x = split_x;
+            ranks_y = (split_y > split_z) ? split_y : split_z;
+            ranks_z = (split_y > split_z) ? split_z : split_y;
+          }
+          else if(split_y > split_x && split_y > split_x) {
+            ranks_x = split_y;
+            ranks_y = (split_x > split_z) ? split_x : split_z;
+            ranks_z = (split_x > split_z) ? split_z : split_x;
+          }
+          else if(split_z > split_x && split_z > split_x) {
+            ranks_x = split_z;
+            ranks_y = (split_x > split_y) ? split_x : split_y;
+            ranks_z = (split_x > split_y) ? split_y : split_x;
+          }
+          else {
+            assert(0 && "Unreachable");
+          }
+        }
+      }
+    }
+  }
+
+  // TODO: Seems refactorable
+  // Calculate the offsets up until our rank, and then fetch rank dimensions
+  int off = 0;
+  const int x_rank = (rank%ranks_x);
+  for(int xx = 0; xx <= x_rank; ++xx) {
+    *x_off = off;
+    const int x_floor = global_nx/ranks_x;
+    const int x_pad_req = (global_nx != (off + (ranks_x-xx)*x_floor));
+    *local_nx = x_pad_req ? x_floor+1 : x_floor;
+    off += *local_nx;
+  }
+  off = 0;
+  const int y_rank = (rank/ranks_x);
+  for(int yy = 0; yy <= y_rank; ++yy) {
+    *y_off = off;
+    const int y_floor = global_ny/ranks_y;
+    const int y_pad_req = (global_ny != (off + (ranks_y-yy)*y_floor));
+    *local_ny = y_pad_req ? y_floor+1 : y_floor;
+    off += *local_ny;
+  }
+  off = 0;
+  const int z_rank = (rank/ranks_x);
+  for(int zz = 0; zz <= z_rank; ++zz) {
+    *z_off = off;
+    const int z_floor = global_nz/ranks_z;
+    const int z_pad_req = (global_nz != (off + (ranks_z-zz)*z_floor));
+    *local_nz = z_pad_req ? z_floor+1 : z_floor;
+    off += *local_nz;
+  }
+
+  // Calculate the surrounding ranks
+  neighbours[SOUTH] = (y_rank > 0) ? rank-ranks_x : EDGE;
+  neighbours[WEST] = (x_rank > 0) ? rank-1 : EDGE;
+  neighbours[FRONT] = (z_rank > 0) ? rank-(ranks_x*ranks_y) : EDGE;
+  neighbours[NORTH] = (y_rank < ranks_y-1) ? rank+ranks_x : EDGE;
+  neighbours[EAST] = (x_rank < ranks_x-1) ? rank+1 : EDGE;
+  neighbours[BACK] = (z_rank > ranks_z-1) ? rank+(ranks_x*ranks_y) : EDGE;
+
+  printf("rank %d neighbours %d %d %d %d %d %d\n",
+      rank, neighbours[NORTH], neighbours[EAST], neighbours[BACK],
+      neighbours[SOUTH], neighbours[WEST], neighbours[FRONT]);
+
+  // Add on the halo padding to the local mesh
+  *local_nx += 2*PAD;
+  *local_ny += 2*PAD;
+  *local_nz += 2*PAD;
 }
 
 // Finalise the communications

@@ -7,7 +7,7 @@
 #define NVARS_TO_COMM 4      // This is just the max of HOT and WET 
 
 enum { NO_PACK, PACK }; // Whether a buffer should be packed and communicated
-enum { EDGE = -1, NORTH, EAST, SOUTH, WEST }; // Directional enumeration
+enum { EDGE = -1, NORTH, EAST, SOUTH, WEST, FRONT, BACK }; // Directional enumeration
 enum { NO_INVERT, INVERT_X, INVERT_Y }; // Whether an inversion is required
 
 #ifdef __cplusplus
@@ -27,6 +27,12 @@ void initialise_comms(
 void decompose_2d_cartesian(
     const int rank, const int nranks, const int global_nx, const int global_ny,
     int* neighbours, int* local_nx, int* local_ny, int* x_off, int* y_off);
+
+// Decomposes the ranks minimising ratio of perimeter to area
+void decompose_3d_cartesian(
+    const int rank, const int nranks, const int global_nx, const int global_ny, 
+    const int global_nz, int* neighbours, int* local_nx, int* local_ny, 
+    int* local_nz, int* x_off, int* y_off, int* z_off);
 #endif
 
 // Reduces the value across all ranks and returns the sum

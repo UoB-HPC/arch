@@ -53,7 +53,7 @@ void sync_data(const size_t len, double** src, double** dst, int send)
 }
 
 // Initialises mesh data in device specific manner
-void mesh_data_init(
+void mesh_data_init_2d(
     const int nx, const int ny, const int global_nx, const int global_ny,
     double* edgedx, double* edgedy, double* celldx, double* celldy)
 {
@@ -72,7 +72,7 @@ void mesh_data_init(
 }
 
 // Initialise state data in device specific manner
-void state_data_init(
+void state_data_init_2d(
     const int nx, const int ny, const int global_nx, const int global_ny,
     const int x_off, const int y_off,
     double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
