@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  13 DEC 2016 00:39
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  13 DEC 2016 22:03
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -236,7 +236,11 @@ Package: ltxcmds 2011/11/09 v1.22 LaTeX kernel commands for general use (HO)
 (/usr/local/texlive/2015/texmf-dist/tex/latex/url/url.sty
 \Urlmuskip=\muskip11
 Package: url 2013/09/16  ver 3.4  Verb mode for urls, etc.
-) (./multi.aux)
+) (./multi.aux
+
+LaTeX Warning: Label `tab:perf-char-mini-apps' multiply defined.
+
+)
 \openout1 = `multi.aux'.
 
 LaTeX Font Info:    Checking defaults for OML/cmm/m/it on input line 33.
@@ -251,8 +255,7 @@ LaTeX Font Info:    Checking defaults for OMX/cmex/m/n on input line 33.
 LaTeX Font Info:    ... okay on input line 33.
 LaTeX Font Info:    Checking defaults for U/cmr/m/n on input line 33.
 LaTeX Font Info:    ... okay on input line 33.
-
-(/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
+ (/usr/local/texlive/2015/texmf-dist/tex/context/base/supp-pdf.mkii
 [Loading MPS to PDF converter (version 2006.09.02).]
 \scratchcounter=\count129
 \scratchdimen=\dimen136
@@ -329,66 +332,76 @@ File: umsb.fd 2013/01/14 v3.01 AMS symbols B
 
 LaTeX Warning: Citation `Asanovic2006' on page 2 undefined on input line 95.
 
-[2] [3] [4] [5] [6]
+[2]
 
-LaTeX Warning: Citation `Asanovic2006' on page 7 undefined on input line 204.
+LaTeX Warning: Citation `Asanovic2006' on page 3 undefined on input line 124.
 
-[7] [8] <hot-wet-flow.png, id=40, 216.5691pt x 67.6929pt>
+[3] [4] [5] [6] [7] <hot-wet-flow.png, id=38, 167.9073pt x 51.7935pt>
 File: hot-wet-flow.png Graphic file (type png)
 
 <use hot-wet-flow.png>
-Package pdftex.def Info: hot-wet-flow.png used on input line 241.
-(pdftex.def)             Requested size: 277.69987pt x 86.80258pt.
- <cpu_results.png, id=42, 662.475pt x 326.21875pt>
+Package pdftex.def Info: hot-wet-flow.png used on input line 263.
+(pdftex.def)             Requested size: 208.27623pt x 64.24539pt.
+
+
+LaTeX Warning: Reference `tab:hardware' on page 8 undefined on input line 293.
+
+[8 <./hot-wet-flow.png>] <cpu_results.png, id=44, 662.475pt x 326.21875pt>
 File: cpu_results.png Graphic file (type png)
 
 <use cpu_results.png>
-Package pdftex.def Info: cpu_results.png used on input line 262.
+Package pdftex.def Info: cpu_results.png used on input line 301.
 (pdftex.def)             Requested size: 347.12354pt x 170.92891pt.
- [9 <./hot-wet-flow.png>]
-<gpu_storm.png, id=47, 649.42625pt x 308.15125pt>
+ <gpu_storm.png, id=45, 649.42625pt x 308.15125pt>
 File: gpu_storm.png Graphic file (type png)
- <use gpu_storm.png>
-Package pdftex.def Info: gpu_storm.png used on input line 273.
+
+<use gpu_storm.png>
+Package pdftex.def Info: gpu_storm.png used on input line 312.
 (pdftex.def)             Requested size: 347.12354pt x 164.71117pt.
- [10 <./cpu_results.png>] [11 <./gpu_storm.png>] [12]
-<all-four-flow.png, id=60, 278.9622pt x 114.4275pt>
+ [9 <./cpu_results.png>] [10 <./gpu_storm.png>] [11]
+<all-four-flow.png, id=57, 177.0615pt x 78.2925pt>
 File: all-four-flow.png Graphic file (type png)
  <use all-four-flow.png>
-Package pdftex.def Info: all-four-flow.png used on input line 343.
-(pdftex.def)             Requested size: 277.69987pt x 113.91911pt.
+Package pdftex.def Info: all-four-flow.png used on input line 382.
+(pdftex.def)             Requested size: 208.27623pt x 92.1012pt.
 
-[13 <./all-four-flow.png>] (./multi.bbl
+[12] (./multi.bbl
 
 LaTeX Warning: Empty `thebibliography' environment on input line 24.
 
-) [14] (./multi.aux) ) 
+) [13 <./all-four-flow.png>] (./multi.aux)
+
+LaTeX Warning: There were undefined references.
+
+
+LaTeX Warning: There were multiply-defined labels.
+
+ ) 
 Here is how much of TeX's memory you used:
- 2912 strings out of 493089
- 37849 string characters out of 6134841
- 108074 words of memory out of 5000000
- 6344 multiletter control sequences out of 15000+600000
+ 2916 strings out of 493089
+ 37891 string characters out of 6134841
+ 108142 words of memory out of 5000000
+ 6348 multiletter control sequences out of 15000+600000
  11484 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  37i,8n,26p,891b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
-</usr/local/texlive/2015/texmf-dist/fonts/type1/public/am
-sfonts/cm/cmbx10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/ams
-fonts/cm/cmbx12.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsf
-onts/cm/cmbx9.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmbxti10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfo
-nts/cm/cmmi10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfon
-ts/cm/cmmi7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts
-/cm/cmr10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/c
-m/cmr7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/c
-mr9.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy
-10.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7
-.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.
-pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pf
-b>
-Output written on multi.pdf (14 pages, 295157 bytes).
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
+></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
+</usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></
+usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbxti10.pfb><
+/usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi10.pfb></
+usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmmi7.pfb></us
+r/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb></usr/
+local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr7.pfb></usr/loc
+al/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9.pfb></usr/local/
+texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
+exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/tex
+live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texl
+ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
+Output written on multi.pdf (13 pages, 275448 bytes).
 PDF statistics:
- 111 PDF objects out of 1000 (max. 8388607)
- 73 compressed objects within 1 object stream
+ 108 PDF objects out of 1000 (max. 8388607)
+ 71 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
  21 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -69,7 +69,7 @@
 
   The paper ends with a discussion of some of the most important performance issues that we can forsee when coupling applications together, motivating a whole stream of future work in the area.
 
-\keywords{performance portability,mini-apps,high performance computing,openmp 4}
+  \keywords{performance portability,mini-apps,high performance computing,openmp 4}
 \end{abstract}
 
 \section{Introduction}
@@ -103,13 +103,13 @@ This research is primarily focussed upon discussing the implication of composing
 \begin{itemize}
   \item We have developed four mini-apps that serve as proxy applications for important scientific algorithms. An FFT solver for Poisson equations (Fast), a heat conduction application (Hot), a fluid dynamics application (Wet), and a Monte Carlo Particle Transport application (Bright).
 
-\item We present results for those algorithms in isolation on modern supercomputing devices: an NVIDIA Tesla P100, an Intel Xeon Phi Knights Landing processor, an IBM POWER8 CPU, and a Intel Xeon Broadwell.
+  \item We present results for those algorithms in isolation on modern supercomputing devices: an NVIDIA Tesla P100, an Intel Xeon Phi Knights Landing processor, an IBM POWER8 CPU, and a Intel Xeon Broadwell.
 
-\item We naively couple the Hot, Wet, and Fast mini-apps together to demonstrate their composed performance profiles.
+  \item We naively couple the Hot, Wet, and Fast mini-apps together to demonstrate their composed performance profiles.
 
   \item We present the results of running those applications independently and composed at scale.
 
-    \item We offer some insights into the issues and opportunities that might be experienced when composing algorithms that goes beyond the scope of our current experiments.
+  \item We offer some insights into the issues and opportunities that might be experienced when composing algorithms that goes beyond the scope of our current experiments.
 
 \end{itemize}
 
@@ -119,7 +119,28 @@ In this section we will present some basic details about each application, in or
 
 In order to give a clear discussion, we will explain the initial development of each application prior to discussing our efforts to couple them together. This means that we will explain how each application was optimally developed, but with the caveat that this would likely have to change once coupling was required. We did not particularly consider the coupling up-front, instead opting to choose the best strategy for each application in isolation.
 
+\section{Composition of Dwarfs}
+
+It would be possible to compose packages from any of the domains within science and engineering, but an aim of this research was to use canonical algorithms that can act as proxies for wider classes of application. In this paper we have chosen to continue on from the work discussed by Asanovic et al. \cite{Asanovic2006}, who outlined a number of Dwarfs, each of which describes a different computational class that features in modern supercomputing applications. We hope that considering applications from each of the Dwarfs will offer general insights that can be applied to the wider field.
+
+Each of the Dwarfs has a unique set of computational and communicational characteristics that mean that they expose different requirements of modern computing hardware. While many of those characteristics have been analysed and optimised heavily on existing architectures, we intend to uncover the extent to which those classes can co-exist within an application. At this stage we will re-iterate that that the majority of production applications that solve significant scientific problems will require packages encompassing a number of the classes described by the Dwarfs.
+
+The Dwarfs cover broad families of algorithms, each of which encapsulates a subset of possible performance characteristics, with some overlap of characteristics amongst the Dwarfs. An aim of our research is to expose dominant performance characteristics, as we hypothesise that there will be an unequal weighting of the importance of those characteristics. 
+
+The Dwarfs that we consider in this paper are:
+
+\begin{itemize}
+  \item \textbf{Spectral Methods} - \textit{Fast}: A Fast Fourier Transform solver for Poisson's equation (Section \ref{sec:fast}).
+  \item \textbf{Sparse Linear Algebra} - \textit{Hot}: An heat diffusion application, that uses a Conjugate Gradient linear solver (Section \ref{sec:hot}).
+  \item \textbf{Structured Grid} - \textit{Wet}: A Lagrangian-Eulerian hydrodynamics application that uses an explicit 5 point stencil (Section \ref{sec:wet}).
+  %\item \textbf{Monte Carlo} - \textit{Bright}: A time-dependent Monte Carlo neutral particle tracking application that tallies energy depositions (Section \ref{sec:bright}).
+\end{itemize}
+
+We will present the results of coupling Hot 2D with Wet 2D, and Hot 3D with Fast 3D. To support this we also discuss the potential difficulties that we anticipate will arise when composing the other Dwarfs together.
+
 \subsection{Fast - Fast Fourier Transform for Poisson's Equation}
+
+\label{sec:fast}
 
 Later in the paper we will see that there are certain dominant characteristics of packages or algorithms that can have a major impact on the overall perforamce of an application. 
 
@@ -144,6 +165,8 @@ The parallel decomposition of the FFT operation is architecture dependent, and i
 
 \subsection{Hot - Heat Conduction via a CG Solver}
 
+\label{sec:hot}
+
 We have developed a simple conjugate gradient (CG) solver that implicitly solves the heat conduction equation in order to solve the problem within a reasonable time-frame with acceptable fidelity. Our implementation uses a standard preconditioner, but otherwise adopts the simplest CG approach. Heat conduction in two dimensions can be specified as follows:
 
 \begin{align}
@@ -163,6 +186,8 @@ At each iteration an alpha and beta value is calculated, which needs to be distr
 
 \subsection{Wet - Fluid Dynamic via Direct Lagrangian-Eulerian Flux Calculations}
 
+\label{sec:wet}
+
 Our fluid dynamics simulation maintains the simplest possible methods, whilst keeping second order in space for all dependent variables. We chose to stay first order in time because algorithms that are second-order in time are somewhat more complicated, and the benefit is primarily reduce wallclock time. Our initial instinct is that the relative runtimes of each of the applications was not particularly important at this stage, but may revisit this issue in a later publication.
 
 The direct Lagrangian-Eulerian algorithm takes Euler's equations, and explicitly solves them across a staggered structured grid. The application uses simple smoothing to simulate artificial viscosity, with shock heating accounted for as part of the mechanical work update. For the mass flux calculations, a Van-Leer flux limiter is used to maintain a monotonic profile at shock boundaries, and second-order interpolations are performed for energy and momentum to ensure monotonic behaviour for all dependent variables.
@@ -175,37 +200,33 @@ As with the heat condution application, the boundary conditions we chose for thi
 
 As with the heat conduction application, the algorithm does not have any inherent load imbalance, and only requires nearest neighbour communication. The explicit nature of the algorithm means that multiple kernels are invoked in order, and the independent kernels are inherently data parallel, allowing them to be easily threaded for CPU and GPU.
 
-\subsection{Bright - Monte Carlo Particle Transport}
+%\subsection{Bright - Monte Carlo Particle Transport}
+%
+%\label{sec:bright}
+%
+%Our transport application uses a Monte Carlo particle tracking method, making it quite different to the other two algorithms. Our initial effort split the problem into batches of particles, each of which had an individual history that was followed in a time-dependent manner. 
+%
+%A major aspect of the application is the data structure used to describe particles. Given that we did not have prior experience with this particular algorithmic class, we were not exactly sure which of the potential approaches would end up being the most performant, so we explored the space and performed some testing which we describe in detail later. Ultimately, we described a single particle using a data structure that contains the particle's position in space, direction, energy, and initially tracked the particles location by cell on the mesh.
+%
+%Our simple tracking procedure would maintained several running timesteps to different event types: (1) a Collision event, which is where the particle would either change direction or have some of its weight absorbed, (2) a Facet event, where the particle reached the boundary of a cell or zone, and (3) a Census event, where the particle reached the end of the current timestep. Of course, the census events for the application in isolation were simply set to some small constant size, with the intention for this timestep to be later controlled by the requirement of the CFL condition exposed by the fluid dynamics simulation.
+%
+%In order to determine if a Collision event has occured, we perform a lookup to cross sectional data taken from the ENDF database. In our particular approximation, we only consider absorption and scattering, ignoring any contributions due to fission. In order to reduce the overall variance of the simulation, we extend the lifespan of particles by giving them a weight, and reducing this weight each time an absorption event occurs, rather than declaring them as dead particles. Once the weight has reduced past a certain point, or the particle has reached a low enough energy, we will only then consider the particle to be dead.
+%
+%When a Collision event occurs and the result is a scattering of the particle a random number is generated to determine the angle of scattering, and this is also used to determine the level of energy dampening that occurs using well known relations \cite{}.
+%
+%To perform facet intersection checking, we are able to leverage the simple geometry of the structured grid to calculate the new direction using a simple method of our own devising. We first check which of the edges would be hit first if the particle were travelling at the same speed but only along a single axis, and use this to solve the system of equations that arises to determine the intersection point. We have considered that this might not be optimal, and doesn't generalise beyond the basic geometry presented by our structured grid case.
+%
+%In terms of boundary conditions we did select reflective at this stage, as this made it easier to track some conservation in the system, and matches the approach taken with the hydrodynamics solver, although we did recognise that it would likely be more representative if the boundary conditions were transmissive.
+%
+%Of course, all of this requires a sufficient random number generator with a large period. In order to fulfil this requirement we leveraged an existing lightweight Mersenne-Twister algorithm, to generate random numbers for the whole system.
+%
+%\subsubsection{Parallelisation}
+%
+%Unlike the other two applications, the Monte Carlo method exposes some load imbalance. There are a number of approaches to improving this problem, and we explored some of them to select the best for our particular set of requirements. 
 
-Our transport application uses a Monte Carlo particle tracking method, making it quite different to the other two algorithms. Our initial effort split the problem into batches of particles, each of which had an individual history that was followed in a time-dependent manner. 
+%In terms of parallelising the algorithm there were several factors to consider, for instance it is important to maintain good data locality in particular for vectorisation on CPUs and coalescense on GPUs. Our initial strategy was to perform a coarse-grained parallelism, splitting the particles into batches in order for them to be processed in parallel. Of course this has implications in terms of the memory layout as the particles are tracked through space.
 
-A major aspect of the application is the data structure used to describe particles. Given that we did not have prior experience with this particular algorithmic class, we were not exactly sure which of the potential approaches would end up being the most performant, so we explored the space and performed some testing which we describe in detail later. Ultimately, we described a single particle using a data structure that contains the particle's position in space, direction, energy, and initially tracked the particles location by cell on the mesh.
-
-Our simple tracking procedure would maintained several running timesteps to different event types: (1) a Collision event, which is where the particle would either change direction or have some of its weight absorbed, (2) a Facet event, where the particle reached the boundary of a cell or zone, and (3) a Census event, where the particle reached the end of the current timestep. Of course, the census events for the application in isolation were simply set to some small constant size, with the intention for this timestep to be later controlled by the requirement of the CFL condition exposed by the fluid dynamics simulation.
-
-In order to determine if a Collision event has occured, we perform a lookup to cross sectional data taken from the ENDF database. In our particular approximation, we only consider absorption and scattering, ignoring any contributions due to fission. In order to reduce the overall variance of the simulation, we extend the lifespan of particles by giving them a weight, and reducing this weight each time an absorption event occurs, rather than declaring them as dead particles. Once the weight has reduced past a certain point, or the particle has reached a low enough energy, we will only then consider the particle to be dead.
-
-When a Collision event occurs and the result is a scattering of the particle a random number is generated to determine the angle of scattering, and this is also used to determine the level of energy dampening that occurs using well known relations \cite{}.
-
-To perform facet intersection checking, we are able to leverage the simple geometry of the structured grid to calculate the new direction using a simple method of our own devising. We first check which of the edges would be hit first if the particle were travelling at the same speed but only along a single axis, and use this to solve the system of equations that arises to determine the intersection point. We have considered that this might not be optimal, and doesn't generalise beyond the basic geometry presented by our structured grid case.
-
-In terms of boundary conditions we did select reflective at this stage, as this made it easier to track some conservation in the system, and matches the approach taken with the hydrodynamics solver, although we did recognise that it would likely be more representative if the boundary conditions were transmissive.
-
-Of course, all of this requires a sufficient random number generator with a large period. In order to fulfil this requirement we leveraged an existing lightweight Mersenne-Twister algorithm, to generate random numbers for the whole system.
-
-\subsubsection{Parallelisation}
-
-Unlike the other two applications, the Monte Carlo method exposes some load imbalance. There are a number of approaches to improving this problem, and we explored some of them to select the best for our particular set of requirements. 
-
-In terms of parallelising the algorithm there were several factors to consider, for instance it is important to maintain good data locality in particular for vectorisation on CPUs and coalescense on GPUs. Our initial strategy was to perform a coarse-grained parallelism, splitting the particles into batches in order for them to be processed in parallel. Of course this has implications in terms of the memory layout as the particles are tracked through space.
-
-\section{Composition of Dwarfs}
-
-When investigating the coupling of parallel algorithms, there is the potential to consider any number of existing packages. In this research we have chosen to continue on from the work discussed by Asanovic et al. \cite{Asanovic2006}, who outlined a number of Dwarfs, each of which describes a different computational class that features in modern supercomputing applications. Although they continue to describe an additional six Dwarfs, we will only consider the original seven.
-
-Each of the Dwarfs has a unique set of computational and communicational characteristics that mean that they have different requirements of modern computing hardware. While many of those characteristics have been analysed and optimised heavily on existing architectures, we hope to uncover the extent to which those classes can co-exist within an application. At this stage we will re-iterate that that the majority of production applications that solve significant scientific problems will require packages encompassing a number of the classes described by the Dwarfs.
-
-The classes described by the Dwarfs are broad, and they encapsulate a subset of possible performance characteristics, which may be present in other Dwarfs. We hope to discover which is of those characteristics is most important, in the context of parallel performance on modern hardware, by considering the Structured Grid, Monte Carlo, Sparse Linear Algebra, and Spectral Methods Dwarfs. In particular, we consider four applications of those classes, hydrodynamics (Wet), neutral particle tracking (Bright), implicit heat diffusion (Hot), and the Fast Fourier Transform (Fast).
+\section{Performance Characteristics of the Mini-Apps}
 
 Some of the most important performance characteristics of those particular applications are listed in Table \ref{tab:perf-char-mini-apps}.
 
@@ -234,13 +255,13 @@ As this application is developed by computer scientists and primarily focusses u
 
 We could see two different approaches to coupling the applications, the first of which involves directly coupling their constituent equations and solving the whole system at once. This approach has two important drawbacks: (1) the complexity of this approach is significant, especially considering that we plan to extend this project into a suite of seven algorithms, and (2) boiling the algorithms under a single solve wouldn't capture the potential difficulties of executing diverse routines together.
 
-Given this, our choice of applications allows for a simple coupling stage that requires very little scientific knowledge to achieve a reasonable, albeit inaccurate, outcome. Although some variations of all four mini-apps (Hot, Wet, Fast, and Bright) exist, this research presents the results of coupling Hot and Wet together. We chose to start with those applications as they have similar communication patterns but significantly different computational profiles (SOMETHING STRONGER?). The inputs of the hydro package are density and energy, and momentum in each dimension, while the inputs for the diffusion package are density and temperature. As such we performed a simple conversion between internal energy and temperature between the packages, and ran them sequentially.
+Given this, our choice of applications allows for a simple coupling stage that requires little scientific knowledge to achieve a reasonable, albeit inaccurate, outcome. Although some variations of all four mini-apps (Hot, Wet, Fast, and Bright) exist, this research presents the results of coupling Hot and Wet together. We chose to start with those applications as they have similar communication patterns but significantly different computational profiles (SOMETHING STRONGER?). The inputs of the hydro package are density and energy, and momentum in each dimension, while the inputs for the diffusion package are density and temperature. As such we performed a simple conversion between internal energy and temperature between the packages, and ran them sequentially.
 
 \begin{figure}
-\centering
-\includegraphics[width=0.8\linewidth]{hot-wet-flow}
-\caption{The flow of our coupled Hot and Wet applications.}
-\label{fig:hot-wet-flow}
+  \centering
+  \includegraphics[width=0.6\linewidth]{hot-wet-flow}
+  \caption{The flow of our coupled Hot and Wet applications.}
+  \label{fig:hot-wet-flow}
 \end{figure}
 
 Figure \ref{fig:hot-wet-flow} demonstrates the current coupling, as well as the prospective coupling we plan to extend this work to accommodate. 
@@ -253,15 +274,32 @@ The results presented in this
 
 To fully assess the impact of composing the Dwarfs, we will test our coupled applications on a range of modern HPC hardware. We recognise that the Hot and Wet mini-apps are both memory bandwidth bound, and the Fast application is compute bound, however the 
 
+Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. For each of the applications we have developed ports to OpenMP 3.0, OpenMP 4.0 and CUDA, in order to validate the performance observed with some failsafe.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{cccccc}
+      \hline
+      \textbf{Device} & \textbf{Achievable Memory Bandwidth} & \textbf{Achievable FLOPS}  \\
+      \hline
+      \textit{\textbf{}} &  & Yes & Yes & Yes \\
+    \end{tabular}
+  \end{center}
+  \caption{Performance characteristics of the four mini-apps.}
+  \label{tab:perf-char-mini-apps}
+\end{table}
+
+We will state the compilers and toolkit version used as and when we present data, but the devices we execute on can be observed in Table \ref{tab:hardware}.
+
 \subsection{Hot'n'Wet}
 
 As we are presenting two applications that have been developed from scratch, we provide some simple scaling studies to demonstrate that each application performs to an acceptable level. This data gives us some baseline for comparison as we consider the applications within a multi-algorithmic execution setting.
 
 \begin{figure}
-\centering
-\includegraphics[width=1.0\linewidth]{cpu_results}
-\caption{Scaling the paired applications on multiple nodes of 44 core Broadwell CPU.}
-\label{fig:scaling-hot-wet-broadwell}
+  \centering
+  \includegraphics[width=1.0\linewidth]{cpu_results}
+  \caption{Scaling the paired applications on multiple nodes of 44 core Broadwell CPU.}
+  \label{fig:scaling-hot-wet-broadwell}
 \end{figure}
 
 As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of scaling the application across 32 nodes of 44 core Broadwell CPUs has resulted in a relatively consistent performance profile. Each of the application beats the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two solver at 16 nodes, that greatly reduces by the time that 32 nodes have been reached. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache have been slightly delayed.
@@ -269,10 +307,10 @@ As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of s
 Overall this scaling profile suggests that the composition of the two application on a CPU has achieved an expected level of performance cohesion. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
 
 \begin{figure}
-\centering
-\includegraphics[width=1.0\linewidth]{gpu_storm}
-\caption{Scaling the paired applications on a CS STORM node containing 8 NVIDIA K40 GPUs.}
-\label{fig:scaling-hot-wet-storm}
+  \centering
+  \includegraphics[width=1.0\linewidth]{gpu_storm}
+  \caption{Scaling the paired applications on a CS STORM node containing 8 NVIDIA K40 GPUs.}
+  \label{fig:scaling-hot-wet-storm}
 \end{figure}
 
 The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
@@ -290,7 +328,7 @@ In the event that the data structures within two packages conflict, we can theor
 
 \begin{itemize}
   \item \textbf{Pick the best decomposition for the worst package} - This may or may not be easy depending on the restrictions imposed by the other packages. This is likely only suitable when you have a significant difference between the relative costs of the packages.
-  \item \textbf{Choose some mutually beneficial layout} - This could be a complicated decision to make, and might lead to specific novel layouts for particular couplings. If the relative costs of the two packages are very similar, then we expect this to be a good choice.
+  \item \textbf{Choose some mutually beneficial layout} - This could be a complicated decision to make, and might lead to specific novel layouts for particular couplings. If the relative costs of the two packages are similar, then we expect this to be a good choice.
   \item \textbf{Perform a transposition of the data between packages} - Considering a simple two package application, with a victim that requires it's data transposed, this would lead to two transposition at entry to and exit from the victim package. Ideally this transposition could be overlapped with independent work.
 \end{itemize}
 
@@ -339,10 +377,10 @@ We are generally reticent to propose optimisations that we cannot provide real w
 We expect that it will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven dwarves of parallel programming. There are many possible combinations that can occur within a multi-package applications depending on the requirements of the particular scientific question being solved. It is possible to consider many potential 
 
 \begin{figure}
-\centering
-\includegraphics[width=0.8\linewidth]{all-four-flow}
-\caption{The flow of a prospective multi-package application.}
-\label{fig:multi-package-flow}
+  \centering
+  \includegraphics[width=0.6\linewidth]{all-four-flow}
+  \caption{The flow of a prospective multi-package application.}
+  \label{fig:multi-package-flow}
 \end{figure}
 
 \section{Future Work}
