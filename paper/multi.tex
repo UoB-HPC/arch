@@ -142,11 +142,13 @@ We will present the results of coupling Hot 2D with Wet 2D, and Hot 3D with Fast
 
 \label{sec:fast}
 
-Later in the paper we will see that there are certain dominant characteristics of packages or algorithms that can have a major impact on the overall perforamce of an application. 
+The fast fourier transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation.
 
-The fast fourier transform (FFT) is an important algorithm to a number of scientific and engineering domains, and the literature is extensive on optimising for parallel execution. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation using an FFT.
+The mini-app is flexible and can use a hand-rolled algorithm for the one dimensonal FFT and inverse FFT steps, but also provides an option to use the optimised Intel MKL library version. Our initial assumption is that the implementation of the FFT solve would be less important to the performance than the choice of decomposition strategy, given that the FFT operation is notoriously bound by the \textit{'all to all'} communication of data among processes.
 
-The mini-app is flexible and can use a hand-rolled algorithm for the actual FFT and inverse FFT steps, but also provides an option to use the optimised Intel MKL library version of the FFT. We do not believe that the actual implementation of the fundamental FFT is particularly important to the overall impact that including an FFT solver in a multi-package application. This point will be discussed extensively throughut the paper, but the most dominant feature of the FFT is not the computational bound that is created by it's arithmetic intensity, as the communicational patterns and data layouts are far more dominant factors in the performance of the algorithm.
+Prior to our experimentation, we anticipated that the inclusion of an FFT package within a multi-package application would likely result in conflicts over the optimal domain decompisition. We have seen similar instances of domain decompisition conflicts with decompositions for wavefront parallelism. We have developed the application with a number of different decompositions so that it is straighforward to test the impact of those options under composition with other packages.
+
+\subsubsection{Fundamental Method}
 
 Following on from the discussions in Gholami et al., we utilise the FFT to solve Poisson's equation for some dependent data passed to the solver. The general solve phase is as follows:
 
@@ -157,42 +159,52 @@ Following on from the discussions in Gholami et al., we utilise the FFT to solve
   \fft^{-1}(f'') &= f'''
 \end{align}
 
-Clearly the mathematical requirement of this package is quite low, especially when compared to Wet, which requires a cohesion between many numerical methods. The resulting algorithm purposefully simple however, whilst capturing the dominant performance characteristics exhibited by algorithms that take advantage of the FFT.
+Step (3) is the Hadamard product of the transformed $f$ and the inverse of the laplace operator. For our custom implementation of \textit{fft} we use an out-of-place parallel method derived from the Cooley-Tukey algorithm that can handle arbitrary problem sizes. The arithmetic requirement of this package is quite low, especially when compared to Wet, which requires a cohesion between many numerical methods. Maintaining a simple algorithm ensures that it is straighforward to adapt to the many available decompositions and capture the dominant performance characteristics exhibited by algorithms that take advantage of the FFT.
 
 \subsubsection{Parallelisation}
 
-The parallel decomposition of the FFT operation is architecture dependent, and in particular varies depending on how many computational elements the problem will be executed on. This is particularly important when composing an FFT package with other packages, as different decompositions might negatively impact on the performance of the whole application leading to a larger search space of decisions when optimising an application.
+The parallel decomposition of the FFT operation is architecture dependent, and in particular varies depending on how many computational elements the problem will be executed on. In particular, the different data layouts include decomposition by slabs or pencils.
+
+This issue is particularly important when composing an FFT package with other packages, as different decompositions might negatively impact on the performance of the whole application leading to a larger search space of decisions when optimising an application.
 
 \subsection{Hot - Heat Conduction via a CG Solver}
 
 \label{sec:hot}
 
-We have developed a simple conjugate gradient (CG) solver that implicitly solves the heat conduction equation in order to solve the problem within a reasonable time-frame with acceptable fidelity. Our implementation uses a standard preconditioner, but otherwise adopts the simplest CG approach. Heat conduction in two dimensions can be specified as follows:
+We have developed a simple conjugate gradient (CG) solver that implicitly solves the heat conduction equation in order to solve the problem within a reasonable time-frame with acceptable fidelity. Our implementation uses a standard preconditioner, but otherwise adopts the simplest CG approach. 
+
+\subsubsection{Fundamental Method}
+
+Heat conduction in two dimensions can be specified as follows:
 
 \begin{align}
-  \frac{\partial u}{\partial t} - \alpha (\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}) = 0 \\
-  u^{n+1} = u^n
+  \frac{\partial u}{\partial t} - \alpha (\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}) = 0 \\ 
+  \alpha = \frac{k}{\rho c_p} \\
+  u^n_{i,j} = u^{n+1}_{i,j}
 \end{align}
 
-The conjugate gradient method is iterative, and reduces the error of a guessed solution by walking along the eigenvectors of the solution vector. We will not develop or explain the mathematics underpinning the CG solver, and direct interested readers to explore the wealth of existing literature \cite{} (PUT A LOAD OF CG REFERENCES IN). The only physical feature of the application is manifested in the density calculations, where the densities are stored at the cell centers and interpolated to the edges.
-
-The best decomposition for this algorithm is essentially regular, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results. It is also useful when coupling to the other systems.
+Where $u$ is the temperature, $\alpha$ is the thermal diffusivity, $k$ is the thermal conductivity, $\rho$ is the density, and $c_p$ is the specific heat capacity. As you can see from equation (7), this particular form of the equation requires an implicit solve. The conjugate gradient method is an iterative method that descends towards a solution using conjugate vectors. We will not develop or explain the mathematics underpinning the CG solver, and direct interested readers to explore the wealth of existing literature \cite{} (PUT A LOAD OF CG REFERENCES IN). The only physical feature of the application is manifested in the density calculations, where the densities are stored at the cell centers and interpolated to the edges using the arithmetic mean.
 
 \subsubsection{Parallelisation}
 
-The algorithm does not expose any load imbalance, and the MPI communication was simply nearest neighbour halo exchanges, performed after each timestep. As each of the core kernels is essentially a simple linear algebra method, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
+The best decomposition for this mini-app is essentially regular cartesian, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results.
 
-At each iteration an alpha and beta value is calculated, which needs to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
+The algorithm does not expose any load imbalance, and nearest neighbour halo exchanges are performed each timestep. At each iteration an alpha and beta value is calculated, which needs to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
 
-\subsection{Wet - Fluid Dynamic via Direct Lagrangian-Eulerian Flux Calculations}
+As each of the core kernels is essentially a simple linear algebra method, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
+
+
+\subsection{Wet - Fluid Dynamics via Lagrangian-Eulerian Flux Calculations}
 
 \label{sec:wet}
 
-Our fluid dynamics simulation maintains the simplest possible methods, whilst keeping second order in space for all dependent variables. We chose to stay first order in time because algorithms that are second-order in time are somewhat more complicated, and the benefit is primarily reduce wallclock time. Our initial instinct is that the relative runtimes of each of the applications was not particularly important at this stage, but may revisit this issue in a later publication.
+The Wet mini-app is a Lagrangian-Eulerian hydrodynamics solver that is staggered in space and time. Although the mini-app is significantly larger and more complicated than our other new mini-apps, the resulting code is also significantly faster, as explicit stencil methods are particularly efficient in general.
 
-The direct Lagrangian-Eulerian algorithm takes Euler's equations, and explicitly solves them across a staggered structured grid. The application uses simple smoothing to simulate artificial viscosity, with shock heating accounted for as part of the mechanical work update. For the mass flux calculations, a Van-Leer flux limiter is used to maintain a monotonic profile at shock boundaries, and second-order interpolations are performed for energy and momentum to ensure monotonic behaviour for all dependent variables.
+\subsubsection{Fundamental Method}
 
-Directional splitting is used in order to make the application two-dimensional, and we chose to maintain symmetry by alternating the directional calculations with each timestep. Our explicit timestep controls limit the timestep based on the artificial viscosity coefficients and stop any flux extending beyond a single cell.
+The Lagrangian-Eulerian algorithm takes Euler's equations and explicitly solves them on a structured grid. The application uses simple smoothing to introduce artificial viscosity, with shock heating accounted for as part of the mechanical work update. For the mass flux calculations, a Van-Leer flux limiter is used to maintain a monotonic profile at shock boundaries, and slope-limited second-order interpolations are performed for energy and momentum to ensure monotonic behaviour for all dependent variables.
+
+Directional splitting is used in order to make the application two-dimensional, with the leading dimension switched each timestep, in order to maintain symmetry of the solution. Our explicit timestep controls limit the timestep based on the CFL condition, stopping sound waves travelling further than a single cell per timestep, accounting for the additional spreading that occurs due to the artificial viscous stresses. We have made the algorithm second order in time by interpolating our velocities half a timestep upstream for the advection stages.
 
 As with the heat condution application, the boundary conditions we chose for this application are reflective. This is particularly useful for fluid dynamics as tracking of conservation is important in verifying the results.
 
@@ -266,30 +278,31 @@ Given this, our choice of applications allows for a simple coupling stage that r
 
 Figure \ref{fig:hot-wet-flow} demonstrates the current coupling, as well as the prospective coupling we plan to extend this work to accommodate. 
 
-\section{Results}
+\section{Performance Analysis of Compositions}
 
-The results presented in this 
+Although we had some preconceptions regarding the likely effects of composing particular applications, we were objective in our assessment of the combined performance. In particular, we took time to validate that our assumptions were correct wherever possible, and have performed experimentation of a range of different platforms to observe whether there were any unexpected architectural influences.
 
 \subsection{Experimental Setup}
 
-To fully assess the impact of composing the Dwarfs, we will test our coupled applications on a range of modern HPC hardware. We recognise that the Hot and Wet mini-apps are both memory bandwidth bound, and the Fast application is compute bound, however the 
-
-Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. For each of the applications we have developed ports to OpenMP 3.0, OpenMP 4.0 and CUDA, in order to validate the performance observed with some failsafe.
+Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. For each of the applications we have developed ports to OpenMP 3.0, OpenMP 4.0 and CUDA.
 
 \begin{table}[h]
   \begin{center}
-    \begin{tabular}{cccccc}
+    \begin{tabular}{l|c|c}
       \hline
-      \textbf{Device} & \textbf{Achievable Memory Bandwidth} & \textbf{Achievable FLOPS}  \\
+      \textbf{} & \textbf{Mem BW} & \textbf{FLOPS}  \\
       \hline
-      \textit{\textbf{}} &  & Yes & Yes & Yes \\
+      \textit{\textbf{Intel Xeon E5-2699 v4 @ 2.20GHz (22 core)}} & 62 GB/s & ??? G/flops \\
+      \textit{\textbf{Intel Xeon Phi 7210 (64 core)}} & 450 GB/s & ??? G/flops \\
+      \textit{\textbf{NVIDIA K20X Kepler}} & 180 GB/s & ??? G/flops \\
+      \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & ??? G/flops \\
     \end{tabular}
   \end{center}
   \caption{Performance characteristics of the four mini-apps.}
   \label{tab:perf-char-mini-apps}
 \end{table}
 
-We will state the compilers and toolkit version used as and when we present data, but the devices we execute on can be observed in Table \ref{tab:hardware}.
+We will state the compilers and toolkit version used as and when we present data, and the devices we execute on can be observed in Table \ref{tab:hardware}. The devices we have chosen are present in many of the largest and most active supercomputers in the world, which we hope will strengthen the relevance of any findings.
 
 \subsection{Hot'n'Wet}
 
