@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  14 DEC 2016 02:27
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  14 DEC 2016 10:33
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -339,7 +339,7 @@ File: hot-wet-flow.png Graphic file (type png)
 <use hot-wet-flow.png>
 Package pdftex.def Info: hot-wet-flow.png used on input line 280.
 (pdftex.def)             Requested size: 208.27623pt x 64.24539pt.
- [8 <./hot-wet-flow.png>] [9]
+ [8] [9 <./hot-wet-flow.png>]
 <cpu_results.png, id=47, 662.475pt x 326.21875pt>
 File: cpu_results.png Graphic file (type png)
  <use cpu_results.png>
@@ -383,7 +383,7 @@ mr7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9
 pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pf
 b></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on multi.pdf (15 pages, 270698 bytes).
+Output written on multi.pdf (15 pages, 270867 bytes).
 PDF statistics:
  116 PDF objects out of 1000 (max. 8388607)
  78 compressed objects within 1 object stream

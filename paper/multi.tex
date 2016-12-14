@@ -142,7 +142,7 @@ We will present the results of coupling Hot 2d with Wet 2d, and Hot 3d with Fast
 
 \label{sec:fast}
 
-The fast fourier transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation.
+The fast fourier transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation. The primary reason for choosing this particular approach is not scientific relevance, rather that it will result in verifiable outputs, while still capturing some important performance characteristics of the class of algorithms.
 
 The mini-app is flexible and can use a hand-rolled algorithm for the one dimensonal FFT and inverse FFT steps, but also provides an option to use the optimised Intel MKL library version. Our initial assumption is that the implementation of the FFT solve would be less important to the performance than the choice of decomposition strategy, given that the FFT operation is notoriously bound by the \textit{'all to all'} communication of data among processes.
 
