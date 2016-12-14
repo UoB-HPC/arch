@@ -230,14 +230,12 @@ void decompose_3d_cartesian(
   float min_sa_to_vol = 0.0f;
 
   // Determine decomposition that minimises surface area to volume ratio
-  for(int ee = 1; ee <= cbrt(nranks); ++ee) {
-    for(int ff = 1; ff <= cbrt(nranks); ++ff) {
-      for(int gg = 1; gg <= nranks; ++gg) {
+  for(int split_z = 1; split_z <= cbrt(nranks); ++split_z) {
+    for(int split_y = 1; split_y <= cbrt(nranks); ++split_y) {
+      for(int split_x = 1; split_x <= nranks; ++split_x) {
         // Factorise the number of ranks
-        if(nranks % ee || (nranks / ee) % ff || (nranks / (ee*ff)) % gg) continue;
-        int split_x = nranks / ee;
-        int split_y = split_x / ff;
-        int split_z = split_y / gg;
+        if(nranks % split_x || (nranks / split_x) % split_y || (nranks % (split_x*split_y))) 
+          continue;
 
         // Calculate the surface are to volume ratio of the rank split
         const float sa_to_vol =
@@ -246,13 +244,14 @@ void decompose_3d_cartesian(
         // TODO: MINIMISE THE RATIO OF EACH EDGE PAIR ON THE RANKS AND MESH
         // TO BETTER DECOMPOSE IRREGULAR PROBLEM SHAPES
         if(min_sa_to_vol == 0.0f || sa_to_vol < min_sa_to_vol) {
+          min_sa_to_vol = sa_to_vol;
           // Choose edges so that x > y > z for preferred data access
           if(split_x >= split_y && split_x >= split_z) {
             ranks_x = split_x;
             ranks_y = (split_y > split_z) ? split_y : split_z;
             ranks_z = (split_y > split_z) ? split_z : split_y;
           }
-          else if(split_y >= split_x && split_y > split_z) {
+          else if(split_y >= split_x && split_y >= split_z) {
             ranks_x = split_y;
             ranks_y = (split_x > split_z) ? split_x : split_z;
             ranks_z = (split_x > split_z) ? split_z : split_x;
@@ -261,9 +260,6 @@ void decompose_3d_cartesian(
             ranks_x = split_z;
             ranks_y = (split_x > split_y) ? split_x : split_y;
             ranks_z = (split_x > split_y) ? split_y : split_x;
-          }
-          else {
-            assert(0 && "Unreachable");
           }
         }
       }

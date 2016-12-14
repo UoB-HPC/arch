@@ -5,14 +5,10 @@
 #define LOAD_BALANCE 0  // Whether decomposition should attempt to load balance
 #define WIDTH 10.0      // The width of the problem domain 
 #define HEIGHT 10.0     // The height of the problem domain
-#define DEPTH 10.0     // The depth of the problem domain
+#define DEPTH 10.0      // The depth of the problem domain
 #define MAX_DT 0.04     // The maximum allowed timestep
 
-#ifdef APP_3D
-#define NNEIGHBOURS 6
-#else
-#define NNEIGHBOURS 4   // The number of neighbours, as expected from 2d
-#endif
+#define NNEIGHBOURS 6   // This is max size required - for 3d
 
 #define C_T 0.3
 
