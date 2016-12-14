@@ -309,18 +309,28 @@ Each of the mini-apps has been optimised using modern techniques from years of r
 
 We will state the compilers and toolkit versions used as and when we present relevant data, and the devices we execute on can be found in Table \ref{tab:hardware}. The devices we have chosen are present in many of the largest and most active supercomputers in the world, which we hope will strengthen the relevance of any findings.
 
-\subsection{Hot'n'Wet}
+As the heat diffusion solver is iterative, it is possible to have some variance in the number of iterations performed based on the problem dimensions and initial conditions. In order to make the results more comparable across devices and between experiments we fixed the iteration count.
 
-Given the performance characteristics we have described for both Hot and Wet, we couldn't predict any significant issues that might arise when coupling them. We are presenting two applications that have been developed from scratch, and so we provide individual scaling results to demonstrate that each application performs to an acceptable level. We also provide the scaling of composing the two packages into a single application.
+\subsection{Hot 2d + Wet 2d}
+
+Given the performance characteristics we have described for both Hot and Wet, we couldn't predict any significant issues that might arise when coupling them. We are presenting two applications that have been developed from scratch, and so we provide individual scaling results to demonstrate that each application performs to an acceptable level. 
+
+\subsubsection{Scaling}
+
+We provide the scaling of composing the two packages into a single application.
 
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{cpu_results}
-  \caption{Scaling Hot, Wet, and Hot'n'Wet on multiple nodes containing dual socket 22 core Broadwell CPUs.}
+  \caption{Scaling Hot 2d, Wet 2d, and Hot 2d + Wet 2d on multiple nodes containing dual socket 22 core Broadwell CPUs.}
   \label{fig:scaling-hot-wet-broadwell}
 \end{figure}
 
 As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of scaling the application across 32 nodes of dual socket 22 core Broadwell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
+
+\subsubsection{Other Devices}
+
+To ensure different effects are not seen with diverse architectures, we collected results from a range of devices.
 
 \begin{table}[h]
   \begin{center}
@@ -332,15 +342,14 @@ As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of s
       \textit{\textbf{Broadwell 44 Core}} & 109.4 & 8.9 & 118.8 & 0.4\\
       \textit{\textbf{KNL}} & 36.8 & 4.4 & 41.3 & 0.01 \\
       \textit{\textbf{K20X}} & 85.0 & 7.4 & 92.4 & -0.08 \\
+      \textit{\textbf{Power8}} & & & & \\
     \end{tabular}
   \end{center}
   \caption{The performance of Hot, Wet, and Hot'n'Wet on multiple devices for the $5000^2$ for 50 iterations.}
   \label{tab:hot-wet-multi-device}
 \end{table}
 
-We can see in Table \ref{tab:hot-wet-multi-device} that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results.
-
-Overall this scaling profile suggests that the composition of the two application on a CPU has resulted in very little performance degradation. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
+We can see in Table \ref{tab:hot-wet-multi-device} that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results. Overall this scaling profile suggests that the composition of the two application on a CPU has resulted in very little performance degradation. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
 
 %\begin{figure}
 %  \centering
@@ -352,11 +361,17 @@ Overall this scaling profile suggests that the composition of the two applicatio
 %The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
 
 
-Our results here are fairly unremarkable, and support our hypothesis that the two applications investigated are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will bei important work to investigate how scaling is affected towards the limits of the scalability of each application.
+The results demonstrate that Hot and Wet are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
 
-\subsection{Fast'n'Hot and Wet'n'Fast}
+An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size for realy scientific problems, the capped inner iterations perfomed by \textit{Hot} mean that the performance results shown in Table \ref{tab:hot-wet-multi-device} do not truly represent the imbalance. The true disparity between the runtimes of the two packages is above an order of magnitude. We believe that this has some important implications for the optimisation of the applications when composed. Such an imbalance surely opens up the opportunity for successful overlapping of slow operations...
 
-DISCUSS THE COUPLING AND PERFORMANCE
+I HAVE LOADS OF PERFORMANCE RESULTS FOR THIS COUPLING, ON ALL DEVICES, WITH OPENMP, PROBLEM SCALING, SCALING ON MULTI-GPU etc. BUT I'M OMITTING AS THE COUPLING IS NOT INTERESTING
+
+\subsection{Fast 3d + Hot 3d}
+
+THIS SECTION IS WRITTEN WITHOUT ACTUAL RESULTS
+
+As mentioned throughout the paper, we expected that combining Fast 3d with any of the other mini-apps would lead to conflicts over domain decomposition. 
 
 \subsubsection{Conflict Resolution}
 
@@ -370,20 +385,20 @@ In the event that the data structures within two packages conflict, we can theor
 
 \section{Patterns Affecting Performance for Multi-Package Applications}
 
-Although both Hot and Wet combined together successfully, our research has uncovered a number of areas that we recognise present risks or opportunities to the performance of multi-package applications. 
+Our research has uncovered a number of areas that we recognise present risks or opportunities to the performance of multi-package applications. 
 
 \begin{itemize}
-  \item \textbf{Diverse Computational Weightings} - Each package will expose some fixed or dynamic performance cost for particular problems. We observed with Hot and Wet that the difference in solve times could be different by an order of magnitude depending on configuration.
-  \item \textbf{Dynamic Meshes} - In the event that mesh data has to move between applications, there is significant potential.
+  \item \textbf{Diverse Computational Weightings} - Each package will expose some fixed or dynamic performance cost for particular problems. We observed with Hot and Wet that the difference in solve times differed by an order of magnitude depending on configuration.
+  \item \textbf{Different Optimal Data Layouts} - If choosing an optimal data layout for a package results in a sub-optimal data layout for the other packages, the trade-off is going to be challenging to manage. It is also often the case that applications require different layouts for different architectures, which greatly amplifies this issue. 
   \item \textbf{Competing Decompositions} - It is possible that different packages within an application might require different decompositions for optimal performance. We extend this discussion in Section \ref{sec:scalability-inhibit} to predict a key bottleneck to multi-package scaling.
-  \item \textbf{Capacity Requirements} - As you increase the number of packages that are included in an application, the capacity requirements can be inflated significantly. It will be important to overlap as much of the capacity as possible in order to minimise this effect.
+  \item \textbf{Capacity Requirements} - As you increase the number of packages that are included in an application, the capacity requirements can be inflated significantly. It will be important to overlap as much of the capacity as possible in order to minimise this effect. On devices with low capacity, such as accelerator devices, this issue might become a truly limiting factor.
 \end{itemize}
 
-An important feature of some algorithms that has not yet been acknowledge by this research is the structure of the computational mesh. The Unstructured Grid Dwarf describes those packages that have computational meshes formed of complex geometries. We are currently deferring the investigation of unstructured meshes, as such a mesh change is in general pervasive. Although it is possible that they exist, our group has never encountered an application that contains solvers for structured \textit{and} unstructured meshes that are intended to be run as part of a multi-package solve. 
+We are expecting that continued research into the area of Dwarf composition will begin to uncover some of the points raised above, allowing us to begin tackling the issues.
 
-As the unstructured characteristic greatly increases the complexity of each individual application and would have to be changed in any applications destined for coupling, we will defer this analysis for later investigation.
+An important feature of many algorithms that has not yet been acknowledged in this research is the structure of the computational mesh. The Unstructured Grid Dwarf describes those packages that have computational meshes formed of complex graph-based geometries. We are currently deferring the investigation of unstructured meshes, as such a mesh change is in general pervasive. Although it is possible that they exist, our group has never encountered an application that contains solvers for structured \textit{and} unstructured meshes that are intended to be run as part of a multi-package solve.
 
-We hope that our future research can extend the results of this paper to begin to understand the issues we hypthesise here.
+As the unstructured characteristic greatly increases the complexity of each individual application and would have to be adopted in any applications destined for composition, we will defer this analysis for later investigation.
 
 \subsection{Diminishing Scalability for Increasing Core Counts}
 
@@ -391,12 +406,11 @@ We hope that our future research can extend the results of this paper to begin t
 
 Modern supercomputing has reached a scale where the core counts at the node level are increasingly significantly each year, and this has major implications for writing portable and performant code. In particular, many of the largest supercomputers in the world include heterogeneous devices, such as accelerators, which greatly increase the core count, and require that significant data-parallelism is exposed within scientific application's algorithms in order to perform well.
 
-Accelerator devices like the Intel Xeon Phi processors, have greater numbers of cores than existing Intel CPUs, for instance the Knights Landing has between 64 and 72, each with 4 hardware threads, whereas the Intel Xeon Broadwell can have up to 22 cores per socket, each core supporting up to 2 hardware threads. The IBM POWER8 CPU also exposes a large core count, with up to 12 cores per socket and 8 hardware threads for a total of 192 threads.
+Accelerator devices like the Intel Xeon Phi processors, have greater numbers of cores than existing Intel CPUs, for instance the Knights Landing has between 64 and 72, each with 4 hardware threads, whereas the Intel Xeon Broadwell can have up to 22 cores per socket, each core supporting up to 2 hardware threads. The IBM POWER8 CPU also exposes a large thread count, with up to 12 cores per socket and 8 hardware threads for a total of 192 threads.
 
-This continual increase in the number of cores available on a node has major implications for the scalability of codes, and this is amplified by the increasing number of nodes that are hosting those devices. It is well known that many algorithms reach a turnover point for strong scaling, past which communication costs begin to overwhelm the performance, and decomposing a problem will experience diminishing returns. Regardless of node-level application performance, as communication becomes the limiting factor, we are reaching a stage where the scalability of applications demands that the highly parallel applications exploit shared memory as much as possible.
+This continual increase in the number of computational units available on a node has major implications for the scalability of codes, and this is amplified by the increasing number of nodes that are hosting those devices. It is well known that many algorithms reach a turnover point for strong scaling, past which communication costs begin to overwhelm the performance, and decomposing a problem will experience diminishing returns. Regardless of node-level application performance, as communication becomes the limiting factor, we are reaching a stage where the scalability of applications demands that the highly parallel applications exploit shared memory as much as possible.
 
-We can see here a significant risk to the overall performance of 
-
+We predict that it will be particularly important to understand the influence of composing multiple packages on the potential for exploiting local shared memory.
 
 %Extending the discussion to GPGPUs, NVIDIA's Tesla K40 devices have 15 streaming multi-processors (SMX), each of which support 192 processing elements, for a total of 2880 CUDA cores. While those 'CUDA cores' are not cores in the traditional sense, rather individual processing elements, this does not change the fact that any algorithm targeted at these archiectures will need to expose an increasingly large level of parallelism. More recently, NVIDIA released the Tesla P100, which has increased the number of SMXs to 56 and decreased the number of processing elements in each to 64 (two warps), for a total of 3584 CUDA cores.
 
@@ -404,9 +418,11 @@ We can see here a significant risk to the overall performance of
 
 \subsection{Asynchronicity Among Packages}
 
-The balance of different packages within a full application might allow new avenues for overlapping long communications or IO times, or even the potential for overlapping the compute of packages within the full application. We are interested to explore a number of these issues and expect that this could be a future direction for work but have not investigated that point in this research.
+The balance of different packages within a full application might allow new avenues for overlapping long communications or IO times, or even the potential for overlapping the compute of packages within the full application. We are interested to explore a number of these issues and expect that this could be a future direction for investigation.
 
-We are generally reticent to propose optimisations that we cannot provide real world use-cases that could benefit from them. 
+The main drawback that we can see with this issue is that overlapping likely complicates the applications so much that it might be possible in the confines of a mini-app, but untenable for a production application. However, if we were to approach this problem, we expect that coarse-grained node-local tasks would be the correct mechanism to support such optimisations.
+
+IF TIME PERMITS WILL ADD SOMETHING TO THIS EFFECT
 
 \section{Future Couplings}
 
