@@ -255,6 +255,7 @@ Although the Dwarfs imply some high-level performance characteristics, we believ
       \textit{\textbf{All to All Communications}} & Yes & No & Yes \\
       \textit{\textbf{Memory-Bandwidth Bound}} & Yes & Yes & No \\
       \textit{\textbf{Multiple Optimal Decompostions}} & No & No & Yes \\
+      \textit{\textbf{Load Imbalance}} & No & No & No \\
     \end{tabular}
   \end{center}
   \caption{Performance characteristics of the four mini-apps.}
@@ -391,6 +392,7 @@ Our research has uncovered a number of areas that we recognise present risks or 
   \item \textbf{Diverse Computational Weightings} - Each package will expose some fixed or dynamic performance cost for particular problems. We observed with Hot and Wet that the difference in solve times differed by an order of magnitude depending on configuration.
   \item \textbf{Different Optimal Data Layouts} - If choosing an optimal data layout for a package results in a sub-optimal data layout for the other packages, the trade-off is going to be challenging to manage. It is also often the case that applications require different layouts for different architectures, which greatly amplifies this issue. 
   \item \textbf{Competing Decompositions} - It is possible that different packages within an application might require different decompositions for optimal performance. We extend this discussion in Section \ref{sec:scalability-inhibit} to predict a key bottleneck to multi-package scaling.
+  \item \textbf{Load Imbalance} - If there is a significant load imbalance in one of the packages the usual approach would be to dynamically adapt the decomposition to re-balance, however when operating in a multi-package environment this will create a load imbalance for the other packages, which will be challenging to handle.
   \item \textbf{Capacity Requirements} - As you increase the number of packages that are included in an application, the capacity requirements can be inflated significantly. It will be important to overlap as much of the capacity as possible in order to minimise this effect. On devices with low capacity, such as accelerator devices, this issue might become a truly limiting factor.
 \end{itemize}
 
@@ -424,9 +426,11 @@ The main drawback that we can see with this issue is that overlapping likely com
 
 IF TIME PERMITS WILL ADD SOMETHING TO THIS EFFECT
 
-\section{Future Couplings}
+\section{Future Compositions}
 
-We expect that it will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven dwarves of parallel programming. There are many possible combinations that can occur within a multi-package applications depending on the requirements of the particular scientific question being solved. It is possible to consider many potential 
+We expect that it will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven Dwarfs of parallel programming. The Bright mini-app hosts a Monte Carlo neutral particle tracking algorithm that we are currently developing. Due to the inherent load imbalance of the problem, it is likely that the application will cause significant performance degradations in general.
+
+Including more applications into the potential compositions leads to many possible combinations. For instance, taking our all four of our current mini-apps we could perform the following coupling:
 
 \begin{figure}
   \centering
@@ -435,9 +439,11 @@ We expect that it will be useful to extend this work to investigate the performa
   \label{fig:multi-package-flow}
 \end{figure}
 
+We would expect that this sort of package mix could be quite suitable for combustion, or astrophysics (MAKING THAT UP). The resulting performance profile would include lots of all to all communication, several competing decompositions and load imbalance.
+
 \section{Future Work}
 
-We further recognise that there are many requirements not handled by our existing applications, such as three-dimensional solves, multiple materials, and complex unstructured geometries. Each of these has a significant influence on the performance of individual algorithms, and likely introduces new issues for coupling packages together. As such it will be essential to consider new mini-apps that can proxy those particular features and consider their performance on new hardware.
+We further recognise that there are many requirements not handled by our existing applications, such as multiple materials, complex unstructured geometries, and adaptive mesh refinement. Each of these has a significant influence on the performance of individual algorithms, and likely introduces new issues for coupling packages together. As such it will be essential to consider new mini-apps that can proxy those particular features and consider their performance on new hardware.
 
 \section{Related Work}
 
@@ -445,7 +451,7 @@ We further recognise that there are many requirements not handled by our existin
 
 \section{Conclusion}
 
-Although we have only been able to compose three applications in this paper, we have already discovered and discussed some interesting problems that can arise in the process. Importantly we have been able to observe an important fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the application that the dominant conflicting performance characteristics present amongst the applications.
+Although we have only been able to compose three applications in this paper, we have already discovered and discussed some interesting problems that can arise in the process. Importantly we have been able to observe an important fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the application than the dominant conflicting performance characteristics present amongst the applications.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,multi}
