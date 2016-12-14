@@ -303,31 +303,31 @@ Each of the mini-apps has been optimised using modern techniques from years of r
       \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & ??? G/flops \\
     \end{tabular}
   \end{center}
-  \caption{Performance characteristics of the four mini-apps.}
-  \label{tab:perf-char-mini-apps}
+  \caption{The devices used in this performance analysis.}
+  \label{tab:hardware}
 \end{table}
 
-We will state the compilers and toolkit version used as and when we present data, and the devices we execute on can be observed in Table \ref{tab:hardware}. The devices we have chosen are present in many of the largest and most active supercomputers in the world, which we hope will strengthen the relevance of any findings.
+We will state the compilers and toolkit versions used as and when we present relevant data, and the devices we execute on can be found in Table \ref{tab:hardware}. The devices we have chosen are present in many of the largest and most active supercomputers in the world, which we hope will strengthen the relevance of any findings.
 
 \subsection{Hot'n'Wet}
 
-As we are presenting two applications that have been developed from scratch, we provide some simple scaling studies to demonstrate that each application performs to an acceptable level. This data gives us some baseline for comparison as we consider the applications within a multi-algorithmic execution setting.
+Given the performance characteristics we have described for both Hot and Wet, we couldn't predict any significant issues that might arise when coupling them. We are presenting two applications that have been developed from scratch, and so we provide individual scaling results to demonstrate that each application performs to an acceptable level. We also provide the scaling of composing the two packages into a single application.
 
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{cpu_results}
-  \caption{Scaling the paired applications on multiple nodes of 44 core Broadwell CPU.}
+  \caption{Scaling Hot, Wet, and Hot'n'Wet on multiple nodes containing dual socket 22 core Broadwell CPUs.}
   \label{fig:scaling-hot-wet-broadwell}
 \end{figure}
 
-As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of scaling the application across 32 nodes of 44 core Broadwell CPUs has resulted in a relatively consistent performance profile. Each of the application beats the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two solver at 16 nodes, that greatly reduces by the time that 32 nodes have been reached. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache have been slightly delayed.
+As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of scaling the application across 32 nodes of dual socket 22 core Broadwell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
 
-Overall this scaling profile suggests that the composition of the two application on a CPU has achieved an expected level of performance cohesion. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
+Overall this scaling profile suggests that the composition of the two application on a CPU has resulted in very little performance degradation. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
 
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{gpu_storm}
-  \caption{Scaling the paired applications on a CS STORM node containing 8 NVIDIA K40 GPUs.}
+  \caption{Scaling Hot, Wet, and Hot'n'Wet on a CS STORM node containing 8 NVIDIA K40 GPUs.}
   \label{fig:scaling-hot-wet-storm}
 \end{figure}
 
