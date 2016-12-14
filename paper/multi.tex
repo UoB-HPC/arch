@@ -136,7 +136,7 @@ The Dwarfs that we consider in this paper are:
   %\item \textbf{Monte Carlo} - \textit{Bright}: A time-dependent Monte Carlo neutral particle tracking application that tallies energy depositions (Section \ref{sec:bright}).
 \end{itemize}
 
-We will present the results of coupling Hot 2D with Wet 2D, and Hot 3D with Fast 3D. To support this we also discuss the potential difficulties that we anticipate will arise when composing the other Dwarfs together.
+We will present the results of coupling Hot 2d with Wet 2d, and Hot 3d with Fast 3d. To support this we also discuss the potential difficulties that we anticipate will arise when composing the other Dwarfs together.
 
 \subsection{Fast - Fast Fourier Transform for Poisson's Equation}
 
@@ -240,43 +240,48 @@ As with the heat conduction application, the algorithm does not have any inheren
 
 \section{Performance Characteristics of the Mini-Apps}
 
-Some of the most important performance characteristics of those particular applications are listed in Table \ref{tab:perf-char-mini-apps}.
+Although the Dwarfs imply some high-level performance characteristics, we believe it is important to consider all of the characteristics of the particular algorithms we have chosen. Some of the most important performance characteristics of the mini-apps are listed in Table \ref{tab:perf-char-mini-apps}.
 
 \begin{table}[h]
   \begin{center}
-    \begin{tabular}{cccccc}
+    \begin{tabular}{cccc}
       \hline
-      \textbf{Property} & \textbf{Hot} & \textbf{Wet} & \textbf{Fast} & \textbf{Bright} \\
+      \textbf{Property} & \textbf{Hot} & \textbf{Wet} & \textbf{Fast} \\
       \hline
-      \textit{\textbf{Nearest Neighbour}} & Yes & Yes & No & No \\
-      \textit{\textbf{Dynamic Locality}} & No & No & No & Yes \\
-      \textit{\textbf{Inner Iterations}} & Yes & No & No & No \\
-      \textit{\textbf{Iterative}} & No & No & No & Yes \\
-      \textit{\textbf{Mesh-based}} & Yes & Yes & Yes & Yes \\
+      \textit{\textbf{Nearest Neighbour Communciation}} & Yes & Yes & No  \\
+      \textit{\textbf{Iterative}} & Yes & No & No \\
+      \textit{\textbf{Mesh-based}} & Yes & Yes & Yes \\
+      \textit{\textbf{Stencil-based}} & Yes & Yes & No \\
+      \textit{\textbf{All to All Communications}} & Yes & No & Yes \\
+      \textit{\textbf{Memory-Bandwidth Bound}} & Yes & Yes & No \\
+      \textit{\textbf{Multiple Optimal Decompostions}} & No & No & Yes \\
     \end{tabular}
   \end{center}
   \caption{Performance characteristics of the four mini-apps.}
   \label{tab:perf-char-mini-apps}
 \end{table}
 
-Our intention is to investigate how the computational and communicational profiles of those applications interact with eachother. Prior to discussing the coupling stage and performance evaluations, we will describe the individual applications and how they are developed.
+We have a good understanding from previous work which of those characteristics matter to the individual application, such as \textit{memory bandwidth} for indiviual application performance and \textit{all to all} communications for scalability. Our intention is to investigate how the computational and communicational profiles of those applications interact with eachother when packages are composed.
 
-We can pre-emptively assess some of the likely effects that running multiple mini-apps at once might observe. For instance, we would expect that there could be an impact on cache utilisation, and a generally increased memory footprint, while some state could be shared potentially improving the overall performance. It is also possible that data structure between the individual applications will require some form of transformation, which we expect to have a major influence on performance. Aside from harming the performance overall, we are hopeful that there will be opportunities to exploit overlapping in some cases, and hide the cost of expensive operations.
+We can pre-emptively assess some of the likely effects that running multiple mini-apps at once might observe. For instance, we would expect that there could be an impact on cache utilisation, and a generally increased memory footprint, while some state could be shared potentially improving the overall performance. It is also possible that data structures between the individual applications will require some form of transformation, which we expect to have a major influence on performance. Aside from harming the performance overall, we are hopeful that there will be opportunities to exploit overlapping in some cases, and hide the cost of expensive operations.
 
-As this application is developed by computer scientists and primarily focusses upon the evaluation of performance profiles on modern architecture, the exact physical solution to our test problems is not necessarily important. Of course, we are conscious of the fact that couplings of certain algorithms and for modelling particular scientific concepts could lead to different performance profiles.
+\section{Coupling}
+
+As the mini-apps and their composition routines were developed by computer scientists interested in the evaluation of performance profiles on modern architecture, the exact physical solution to the test problems is not important. However, the individual applications happen to be both correct and highly accurate, as choosing effective numerical methods tended to present the easiest option. 
 
 We could see two different approaches to coupling the applications, the first of which involves directly coupling their constituent equations and solving the whole system at once. This approach has two important drawbacks: (1) the complexity of this approach is significant, especially considering that we plan to extend this project into a suite of seven algorithms, and (2) boiling the algorithms under a single solve wouldn't capture the potential difficulties of executing diverse routines together.
 
-Given this, our choice of applications allows for a simple coupling stage that requires little scientific knowledge to achieve a reasonable, albeit inaccurate, outcome. Although some variations of all four mini-apps (Hot, Wet, Fast, and Bright) exist, this research presents the results of coupling Hot and Wet together. We chose to start with those applications as they have similar communication patterns but significantly different computational profiles (SOMETHING STRONGER?). The inputs of the hydro package are density and energy, and momentum in each dimension, while the inputs for the diffusion package are density and temperature. As such we performed a simple conversion between internal energy and temperature between the packages, and ran them sequentially.
+
+In general we do not consider the coupling approach to be necessarily valid from a scientific standpoint. Our intention is simply to model a simple data dependency between the applications, that leads to them having to rely on shared meshes and decompositions. It is likely important future work to investigate the impact of performing more detailed couplings, but would require complex domain-specific knowledge far beyond the scope of our research (THIS IS ESSENTIALLY ARSE COVERING). A simple example of how we have handled coupling can be seen in Figure \ref{fig:hot-wet-flow}, where the initial conditions of density ($\rho$), energy ($\epsilon$), and momentum ($\rho u$ and $\rho v$) are passed in to start the cycle. Once the Wet phase is complete, the density and energy are passed to Hot, which then solves the timestep and passes back the updated temperature.
 
 \begin{figure}
   \centering
   \includegraphics[width=0.6\linewidth]{hot-wet-flow}
-  \caption{The flow of our coupled Hot and Wet applications.}
+  \caption{The data dependency of our coupled Hot and Wet applications.}
   \label{fig:hot-wet-flow}
 \end{figure}
 
-Figure \ref{fig:hot-wet-flow} demonstrates the current coupling, as well as the prospective coupling we plan to extend this work to accommodate. 
+We anticipated that the most interesting feature of the Fast mini-app would be the potential choices of decomposition. In order to demonstrate the full effect of this issue, we felt that it would be more useful to compare applications operating on 3d meshes, and so ported Hot 2d to support a 3d mesh. We composed the mini-apps together using a similar approach to composing Hot and Wet together, constructing a single data dependency on the internal energy.
 
 \section{Performance Analysis of Compositions}
 

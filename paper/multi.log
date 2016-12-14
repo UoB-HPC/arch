@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  14 DEC 2016 00:31
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  14 DEC 2016 01:04
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -340,29 +340,29 @@ LaTeX Warning: Citation `Asanovic2006' on page 3 undefined on input line 124.
 File: hot-wet-flow.png Graphic file (type png)
 
 <use hot-wet-flow.png>
-Package pdftex.def Info: hot-wet-flow.png used on input line 274.
+Package pdftex.def Info: hot-wet-flow.png used on input line 279.
 (pdftex.def)             Requested size: 208.27623pt x 64.24539pt.
  [8 <./hot-wet-flow.png>]
 
-LaTeX Warning: Reference `tab:hardware' on page 9 undefined on input line 305.
+LaTeX Warning: Reference `tab:hardware' on page 9 undefined on input line 310.
 
 <cpu_results.png, id=44, 662.475pt x 326.21875pt>
 File: cpu_results.png Graphic file (type png)
  <use cpu_results.png>
-Package pdftex.def Info: cpu_results.png used on input line 313.
+Package pdftex.def Info: cpu_results.png used on input line 318.
 (pdftex.def)             Requested size: 347.12354pt x 170.92891pt.
 
-<gpu_storm.png, id=45, 649.42625pt x 308.15125pt>
+[9] <gpu_storm.png, id=48, 649.42625pt x 308.15125pt>
 File: gpu_storm.png Graphic file (type png)
  <use gpu_storm.png>
-Package pdftex.def Info: gpu_storm.png used on input line 324.
+Package pdftex.def Info: gpu_storm.png used on input line 329.
 (pdftex.def)             Requested size: 347.12354pt x 164.71117pt.
- [9]
-[10 <./cpu_results.png> <./gpu_storm.png>] [11] [12]
+
+[10 <./cpu_results.png>] [11 <./gpu_storm.png>] [12]
 <all-four-flow.png, id=60, 177.0615pt x 78.2925pt>
 File: all-four-flow.png Graphic file (type png)
  <use all-four-flow.png>
-Package pdftex.def Info: all-four-flow.png used on input line 394.
+Package pdftex.def Info: all-four-flow.png used on input line 399.
 (pdftex.def)             Requested size: 208.27623pt x 92.1012pt.
 
 [13 <./all-four-flow.png>] (./multi.bbl
@@ -384,7 +384,7 @@ Here is how much of TeX's memory you used:
  6348 multiletter control sequences out of 15000+600000
  11484 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 37i,8n,26p,891b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,8n,26p,896b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb>
 </usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx9.pfb></
@@ -398,7 +398,7 @@ texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy10.pfb></usr/local/t
 exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pfb></usr/local/tex
 live/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb></usr/local/texl
 ive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on multi.pdf (14 pages, 284839 bytes).
+Output written on multi.pdf (14 pages, 288330 bytes).
 PDF statistics:
  111 PDF objects out of 1000 (max. 8388607)
  73 compressed objects within 1 object stream
