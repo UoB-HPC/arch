@@ -322,19 +322,37 @@ Given the performance characteristics we have described for both Hot and Wet, we
 
 As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of scaling the application across 32 nodes of dual socket 22 core Broadwell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
 
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{ccccc}
+      \hline
+      \textbf{Device} & \textbf{Hot (s)} & \textbf{Wet (s)} & \textbf{Hot'n'Wet (s)} & \textbf{Difference (s)} \\
+      \hline
+      \textit{\textbf{Haswell 32 Core}} & 119.3 & 10.3 & 129.9 & 0.28\\
+      \textit{\textbf{Broadwell 44 Core}} & 109.4 & 8.9 & 118.8 & 0.4\\
+      \textit{\textbf{KNL}} & 36.8 & 4.4 & 41.3 & 0.01 \\
+      \textit{\textbf{K20X}} & 85.0 & 7.4 & 92.4 & -0.08 \\
+    \end{tabular}
+  \end{center}
+  \caption{The performance of Hot, Wet, and Hot'n'Wet on multiple devices for the $5000^2$ for 50 iterations.}
+  \label{tab:hot-wet-multi-device}
+\end{table}
+
+We can see in Table \ref{tab:hot-wet-multi-device} that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results.
+
 Overall this scaling profile suggests that the composition of the two application on a CPU has resulted in very little performance degradation. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
 
-\begin{figure}
-  \centering
-  \includegraphics[width=1.0\linewidth]{gpu_storm}
-  \caption{Scaling Hot, Wet, and Hot'n'Wet on a CS STORM node containing 8 NVIDIA K40 GPUs.}
-  \label{fig:scaling-hot-wet-storm}
-\end{figure}
+%\begin{figure}
+%  \centering
+%  \includegraphics[width=1.0\linewidth]{gpu_storm}
+%  \caption{Scaling Hot, Wet, and Hot'n'Wet on a CS STORM node containing 8 NVIDIA K40 GPUs.}
+%  \label{fig:scaling-hot-wet-storm}
+%\end{figure}
+%
+%The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
 
-The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
 
-
-Our results here are fairly unremarkable, and support our hypothesis that the two applications investigated are performance compatible, meaning they do not interfere with the performance profile of eachother. In order to increase the positive or negative influence of 
+Our results here are fairly unremarkable, and support our hypothesis that the two applications investigated are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will bei important work to investigate how scaling is affected towards the limits of the scalability of each application.
 
 \subsection{Fast'n'Hot and Wet'n'Fast}
 
