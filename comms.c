@@ -154,6 +154,7 @@ void decompose_2d_cartesian(
   int found_even = 0;
   float mratio = 0.0f;
 
+#if 0
   // Determine decomposition that minimises perimeter to area ratio
   for(int ff = 1; ff <= sqrt(nranks); ++ff) {
     if(nranks % ff) continue;
@@ -186,11 +187,10 @@ void decompose_2d_cartesian(
       ranks_y = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_x : new_ranks_y;
     }
   }
+#endif // if 0
 
-#if 0
   ranks_x = 1;
   ranks_y = nranks;
-#endif // if 0
 
   // Calculate the offsets up until our rank, and then fetch rank dimensions
   int off = 0;
