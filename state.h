@@ -1,11 +1,14 @@
 #pragma once 
 
 #include "mesh.h"
+#include <complex.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+  // TODO: MAKE IT SO THAT STATE IS LOCAL TO THE APPLICATIONS???
+  
 // Contains all of the state information for the solver
 typedef struct
 {
@@ -57,6 +60,8 @@ typedef struct
   double* wF_z;     // Momentum in the z direction flux in the z direction
 
   double* reduce_array;
+
+  double complex* ce;
 
 } State;
 

@@ -187,6 +187,11 @@ void decompose_2d_cartesian(
     }
   }
 
+#if 0
+  ranks_x = 1;
+  ranks_y = nranks;
+#endif // if 0
+
   // Calculate the offsets up until our rank, and then fetch rank dimensions
   int off = 0;
   const int x_rank = (rank%ranks_x);

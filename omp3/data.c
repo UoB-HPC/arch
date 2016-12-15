@@ -164,10 +164,10 @@ void set_default_state(
 // Initialise state data in device specific manner
 void state_data_init_2d(
     const int local_nx, const int local_ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off,
-    double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
-    double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
-    double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
+    const int x_off, const int y_off, double* rho, double* e, double* rho_old, 
+    double* P, double* Qxx, double* Qyy, double* x, double* p, double* rho_u, 
+    double* rho_v, double* F_x, double* F_y, double* uF_x, double* uF_y, 
+    double* vF_x, double* vF_y, double* reduce_array, double* celldx, double* celldy)
 {
   zero_cell_arrays(
       local_nx*local_ny, rho, e, rho_old, P);
@@ -181,6 +181,14 @@ void state_data_init_2d(
 #pragma omp parallel for 
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
+
+      // POINT CHARGE PROBLEM
+      if(jj+x_off == global_nx/2 && ii+y_off == global_ny/2)
+        e[(ii*local_nx)+(jj)] = 10.0/(WIDTH/global_nx*HEIGHT/global_ny);
+      else 
+        e[(ii*local_nx)+(jj)] = 0.0;
+
+#if 0
       // CENTER SQUARE TEST
       if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
           jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
@@ -190,6 +198,7 @@ void state_data_init_2d(
         e[ii*local_nx+jj] = 2.5;
         x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
       }
+#endif // if 0
     }
   }
 }
@@ -219,6 +228,7 @@ void state_data_init_3d(
     for(int jj = 0; jj < local_ny; ++jj) {
       for(int kk = 0; kk < local_nx; ++kk) {
         const int ind = ii*local_nx*local_ny+jj*local_nx+kk;
+
         // CENTER TUBE TEST
         if(kk+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
             kk+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
