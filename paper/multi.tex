@@ -63,22 +63,22 @@
 
 
 \begin{abstract}
-  In this paper we discuss the composition of parallel packages, and how this affects performance on highly parallel supercomputing hardware. We introduce four new mini-apps, Fast, Hot, Wet, and Bright, which perform a parallel FFT, solve heat diffusion and hydrodynamics, and track neutral particles. The mini-apps represent four of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together.
+  In this paper we discuss the composition of scientific packages, and how this affects performance on highly parallel supercomputing hardware. We introduce three new mini-apps: Hot, Flow, and Fast, which solve heat diffusion and hydrodynamics, and perform parallel FFTs to solve Poissons equation. The mini-apps represent three of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together.
 
-  Although much research has been performed that evaluates the performance profile of the seven Dwarfs, production applications rarely utilise only a single package for solving a scientific problem. We start by presenting a motivational comparison of the Dwarfs, considering their invidual performance characteristics and which of those characteristics are dominant. Following this we present performance results of coupling Hot, Wet, and Fast together, using them to solve test problems on modern hardware including Intel Xeon Broadwell, Xeon Phi, IBM Power8, NVIDIA Kepler, and NVIDIA Pascal.
+  Although much research has been performed that evaluates the performance profile of the seven Dwarfs, production applications rarely utilise only a single package for solving a scientific problem. We start by presenting a motivational discussion of the relevant Dwarfs, considering their invidual performance characteristics and which of those characteristics are dominant. Following this we present performance results of coupling Hot, Flow, and Fast together, using them to solve test problems on modern hardware.  
 
-  The paper ends with a discussion of some of the most important performance issues that we can forsee when coupling applications together, motivating a whole stream of future work in the area.
+  The paper ends with a discussion of some of the most important performance issues that we can forsee when coupling applications together, motivating a stream of future work in the area.
 
   \keywords{performance portability,mini-apps,high performance computing,openmp 4}
 \end{abstract}
 
 \section{Introduction}
 
-A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers. Some context of the challenges currently faced by the community is important to demonstrate the motivation of this paper. 
+A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers. Some context of the challenges currently faced by the community is presented to demonstrate the importance of this research. 
 
 \subsection{The Use of Mini-Apps to Optimise for Modern Architectures}
 
-To meet power demands and continue to grow the performance capabilities of supercomputing resources, a continual diversification of architectures has been essential. This has brought significant complexities for scientific applications developers, necessitating improvements in programming environments and the optimisation of algorithms. Due to the extent of the task it is now essential that computer scientists are involved in the process, which has lead to the surge of co-design projects. In particular, many optimisation tasks are being approached through proxy applications, or mini-apps, such that the lessons can be prototyped in collaboration between scientists and computer scientists.
+To meet power demands and continue to grow the performance capabilities of supercomputing resources, a continual diversification of architectures has been essential. This has brought significant complexities for scientific applications developers, necessitating improvements in programming environments and the optimisation of algorithms. Due to the extent of the task, it is now essential that computer scientists are involved in the process, which has lead to a surge of co-design projects. In particular, many optimisation projects are being performed with proxy applications, or mini-apps, such that the lessons can be prototyped in collaboration between scientists and computer scientists.
 
 A great many studies have been performed that have used mini-apps to investigate key problems such as application performance, portability, scalability, and fault tolerance. In spite of this, the research does not generally make a link between the optimisations seen for those miniaturised proxy applications and full scale production applications.
 
@@ -86,38 +86,34 @@ A great many studies have been performed that have used mini-apps to investigate
 
 \subsection{Extending the Single Mini-App Focus}
 
-This paper is a window into a set of work that is attempting to extend the success of mini-apps for evaluating modern architectures and programming environments. It is essential that the community is mindful of the purpose of mini-apps, which is to discover optimisations that have real world impact. Our hope is that we can begin to capture the features of production scientific codes that have been yet unexplored, improving the relevance of future performance investigations. 
+This paper is a window into a set of work that is attempting to extend the success of mini-apps for evaluating modern architectures and programming environments. It is essential that the community is mindful of the purpose of mini-apps, which is to discover optimisations that have real world impact. Our aim is to begin to capture the features of production scientific codes that have been yet unexplored with mini-apps, to improve the validity of future performance investigations. 
 
-Much of the mini-app optimisation focus has been limited to individual applications which have, in general, performed well on modern hardware, using a range modern parallel programming models. Up until this point the individual mini-apps have failed to capture some important aspects of large-scale scientific applications, in that they are isolated instances of algorithms that do not encapsulate the multi-package hierarchies that scientists are truly interested in seeing results for.
+Much of the mini-app optimisation focus has been limited to individual applications which have, in general, performed well on modern hardware, using a range modern parallel programming models. Up until this point the individual mini-apps have failed to expose some important aspects of large-scale scientific applications, in that they are isolated instances of algorithms that do not encapsulate the multi-package hierarchies that scientists are truly interested in seeing results for.
 
-We recognise that many of the issues we discuss or uncover will have been discovered by application developers attempting to combine multiple packages together in the past. However, it is essential to the relevance of results obtained by mini-apps that those features are considered.
+In order to limit our focus to the most important algorithms that might be encountered within scientific production codes, we will follow the seven Dwarfs of parallel programming. In the 2006 View from Berkely paper \cite{Asanovic2006}, a number of important classes of parallel algorithm were discussed and categoried as parallel programming Dwarfs. Each of the Dwarfs exposes a diverse computational and communicational pattern and can encompass many of the algorithms you are likely to see in production scientific applications.  
 
-In order to limit our focus to the most important algorithms that might be encountered within scientific production codes, we will follow the seven Dwarfs of parallel programming. In the 2006 View from Berkely paper \cite{Asanovic2006}, a number of important classes of parallel algorithm were discussed and categoried as computation Dwarfs. Each of the Dwarfs exposes a diverse computational and communicational pattern and can encompass many of the algorithms you are likely to see in production scientific applications.  
+Their paper eluded to the necessity for those Dwarfs to be composed together and investigated as coupled application. Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominant performance characteristics when combining multiple packages, as would be seen in a common scientific production application. Each mini-app represents one of a subset of the Dwarfs, and we plan to consider all of the Dwarfs in future research.
 
-Their paper eluded to the necessity for those Dwarfs to be composed together and investigated as coupled application. Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominant performance characteristics when combining multiple packages, as would be seen in a common scientific production application. Each mini-app represents on of a subset of the Dwarfs, and each was developed to ensure they are general, with great care taken to ensure that they capture the desired performance profiles of their proxied applications.
+We recognise that many of the issues we discuss or uncover will have been discovered by application developers or performance engineers attempting to combine multiple packages together in the past. However, it can often be challenging to generalise approaches from specific use cases, which is one of the benefits of mini-apps, where a general strategy can be employed and discussed. Ultimately, it is essential to the relevance of results obtained by mini-apps that such features are considered alongside other performance studies. 
 
 \section{Contributions}
 
 This research is primarily focussed upon discussing the implication of composing a subset of the parallel application Dwarfs, and we present a number of important contributions in order to support the discussion:
 
 \begin{itemize}
-  \item We have developed four mini-apps that serve as proxy applications for important scientific algorithms. An FFT solver for Poisson equations (Fast), a heat conduction application (Hot), a fluid dynamics application (Wet), and a Monte Carlo Particle Transport application (Bright).
+  \item We have developed three mini-apps that serve as proxy applications for important scientific algorithms. An FFT solver for Poisson equations (Fast), a heat conduction application (Hot), and a fluid dynamics application (Flow).
 
-  \item We present results for those algorithms in isolation on modern supercomputing devices: an NVIDIA Tesla P100, an Intel Xeon Phi Knights Landing processor, an IBM POWER8 CPU, and a Intel Xeon Broadwell.
+  \item We present results for those algorithms in isolation on some modern supercomputing architecture: an NVIDIA K40m, an Intel Xeon Phi Knights Landing (KNL) processor, an IBM POWER8 CPU, and a Intel Xeon Broadwell.
 
-  \item We naively couple the Hot, Wet, and Fast mini-apps together to demonstrate their composed performance profiles.
+  \item We naively couple the Hot, Flow, and Fast mini-apps together to demonstrate their composed performance profiles.
 
-  \item We present the results of running those applications independently and composed at scale.
-
-  \item We offer some insights into the issues and opportunities that might be experienced when composing algorithms that goes beyond the scope of our current experiments.
+  \item We offer insights into the issues and opportunities that might be experienced when composing algorithms that goes beyond the scope of our current experiments.
 
 \end{itemize}
 
 \section{Background}
 
-In this section we will present some basic details about each application, in order to make clear what each application is intended to simulate. Our approach was to choose the simplest methods possible, whilst achieving a reasonable level of accuracy, and in particuler we focused upon capturing the performance profile of their respective classes of algorithms.
-
-In order to give a clear discussion, we will explain the initial development of each application prior to discussing our efforts to couple them together. This means that we will explain how each application was optimally developed, but with the caveat that this would likely have to change once coupling was required. We did not particularly consider the coupling up-front, instead opting to choose the best strategy for each application in isolation.
+In this section we will discuss the general composition of packages, and then present some basic details about each application, including a description of the numerical method and parallelisation strategy. To ensure a clear discussion, we will explain the initial development of each application prior to discussing our efforts to couple them together. This means that we will explain how each application was optimally developed, but with the caveat that this would likely have to change once coupling was required. We did not actively consider the coupling during the up-front development of each application, instead opting to choose the best strategy for each application in isolation.
 
 \section{Composition of Dwarfs}
 
@@ -132,11 +128,13 @@ The Dwarfs that we consider in this paper are:
 \begin{itemize}
   \item \textbf{Spectral Methods} - \textit{Fast}: A Fast Fourier Transform solver for Poisson's equation (Section \ref{sec:fast}).
   \item \textbf{Sparse Linear Algebra} - \textit{Hot}: An heat diffusion application, that uses a Conjugate Gradient linear solver (Section \ref{sec:hot}).
-  \item \textbf{Structured Grid} - \textit{Wet}: A Lagrangian-Eulerian hydrodynamics application that uses an explicit 5 point stencil (Section \ref{sec:wet}).
+  \item \textbf{Structured Grid} - \textit{Flow}: A Lagrangian-Eulerian hydrodynamics application that uses an explicit 5 point stencil (Section \ref{sec:flow}).
   %\item \textbf{Monte Carlo} - \textit{Bright}: A time-dependent Monte Carlo neutral particle tracking application that tallies energy depositions (Section \ref{sec:bright}).
 \end{itemize}
 
-We will present the results of coupling Hot 2d with Wet 2d, and Hot 3d with Fast 3d. To support this we also discuss the potential difficulties that we anticipate will arise when composing the other Dwarfs together.
+We will present the results of coupling Hot 2d with Flow 2d, and Hot 2d with Fast 2d. To support this we also discuss the potential difficulties that we anticipate will arise when composing the other Dwarfs together. 
+
+It would be possible to end up with large spaghetti applications when composing multiple packages together, which would dilute the merits of using mini-apps. We have made every effort to ensure that the applications we develop for this purpose are simple while expressing the correct performance profiles, so that the agility of the individual mini-apps will still apply when composed.
 
 \subsection{Fast - Fast Fourier Transform for Poisson's Equation}
 
@@ -159,7 +157,7 @@ Following on from the discussions in Gholami et al., we utilise the FFT to solve
   \fft^{-1}(f'') &= f'''
 \end{align}
 
-Step (3) is the Hadamard product of the transformed $f$ and the inverse of the laplace operator. For our custom implementation of \textit{fft} we use an out-of-place parallel method derived from the Cooley-Tukey algorithm that can handle arbitrary problem sizes. The arithmetic requirement of this package is quite low, especially when compared to Wet, which requires a cohesion between many numerical methods. Maintaining a simple algorithm ensures that it is straighforward to adapt to the many available decompositions and capture the dominant performance characteristics exhibited by algorithms that take advantage of the FFT.
+Step (3) is the Hadamard product of the transformed $f$ and the inverse of the laplace operator. For our custom implementation of \textit{fft} we use an out-of-place parallel method derived from the Cooley-Tukey algorithm that can handle arbitrary problem sizes. The arithmetic requirement of this package is quite low, especially when compared to Flow, which requires a cohesion between many numerical methods. Maintaining a simple algorithm ensures that it is straighforward to adapt to the many available decompositions and capture the dominant performance characteristics exhibited by algorithms that take advantage of the FFT.
 
 \subsubsection{Parallelisation}
 
@@ -194,11 +192,11 @@ The algorithm does not expose any load imbalance, and nearest neighbour halo exc
 As each of the core kernels is essentially a simple linear algebra method, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
 
 
-\subsection{Wet - Fluid Dynamics via Lagrangian-Eulerian Flux Calculations}
+\subsection{Flow - Fluid Dynamics via Lagrangian-Eulerian Flux Calculations}
 
-\label{sec:wet}
+\label{sec:flow}
 
-The Wet mini-app is a Lagrangian-Eulerian hydrodynamics solver that is staggered in space and time. Although the mini-app is significantly larger and more complicated than our other new mini-apps, the resulting code is also significantly faster, as explicit stencil methods are particularly efficient in general.
+The Flow mini-app is a Lagrangian-Eulerian hydrodynamics solver that is staggered in space and time. Although the mini-app is significantly larger and more complicated than our other new mini-apps, the resulting code is also significantly faster, as explicit stencil methods are particularly efficient in general.
 
 \subsubsection{Fundamental Method}
 
@@ -246,7 +244,7 @@ Although the Dwarfs imply some high-level performance characteristics, we believ
   \begin{center}
     \begin{tabular}{cccc}
       \hline
-      \textbf{Property} & \textbf{Hot} & \textbf{Wet} & \textbf{Fast} \\
+      \textbf{Property} & \textbf{Hot} & \textbf{Flow} & \textbf{Fast} \\
       \hline
       \textit{\textbf{Nearest Neighbour Communciation}} & Yes & Yes & No  \\
       \textit{\textbf{Iterative}} & Yes & No & No \\
@@ -273,16 +271,16 @@ As the mini-apps and their composition routines were developed by computer scien
 We could see two different approaches to coupling the applications, the first of which involves directly coupling their constituent equations and solving the whole system at once. This approach has two important drawbacks: (1) the complexity of this approach is significant, especially considering that we plan to extend this project into a suite of seven algorithms, and (2) boiling the algorithms under a single solve wouldn't capture the potential difficulties of executing diverse routines together.
 
 
-In general we do not consider the coupling approach to be necessarily valid from a scientific standpoint. Our intention is simply to model a simple data dependency between the applications, that leads to them having to rely on shared meshes and decompositions. It is likely important future work to investigate the impact of performing more detailed couplings, but would require complex domain-specific knowledge far beyond the scope of our research (THIS IS ESSENTIALLY ARSE COVERING). A simple example of how we have handled coupling can be seen in Figure \ref{fig:hot-wet-flow}, where the initial conditions of density ($\rho$), energy ($\epsilon$), and momentum ($\rho u$ and $\rho v$) are passed in to start the cycle. Once the Wet phase is complete, the density and energy are passed to Hot, which then solves the timestep and passes back the updated temperature.
+In general we do not consider the coupling approach to be necessarily valid from a scientific standpoint. Our intention is simply to model a simple data dependency between the applications, that leads to them having to rely on shared meshes and decompositions. It is likely important future work to investigate the impact of performing more detailed couplings, but would require complex domain-specific knowledge far beyond the scope of our research (THIS IS ESSENTIALLY ARSE COVERING). A simple example of how we have handled coupling can be seen in Figure \ref{fig:hot-flow-flow}, where the initial conditions of density ($\rho$), energy ($\epsilon$), and momentum ($\rho u$ and $\rho v$) are passed in to start the cycle. Once the Flow phase is complete, the density and energy are passed to Hot, which then solves the timestep and passes back the updated temperature.
 
 \begin{figure}
   \centering
-  \includegraphics[width=0.6\linewidth]{hot-wet-flow}
-  \caption{The data dependency of our coupled Hot and Wet applications.}
-  \label{fig:hot-wet-flow}
+  \includegraphics[width=0.6\linewidth]{hot-flow-flow}
+  \caption{The data dependency of our coupled Hot and Flow applications.}
+  \label{fig:hot-flow-flow}
 \end{figure}
 
-We anticipated that the most interesting feature of the Fast mini-app would be the potential choices of decomposition. In order to demonstrate the full effect of this issue, we felt that it would be more useful to compare applications operating on 3d meshes, and so ported Hot 2d to support a 3d mesh. We composed the mini-apps together using a similar approach to composing Hot and Wet together, constructing a single data dependency on the internal energy.
+Composing Fast 2d and Hot 2d together was more challenging than with Hot 2d and Flow 2d, as the standard decompositions were different for each applications. For the sake of simplicity we constructed an artificial dependency between the packages, where a single dependent variable is passed through each of the solvers.
 
 \section{Performance Analysis of Compositions}
 
@@ -312,9 +310,9 @@ We will state the compilers and toolkit versions used as and when we present rel
 
 As the heat diffusion solver is iterative, it is possible to have some variance in the number of iterations performed based on the problem dimensions and initial conditions. In order to make the results more comparable across devices and between experiments we fixed the iteration count.
 
-\subsection{Hot 2d + Wet 2d}
+\subsection{Hot 2d + Flow 2d}
 
-Given the performance characteristics we have described for both Hot and Wet, we couldn't predict any significant issues that might arise when coupling them. We are presenting two applications that have been developed from scratch, and so we provide individual scaling results to demonstrate that each application performs to an acceptable level. 
+Given the performance characteristics we have described for both Hot and Flow, we couldn't predict any significant issues that might arise when coupling them. We are presenting two applications that have been developed from scratch, and so we provide individual scaling results to demonstrate that each application performs to an acceptable level. 
 
 \subsubsection{Scaling}
 
@@ -323,11 +321,11 @@ We provide the scaling of composing the two packages into a single application.
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{cpu_results}
-  \caption{Scaling Hot 2d, Wet 2d, and Hot 2d + Wet 2d on multiple nodes containing dual socket 22 core Broadwell CPUs.}
-  \label{fig:scaling-hot-wet-broadwell}
+  \caption{Scaling Hot 2d, Flow 2d, and Hot 2d + Flow 2d on multiple nodes containing dual socket 22 core Broadwell CPUs.}
+  \label{fig:scaling-hot-flow-broadwell}
 \end{figure}
 
-As can be seen from Figure \ref{fig:scaling-hot-wet-broadwell}, the results of scaling the application across 32 nodes of dual socket 22 core Broadwell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
+As can be seen from Figure \ref{fig:scaling-hot-flow-broadwell}, the results of scaling the application across 32 nodes of dual socket 22 core Broadwell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
 
 \subsubsection{Other Devices}
 
@@ -337,7 +335,7 @@ To ensure different effects are not seen with diverse architectures, we collecte
   \begin{center}
     \begin{tabular}{ccccc}
       \hline
-      \textbf{Device} & \textbf{Hot (s)} & \textbf{Wet (s)} & \textbf{Hot'n'Wet (s)} & \textbf{Difference (s)} \\
+      \textbf{Device} & \textbf{Hot (s)} & \textbf{Flow (s)} & \textbf{Hot'n'Flow (s)} & \textbf{Difference (s)} \\
       \hline
       \textit{\textbf{Haswell 32 Core}} & 119.3 & 10.3 & 129.9 & 0.28\\
       \textit{\textbf{Broadwell 44 Core}} & 109.4 & 8.9 & 118.8 & 0.4\\
@@ -346,33 +344,31 @@ To ensure different effects are not seen with diverse architectures, we collecte
       \textit{\textbf{Power8}} & & & & \\
     \end{tabular}
   \end{center}
-  \caption{The performance of Hot, Wet, and Hot'n'Wet on multiple devices for the $5000^2$ for 50 iterations.}
-  \label{tab:hot-wet-multi-device}
+  \caption{The performance of Hot, Flow, and Hot'n'Flow on multiple devices for the $5000^2$ for 50 iterations.}
+  \label{tab:hot-flow-multi-device}
 \end{table}
 
-We can see in Table \ref{tab:hot-wet-multi-device} that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results. Overall this scaling profile suggests that the composition of the two application on a CPU has resulted in very little performance degradation. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
+We can see in Table \ref{tab:hot-flow-multi-device} that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results. Overall this scaling profile suggests that the composition of the two application on a CPU has resulted in very little performance degradation. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
 
 %\begin{figure}
 %  \centering
 %  \includegraphics[width=1.0\linewidth]{gpu_storm}
-%  \caption{Scaling Hot, Wet, and Hot'n'Wet on a CS STORM node containing 8 NVIDIA K40 GPUs.}
-%  \label{fig:scaling-hot-wet-storm}
+%  \caption{Scaling Hot, Flow, and Hot'n'Flow on a CS STORM node containing 8 NVIDIA K40 GPUs.}
+%  \label{fig:scaling-hot-flow-storm}
 %\end{figure}
 %
 %The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
 
 
-The results demonstrate that Hot and Wet are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
+The results demonstrate that Hot and Flow are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
 
-An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size for realy scientific problems, the capped inner iterations perfomed by \textit{Hot} mean that the performance results shown in Table \ref{tab:hot-wet-multi-device} do not truly represent the imbalance. The true disparity between the runtimes of the two packages is above an order of magnitude. We believe that this has some important implications for the optimisation of the applications when composed. Such an imbalance surely opens up the opportunity for successful overlapping of slow operations...
+An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size for realy scientific problems, the capped inner iterations perfomed by \textit{Hot} mean that the performance results shown in Table \ref{tab:hot-flow-multi-device} do not truly represent the imbalance. The true disparity between the runtimes of the two packages is above an order of magnitude. We believe that this has some important implications for the optimisation of the applications when composed. Such an imbalance surely opens up the opportunity for successful overlapping of slow operations...
 
 I HAVE LOADS OF PERFORMANCE RESULTS FOR THIS COUPLING, ON ALL DEVICES, WITH OPENMP, PROBLEM SCALING, SCALING ON MULTI-GPU etc. BUT I'M OMITTING AS THE COUPLING IS NOT INTERESTING
 
 \subsection{Fast 3d + Hot 3d}
 
-THIS SECTION IS WRITTEN WITHOUT ACTUAL RESULTS
-
-As mentioned throughout the paper, we expected that combining Fast 3d with any of the other mini-apps would lead to conflicts over domain decomposition. 
+As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
 
 \subsubsection{Conflict Resolution}
 
@@ -389,7 +385,7 @@ In the event that the data structures within two packages conflict, we can theor
 Our research has uncovered a number of areas that we recognise present risks or opportunities to the performance of multi-package applications. 
 
 \begin{itemize}
-  \item \textbf{Diverse Computational Weightings} - Each package will expose some fixed or dynamic performance cost for particular problems. We observed with Hot and Wet that the difference in solve times differed by an order of magnitude depending on configuration.
+  \item \textbf{Diverse Computational Weightings} - Each package will expose some fixed or dynamic performance cost for particular problems. We observed with Hot and Flow that the difference in solve times differed by an order of magnitude depending on configuration.
   \item \textbf{Different Optimal Data Layouts} - If choosing an optimal data layout for a package results in a sub-optimal data layout for the other packages, the trade-off is going to be challenging to manage. It is also often the case that applications require different layouts for different architectures, which greatly amplifies this issue. 
   \item \textbf{Competing Decompositions} - It is possible that different packages within an application might require different decompositions for optimal performance. We extend this discussion in Section \ref{sec:scalability-inhibit} to predict a key bottleneck to multi-package scaling.
   \item \textbf{Load Imbalance} - If there is a significant load imbalance in one of the packages the usual approach would be to dynamically adapt the decomposition to re-balance, however when operating in a multi-package environment this will create a load imbalance for the other packages, which will be challenging to handle.
@@ -418,13 +414,13 @@ We predict that it will be particularly important to understand the influence of
 
 %The benefit of GPUs is that they offer good performance and can handle significant portions of a problem and require no partitioning within the devices. More recently supercomputing resources have started to include multiple accelerator devices on a single node, and this offers the opportunity for programmers to exploit massive node-level parallelism to improve the scalability of applications. Of course this requires that there is some suitably performant method for communicating within a node. The upcoming NVLINK technology that will be distributed by NVIDIA is intended to provide fast communications between the GPUs on a node and quite improved performance compared to PCIe when communicating with the host CPU. Our expectation is that if this technology can be used to its full extent, it should offer great potential improvements to the scalability of HPC applications. 
 
-\subsection{Asynchronicity Among Packages}
-
-The balance of different packages within a full application might allow new avenues for overlapping long communications or IO times, or even the potential for overlapping the compute of packages within the full application. We are interested to explore a number of these issues and expect that this could be a future direction for investigation.
-
-The main drawback that we can see with this issue is that overlapping likely complicates the applications so much that it might be possible in the confines of a mini-app, but untenable for a production application. However, if we were to approach this problem, we expect that coarse-grained node-local tasks would be the correct mechanism to support such optimisations.
-
-IF TIME PERMITS WILL ADD SOMETHING TO THIS EFFECT
+%\subsection{Asynchronicity Among Packages}
+%
+%The balance of different packages within a full application might allow new avenues for overlapping long communications or IO times, or even the potential for overlapping the compute of packages within the full application. We are interested to explore a number of these issues and expect that this could be a future direction for investigation.
+%
+%The main drawback that we can see with this issue is that overlapping likely complicates the applications so much that it might be possible in the confines of a mini-app, but untenable for a production application. However, if we were to approach this problem, we expect that coarse-grained node-local tasks would be the correct mechanism to support such optimisations.
+%
+%IF TIME PERMITS WILL ADD SOMETHING TO THIS EFFECT
 
 \section{Future Compositions}
 
@@ -435,7 +431,7 @@ Including more applications into the potential compositions leads to many possib
 \begin{figure}
   \centering
   \includegraphics[width=0.6\linewidth]{all-four-flow}
-  \caption{The flow of a prospective multi-package application.}
+  \caption{The composition of a prospective multi-package application.}
   \label{fig:multi-package-flow}
 \end{figure}
 

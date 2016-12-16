@@ -25,16 +25,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1.1586965"
-     inkscape:cx="235.34057"
-     inkscape:cy="707.0316"
+     inkscape:zoom="1.6386443"
+     inkscape:cx="198.90345"
+     inkscape:cy="792.54841"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
      inkscape:window-width="1440"
      inkscape:window-height="851"
      inkscape:window-x="-1"
-     inkscape:window-y="23"
+     inkscape:window-y="46"
      inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
@@ -72,20 +72,6 @@
          id="tspan4194"
          x="100.32826"
          y="205.72116" /></text>
-    <text
-       xml:space="preserve"
-       style="font-style:normal;font-weight:normal;font-size:17.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="172.83292"
-       y="194.38222"
-       id="text4196"
-       sodipodi:linespacing="125%"
-       inkscape:export-xdpi="300"
-       inkscape:export-ydpi="300"><tspan
-         sodipodi:role="line"
-         id="tspan4198"
-         x="172.83292"
-         y="194.38222"
-         style="font-size:12.5px">Wet</tspan></text>
     <g
        id="g4322"
        inkscape:export-xdpi="300"
@@ -354,20 +340,6 @@
        width="37.973705"
        id="rect4836"
        style="fill:#0000ff;fill-opacity:0;stroke:#000000;stroke-opacity:1" />
-    <text
-       inkscape:export-ydpi="300"
-       inkscape:export-xdpi="300"
-       sodipodi:linespacing="125%"
-       id="text4838"
-       y="381.66162"
-       x="256.54767"
-       style="font-style:normal;font-weight:normal;font-size:17.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       xml:space="preserve"><tspan
-         style="font-size:12.5px"
-         y="381.66162"
-         x="256.54767"
-         id="tspan4840"
-         sodipodi:role="line">Wet</tspan></text>
     <g
        inkscape:export-ydpi="300"
        inkscape:export-xdpi="300"
@@ -525,5 +497,33 @@
        inkscape:connector-curvature="0"
        inkscape:export-xdpi="300"
        inkscape:export-ydpi="300" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:17.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       x="171.15559"
+       y="195.36472"
+       id="text4217"
+       sodipodi:linespacing="125%"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"><tspan
+         sodipodi:role="line"
+         id="tspan4219"
+         x="171.15559"
+         y="195.36472"
+         style="font-size:12.5px">Flow</tspan></text>
+    <text
+       sodipodi:linespacing="125%"
+       id="text4221"
+       y="381.99686"
+       x="254.22307"
+       style="font-style:normal;font-weight:normal;font-size:17.5px;line-height:125%;font-family:sans-serif;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+       xml:space="preserve"
+       inkscape:export-xdpi="300"
+       inkscape:export-ydpi="300"><tspan
+         style="font-size:12.5px"
+         y="381.99686"
+         x="254.22307"
+         id="tspan4223"
+         sodipodi:role="line">Flow</tspan></text>
   </g>
 </svg>
