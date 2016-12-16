@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  16 DEC 2016 23:31
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  16 DEC 2016 23:35
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -335,10 +335,10 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 File: hot-flow-flow.png Graphic file (type png)
 
 <use hot-flow-flow.png>
-Package pdftex.def Info: hot-flow-flow.png used on input line 286.
+Package pdftex.def Info: hot-flow-flow.png used on input line 284.
 (pdftex.def)             Requested size: 208.27623pt x 64.24539pt.
 
-Overfull \hbox (7.05075pt too wide) in paragraph at lines 303--312
+Overfull \hbox (7.05075pt too wide) in paragraph at lines 301--310
  [] 
  []
 
@@ -349,24 +349,24 @@ LaTeX Warning: `h' float specifier changed to `ht'.
 File: cpu_results.png Graphic file (type png)
 
 <use cpu_results.png>
-Package pdftex.def Info: cpu_results.png used on input line 331.
+Package pdftex.def Info: cpu_results.png used on input line 329.
 (pdftex.def)             Requested size: 347.12354pt x 171.67705pt.
  [10 <./cpu_results.png>] [11] [12] [13]
 <all-four-flow.png, id=64, 177.0615pt x 78.2925pt>
 File: all-four-flow.png Graphic file (type png)
  <use all-four-flow.png>
-Package pdftex.def Info: all-four-flow.png used on input line 443.
+Package pdftex.def Info: all-four-flow.png used on input line 441.
 (pdftex.def)             Requested size: 208.27623pt x 92.1012pt.
 
 [14 <./all-four-flow.png>] (./multi.bbl [15]) [16] (./multi.aux) ) 
 Here is how much of TeX's memory you used:
  2923 strings out of 493089
  37965 string characters out of 6134841
- 109156 words of memory out of 5000000
+ 110156 words of memory out of 5000000
  6356 multiletter control sequences out of 15000+600000
  11484 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
- 37i,15n,26p,906b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 37i,14n,26p,906b,349s stack positions out of 5000i,500n,10000p,200000b,80000s
 </usr/local/t
 exlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx10.pfb></usr/local/te
 xlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmbx12.pfb></usr/local/tex

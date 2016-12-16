@@ -180,16 +180,14 @@ We have developed a simple conjugate gradient (CG) solver that implicitly solves
 Heat conduction in two dimensions can be specified as follows:
 
 \begin{align}
-  \frac{\partial u}{\partial t} - \alpha \left(\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}\right) = 0 \\ 
-  \alpha = \frac{k}{\rho c_p}
-\end{align}
-\begin{equation}
+    \frac{\partial u}{\partial t} &- \alpha \left(\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}\right) = 0 \\ 
+    \alpha &= \frac{k}{\rho c_p} \\
   \begin{split}
     u^n_{i,j} = u^{n+1}_{i,j} 
     & - \frac{\alpha dt}{dx^2}(u^{n+1}_{i,j-1} - 2u^{n+1}_{i,j} + u^{n+1}_{i,j+1}) \\
     & - \frac{\alpha dt}{dy^2}(u^{n+1}_{i-1,j} - 2u^{n+1}_{i,j} + u^{n+1}_{i+1,j})
   \end{split}
-\end{equation}
+\end{align}
 
 Where $u$ is the temperature, $\alpha$ is the thermal diffusivity, $k$ is the thermal conductivity, $\rho$ is the density, and $c_p$ is the specific heat capacity. As you can see from equation (7), this particular form of the equation requires an implicit solve. The conjugate gradient method is an iterative method that descends towards a solution using conjugate vectors. To calculate the edge centered densities from the cell centered values on the mesh, we simply use the arithmetic mean.
 
