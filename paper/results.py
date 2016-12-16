@@ -5,7 +5,7 @@ import itertools
 import numpy as np
 from operator import itemgetter
 
-applications = [ 'Hot', 'Wet', 'Hot n Wet', 'Ideal' ]
+applications = [ 'Hot 2d', 'Flow 2d', 'Hot 2d + Flow 2d', 'Ideal' ]
 labels = [ '1 node', '2 nodes', '3 nodes', '4 nodes' ]
 results = [
 [1.935064935, 2.749077491, 3.651960784],

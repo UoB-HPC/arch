@@ -5,7 +5,7 @@ import itertools
 import numpy as np
 from operator import itemgetter
 
-applications = [ 'Hot', 'Wet', 'Hot n Wet', 'Ideal' ]
+applications = [ 'Hot 2d', 'Flow 2d', 'Hot 2d + Flow 2d', 'Ideal' ]
 labels = [ '1 node', '2 nodes', '3 nodes', '4 nodes', '8 nodes', '16 nodes', '32 nodes' ]
 results = [
         [1.951604599, 2.920390344, 4.114327062, 12.16256684, 50.0969163, 64.98285714 ],
@@ -29,7 +29,7 @@ def Program():
         plt.plot(x, results[rr], icons[rr], label=applications[rr], ms=8.0)
 
     ind = range(0, len(labels))
-    locs, xlabels = plt.xticks(ind, labels, fontsize=11, rotation=90)
+    locs, xlabels = plt.xticks(ind, labels, fontsize=12, rotation=90)
     plt.setp(xlabels, rotation=45)
     ax.set_xlim([1, len(labels)-1])
     #ax.set_ylim([0, 100])
@@ -40,8 +40,8 @@ def Program():
             ncol=4, fancybox=True, shadow=False, prop={'size':12})
 
     ax.grid(zorder=0)
-    plt.title('Performance of Packages Independently and Coupled on Broadwell 44 Core')
-    plt.ylabel('Speedup (x)', fontsize=12)
+    plt.title('Performance of Packages Independently and Coupled on Haswell 32 Core')
+    plt.ylabel('Speedup (x)', fontsize=13)
     plt.show()
 
 Program()
