@@ -103,7 +103,7 @@ This research is primarily focussed upon discussing the implication of composing
 \begin{itemize}
   \item We have developed three mini-apps that serve as proxy applications for important scientific algorithms. An FFT solver for Poisson equations (Fast), a heat conduction application (Hot), and a fluid dynamics application (Flow).
 
-  \item We present results for those algorithms in isolation on some modern supercomputing architecture: an NVIDIA K40m, an Intel Xeon Phi Knights Landing (KNL) processor, an IBM POWER8 CPU, and a Intel Xeon Haswell.
+  \item We present results for those algorithms in isolation on some modern supercomputing architecture: an NVIDIA K40m, an Intel Xeon Phi Knights Landing (KNL) processor, and a Intel Xeon Haswell.
 
   \item We naively couple the Hot, Flow, and Fast mini-apps together to demonstrate their composed performance profiles.
 
@@ -298,7 +298,9 @@ Each of the mini-apps has been optimised using modern techniques from years of r
       \hline
       \textbf{} & \textbf{Mem BW} & \textbf{FLOPS}  \\
       \hline
-      \textit{\textbf{Intel Xeon E5-2699 v4 @ 2.20GHz (22 core)}} & 62 GB/s & ??? G/flops \\
+      \textit{\textbf{}} & 62 GB/s & ??? G/flops \\
+      \textit{\textbf{Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz}} & 62 GB/s & ??? G/flops \\
+      
       \textit{\textbf{Intel Xeon Phi 7210 (64 core)}} & 450 GB/s & ??? G/flops \\
       \textit{\textbf{NVIDIA K20X Kepler}} & 180 GB/s & ??? G/flops \\
       \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & ??? G/flops \\
@@ -327,7 +329,7 @@ We provide the scaling of composing the two packages into a single application.
   \label{fig:scaling-hot-flow-haswell}
 \end{figure}
 
-As can be seen from Figure \ref{fig:scaling-hot-flow-sandybridge}, the results of scaling the application across 32 nodes of dual socket 16 core Haswell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
+As can be seen in Figure \ref{fig:scaling-hot-flow-haswell}, the results of scaling the application across 32 nodes of dual socket 16 core Haswell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
 
 \subsubsection{Other Devices}
 
@@ -342,14 +344,13 @@ To ensure different effects are not seen with diverse architectures, we collecte
       \textit{\textbf{Haswell 32 Core}} & 119.3s & 10.3s & 129.9s & 0.0\% \\
       \textit{\textbf{KNL}} & 36.8s & 4.4s & 41.3s & 0.0\% \\
       \textit{\textbf{K40m}} & 85.0s & 7.4s & 92.4s & 0.0\% \\
-      \textit{\textbf{Power8}} & & & & \\
     \end{tabular}
   \end{center}
   \caption{The performance of Hot, Flow, and Hot'n'Flow on multiple devices for the $5000^2$ for 50 iterations.}
   \label{tab:hot-flow-multi-device}
 \end{table}
 
-We can see in Table \ref{tab:hot-flow-multi-device} that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results. Overall this scaling profile suggests that the composition of the two application on a CPU has resulted in very little performance degradation. We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated.
+We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated. Table \ref{tab:hot-flow-multi-device} shows that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results. 
 
 %\begin{figure}
 %  \centering
@@ -425,7 +426,7 @@ We predict that it will be particularly important to understand the influence of
 
 We expect that it will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven Dwarfs of parallel programming. The Bright mini-app hosts a Monte Carlo neutral particle tracking algorithm that we are currently developing. Due to the inherent load imbalance of the problem, it is likely that the application will cause significant performance degradations in general.
 
-Including more applications into the potential compositions leads to many possible combinations. For instance, taking our all four of our current mini-apps we could perform the following coupling:
+Including more applications into the potential compositions leads to many possible combinations. For instance, taking our all four of our in-development mini-apps we could perform the following coupling:
 
 \begin{figure}
   \centering
@@ -434,7 +435,7 @@ Including more applications into the potential compositions leads to many possib
   \label{fig:multi-package-flow}
 \end{figure}
 
-We would expect that this sort of package mix could be quite suitable for combustion, or astrophysics (MAKING THAT UP). The resulting performance profile would include lots of all to all communication, several competing decompositions and load imbalance.
+Although the combination of applications might not appear in production applications, we expect that this combination of performance profiles would likely exist in codes ranging from Astrophysics to modelling Combustion in engines. The resulting performance profile would include significant All-to-All communication, several competing decompositions and load imbalance. We have not yet been able to determine the capacity requirements of such an application, but expect it to become an issue.
 
 \section{Future Work}
 
