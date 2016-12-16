@@ -140,36 +140,40 @@ It would be possible to end up with large spaghetti applications when composing 
 
 \label{sec:fast}
 
-The Fast Fourier Transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation. The primary reason for choosing this particular approach is not scientific relevance, rather that it will result in verifiable outputs, while still capturing some important performance characteristics of the class of algorithms.
+The Fast Fourier Transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs \cite{}. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation. The primary reason for choosing this particular approach is not scientific relevance, rather that it will result in verifiable outputs, while still capturing some important performance characteristics of the Spectral class of algorithms.
 
-The mini-app is flexible and can use a hand-rolled algorithm for the one dimensonal FFT and inverse FFT steps, but also provides an option to use the optimised Intel MKL library version. Our initial assumption is that the implementation of the FFT solve would be less important to the performance than the choice of decomposition strategy, given that the FFT operation is notoriously bound by the \textit{'all to all'} communication of data among processes.
+We are currently relying on the optimised Intel MKL library version of the one dimensional FFT, and we then parallelise that manually using MPI. Our initial assumption is that the implementation of the FFT solve would be less important to the performance than the choice of decomposition strategy, given that the FFT operation is notoriously bound by the \textit{'All-to-All'} communication of data among processes \cite{}.
 
-Prior to our experimentation, we anticipated that the inclusion of an FFT package within a multi-package application would likely result in conflicts over the optimal domain decompisition. We have seen similar instances of domain decompisition conflicts with decompositions for wavefront parallelism. We have developed the application with a number of different decompositions so that it is straighforward to test the impact of those options under composition with other packages.
+%Prior to our experimentation, we anticipated that the inclusion of an FFT package within a multi-package application would likely result in conflicts over the optimal domain decomposition. We have observed similar issues with domain decompisition conflicts for wavefront parallelism, making this pattern of great interest.
 
 \subsubsection{Fundamental Method}
 
-Following on from the discussions in Gholami et al., we utilise the FFT to solve Poisson's equation for some dependent data passed to the solver. The general solve phase is as follows:
+Following on from the discussions in Gholami et al. \cite{}, we utilise the FFT to solve Poisson's equation for some dependent data passed to the solver. 
 
 \begin{align}
-  f &= -\Delta u \\
-  \fft(f) &= f' \\
-  (f' \circ \Delta^{-1}) &= f'' \\
-  \fft^{-1}(f'') &= f'''
+  \frac{d^2\phi}{dx^2} = \epsilon(x, y) \\
+  \fft(\epsilon) = \hat{\epsilon} \\
+  \hat{\phi_{i,j}} = \frac{\hat{\epsilon_{i,j}} dx^2 }{4 - \omega^i - \omega^{-i} - \omega^{j} - \omega^{-j}} \\
+  \fft^{-1}(\hat{\phi}) = \phi
 \end{align}
 
-Step (3) is the Hadamard product of the transformed $f$ and the inverse of the laplace operator. For our custom implementation of \textit{fft} we use an out-of-place parallel method derived from the Cooley-Tukey algorithm that can handle arbitrary problem sizes. The arithmetic requirement of this package is quite low, especially when compared to Flow, which requires a cohesion between many numerical methods. Maintaining a simple algorithm ensures that it is straighforward to adapt to the many available decompositions and capture the dominant performance characteristics exhibited by algorithms that take advantage of the FFT.
+The solve phase calculates and FFT along the $x$ and $y$ axes of $\epsilon$, before solving the equation in Fourier space and performing an inverse FFT to return the solution $\phi$. With this current approach we are limited to periodic boundary conditions, and we plan to extend this to incorporate other boundary conditions in the future. 
+
+The arithmetic requirement of this package is low and the algorithm is generally straightforward, especially when compared to Flow, which requires a cohesion between many numerical methods. Maintaining a simple algorithm means that we will be able to extend this application more easily to 3d in the future to compare different decompositions.
 
 \subsubsection{Parallelisation}
 
-The parallel decomposition of the FFT operation is architecture dependent, and in particular varies depending on how many computational elements the problem will be executed on. In particular, the different data layouts include decomposition by slabs or pencils.
+In order to parallelise the FFT's it is necessary to perform a matrix transposition as part of each of the FFTs, which requires packing buffers, performing All-to-All communications with MPI, and then locally transposing the data. Due to the fact that we are performing an FFT before the solve, and then a subsequent inverse FFT, it is possible to reduce the number of transpositions from four to two, saving on the number of All-to-All communications.
 
-This issue is particularly important when composing an FFT package with other packages, as different decompositions might negatively impact on the performance of the whole application leading to a larger search space of decisions when optimising an application.
+The parallel decomposition of the FFT operation is architecture dependent, and in particular varies depending on how many computational elements the problem will be executed on. In the 2d implementation you are limited to a one dimensional decomposition, either row-wise or column-wise, and the parallelism is therefore limited by the problem dimensions \cite{}. The reason for this restriction is that each process has data dependencies along each axis, and so tiling would greatly increase the amount of All-to-All communication required. 
+
+A 3d port of the application is imminent and will allow for greater flexibility, as the problem can be decomposed using either slabs or pencils. While the decomposition of the FFT can be easily solved and optimised for particular architecture in isolation, the issue is particularly important when composing an FFT package with other packages, as different decompositions might negatively impact on the performance of the whole application leading to a larger search space of decisions when optimising an application.
 
 \subsection{Hot - Heat Conduction via a CG Solver}
 
 \label{sec:hot}
 
-We have developed a simple conjugate gradient (CG) solver that implicitly solves the heat conduction equation in order to solve the problem within a reasonable time-frame with acceptable fidelity. Our implementation uses a standard preconditioner, but otherwise adopts the simplest CG approach. 
+We have developed a simple conjugate gradient (CG) solver that implicitly solves the heat conduction equation. We do not precondition the problem, and utilise a standard iterative algorithm. The problem is memory bandwidth bound, until communication costs overwhelm during strong scaling. The problem is also well studied from a HPC optimisations perspective with a number of mini-apps solving the problem, and the HPCG benchmark now being actively used to benchmark supercomputers \cite{}.
 
 \subsubsection{Fundamental Method}
 
@@ -181,16 +185,13 @@ Heat conduction in two dimensions can be specified as follows:
   u^n_{i,j} = u^{n+1}_{i,j}
 \end{align}
 
-Where $u$ is the temperature, $\alpha$ is the thermal diffusivity, $k$ is the thermal conductivity, $\rho$ is the density, and $c_p$ is the specific heat capacity. As you can see from equation (7), this particular form of the equation requires an implicit solve. The conjugate gradient method is an iterative method that descends towards a solution using conjugate vectors. We will not develop or explain the mathematics underpinning the CG solver, and direct interested readers to explore the wealth of existing literature \cite{} (PUT A LOAD OF CG REFERENCES IN). The only physical feature of the application is manifested in the density calculations, where the densities are stored at the cell centers and interpolated to the edges using the arithmetic mean.
+Where $u$ is the temperature, $\alpha$ is the thermal diffusivity, $k$ is the thermal conductivity, $\rho$ is the density, and $c_p$ is the specific heat capacity. As you can see from equation (7), this particular form of the equation requires an implicit solve. The conjugate gradient method is an iterative method that descends towards a solution using conjugate vectors. To calculate the edge centered densities from the cell centered values on the mesh, we simply use the arithmetic mean.
 
 \subsubsection{Parallelisation}
 
-The best decomposition for this mini-app is essentially regular cartesian, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results.
+The best decomposition for this mini-app is regular cartesian, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results. The algorithm does not expose any load imbalance, and nearest neighbour halo exchanges are performed each timestep. At each iteration two scalar values, $\alpha$ and $\beta$, are calculated, which need to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
 
-The algorithm does not expose any load imbalance, and nearest neighbour halo exchanges are performed each timestep. At each iteration an alpha and beta value is calculated, which needs to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
-
-As each of the core kernels is essentially a simple linear algebra method, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
-
+As each of the core kernels contains some simple sparse linear algebra operation, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
 
 \subsection{Flow - Fluid Dynamics via Lagrangian-Eulerian Flux Calculations}
 
@@ -200,15 +201,15 @@ The Flow mini-app is a Lagrangian-Eulerian hydrodynamics solver that is staggere
 
 \subsubsection{Fundamental Method}
 
-The Lagrangian-Eulerian algorithm takes Euler's equations and explicitly solves them on a structured grid. The application uses simple smoothing to introduce artificial viscosity, with shock heating accounted for as part of the mechanical work update. For the mass flux calculations, a Van-Leer flux limiter is used to maintain a monotonic profile at shock boundaries, and slope-limited second-order interpolations are performed for energy and momentum to ensure monotonic behaviour for all dependent variables.
+The Lagrangian-Eulerian algorithm takes Euler's equations and explicitly solves them on a structured grid. The application uses simple smoothing to introduce artificial viscosity, with shock heating accounted for as part of the mechanical work update. For the mass flux calculations, a Van-Leer flux limiter is used to maintain a monotonic profile at shock boundaries, and slope-limited second-order interpolations are performed for energy and momentum to ensure monotonic behaviour for all dependent variables \cite{}.
 
-Directional splitting is used in order to make the application two-dimensional, with the leading dimension switched each timestep, in order to maintain symmetry of the solution. Our explicit timestep controls limit the timestep based on the CFL condition, stopping sound waves travelling further than a single cell per timestep, accounting for the additional spreading that occurs due to the artificial viscous stresses. We have made the algorithm second order in time by interpolating our velocities half a timestep upstream for the advection stages.
+Directional splitting is used in order to make the application two-dimensional, with the leading dimension switched each timestep, in order to maintain symmetry of the solution. Our explicit timestep control limits the timestep based on the CFL condition, stopping sound waves travelling further than a single cell per timestep, accounting for the additional spreading that occurs due to the artificial viscous stresses \cite{}. We have made the algorithm second order in time by interpolating our velocities half a timestep upstream for the advection stages.
 
-As with the heat condution application, the boundary conditions we chose for this application are reflective. This is particularly useful for fluid dynamics as tracking of conservation is important in verifying the results.
+As with the heat condution application, the boundary conditions we chose for this application are reflective, which particularly useful for tracking conservation to verify the results.
 
 \subsubsection{Parallelisation}
 
-As with the heat conduction application, the algorithm does not have any inherent load imbalance, and only requires nearest neighbour communication. The explicit nature of the algorithm means that multiple kernels are invoked in order, and the independent kernels are inherently data parallel, allowing them to be easily threaded for CPU and GPU.
+As with the heat conduction application, the algorithm does not have any inherent load imbalance, and only requires nearest neighbour communication of halo regions. The explicit nature of the algorithm means that multiple kernels are invoked in order, and the independent kernels are inherently data parallel, allowing them to be easily threaded for CPU and GPU.
 
 %\subsection{Bright - Monte Carlo Particle Transport}
 %
@@ -363,8 +364,6 @@ We can see in Table \ref{tab:hot-flow-multi-device} that, for the large problem 
 The results demonstrate that Hot and Flow are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
 
 An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size for realy scientific problems, the capped inner iterations perfomed by \textit{Hot} mean that the performance results shown in Table \ref{tab:hot-flow-multi-device} do not truly represent the imbalance. The true disparity between the runtimes of the two packages is above an order of magnitude. We believe that this has some important implications for the optimisation of the applications when composed. Such an imbalance surely opens up the opportunity for successful overlapping of slow operations...
-
-I HAVE LOADS OF PERFORMANCE RESULTS FOR THIS COUPLING, ON ALL DEVICES, WITH OPENMP, PROBLEM SCALING, SCALING ON MULTI-GPU etc. BUT I'M OMITTING AS THE COUPLING IS NOT INTERESTING
 
 \subsection{Fast 3d + Hot 3d}
 
