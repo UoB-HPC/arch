@@ -218,8 +218,8 @@ void decompose_2d_cartesian(
   neighbours[SOUTH] = (y_rank > 0) ? rank-ranks_x : EDGE;
   neighbours[WEST] = (x_rank > 0) ? rank-1 : EDGE;
 
-  printf("rank %d neighbours %d %d %d %d\n",
-      rank, neighbours[NORTH], neighbours[EAST], 
+  printf("rank %d dims %d %d neighbours %d %d %d %d\n",
+      rank, *local_nx, *local_ny, neighbours[NORTH], neighbours[EAST], 
       neighbours[SOUTH], neighbours[WEST]);
 }
 
