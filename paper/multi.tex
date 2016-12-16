@@ -74,13 +74,13 @@
 
 \section{Introduction}
 
-A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers. Some context of the challenges currently faced by the community is presented to demonstrate the importance of this research. 
+A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers \cite{}. Some context of the challenges currently faced by the community is presented to demonstrate the importance of this research. 
 
 \subsection{The Use of Mini-Apps to Optimise for Modern Architectures}
 
-To meet power demands and continue to grow the performance capabilities of supercomputing resources, a continual diversification of architectures has been essential. This has brought significant complexities for scientific applications developers, necessitating improvements in programming environments and the optimisation of algorithms. Due to the extent of the task, it is now essential that computer scientists are involved in the process, which has lead to a surge of co-design projects. In particular, many optimisation projects are being performed with proxy applications, or mini-apps, such that the lessons can be prototyped in collaboration between scientists and computer scientists.
+To meet power demands and continue to grow the performance capabilities of supercomputing resources, a continual diversification of architectures has been essential. This has brought significant complexities for scientific applications developers, necessitating improvements in programming environments and the optimisation of algorithms. Due to the extent of the task, it is now essential that computer scientists are involved in the process, which has lead to a surge of co-design projects. In particular, many optimisation projects are being performed with proxy applications, or mini-apps, such that the lessons can be prototyped in collaboration between scientists and computer scientists \cite{Mantevo}.
 
-A great many studies have been performed that have used mini-apps to investigate key problems such as application performance, portability, scalability, and fault tolerance. In spite of this, the research does not generally make a link between the optimisations seen for those miniaturised proxy applications and full scale production applications.
+A great many studies have been performed that have used mini-apps to investigate key problems such as application performance, portability, scalability, and fault tolerance \cite{Hart2015} \cite{Bercea2015} \cite{Martineau2016}. In spite of this, the research does not generally make a link between the optimisations seen for those miniaturised proxy applications and full scale production applications.
 
 %It is considered an onerous and complicated task to program GPUs and until recently there has been little traction within the community to port existing large-scale applications, even though some of the largest supercomputers in the world, for instance Titan, include both CPUs and GPUs. We have shown in our previous research that GPUs can be programmed effectively, in most cases, using existing programming models. We have shown that productivity can be an important deciding factor in the choice of programming model, and further showed that directive-based models can offer a highly productive interface, that can be portable given good implementations, whilst not significantly sacrificing performance.
 
@@ -148,7 +148,7 @@ We are currently relying on the optimised Intel MKL library version of the one d
 
 \subsubsection{Fundamental Method}
 
-Following on from the discussions in Gholami et al. \cite{}, we utilise the FFT to solve Poisson's equation for some dependent data passed to the solver. 
+Following on from the discussions in Gholami et al. \cite{Gholami2014}, we utilise the FFT to solve Poisson's equation for some dependent data passed to the solver. 
 
 \begin{align}
   \frac{d^2\phi}{dx^2} = \epsilon(x, y) \\
@@ -173,7 +173,7 @@ A 3d port of the application is imminent and will allow for greater flexibility,
 
 \label{sec:hot}
 
-We have developed a simple conjugate gradient (CG) solver that implicitly solves the heat conduction equation. We do not precondition the problem, and utilise a standard iterative algorithm. The problem is memory bandwidth bound, until communication costs overwhelm during strong scaling. The problem is also well studied from a HPC optimisations perspective with a number of mini-apps solving the problem, and the HPCG benchmark now being actively used to benchmark supercomputers \cite{}.
+We have developed a simple conjugate gradient (CG) solver that implicitly solves the heat conduction equation. We do not precondition the problem, and utilise a standard iterative algorithm. The problem is memory bandwidth bound, until communication costs overwhelm during strong scaling. The problem is also well studied from a HPC optimisations perspective with a number of mini-apps solving the problem, and the HPCG benchmark now being actively used to benchmark supercomputers \cite{Dongarra2013}.
 
 \subsubsection{Fundamental Method}
 
@@ -449,7 +449,7 @@ We further recognise that there are many requirements not handled by our existin
 
 \section{Related Work}
 
-(SPEAK TO W ABOUT THIS SECTION, WHAT IS ACCEPTABLE TO BE TIED TO THIS PAPER)
+
 
 \section{Conclusion}
 
