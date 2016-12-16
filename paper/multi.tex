@@ -364,21 +364,27 @@ We wanted to continue this investigation on some other types of hardware to ensu
 
 The results demonstrate that Hot and Flow are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
 
-An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size for realy scientific problems, the capped inner iterations perfomed by \textit{Hot} mean that the performance results shown in Table \ref{tab:hot-flow-multi-device} do not truly represent the imbalance. The true disparity between the runtimes of the two packages is above an order of magnitude. We believe that this has some important implications for the optimisation of the applications when composed. Such an imbalance surely opens up the opportunity for successful overlapping of slow operations...
+An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size, we observe an order of magnitudes difference in the runtimes of the two applications (Table \ref{tab:hot-flow-multi-device}). There are some important issues with having such a disparity in the runtimes. It may be possible to optimise for a single application and generally ignore the performance of the other. Also, it might be profitable to adjust the numerical method of the faster package in order to increase accuracy or improve some other beneficial metric.
+
+%Although the composition of the applications did not show any significant performance degradation, this is a useful result for future investigations as it proves that the 
 
 \subsection{Fast 3d + Hot 3d}
 
-As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
+As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
 
 \subsubsection{Conflict Resolution}
 
 In the event that the data structures within two packages conflict, we can theorise some potential resolutions:
 
 \begin{itemize}
-  \item \textbf{Pick the best decomposition for the worst package} - This may or may not be easy depending on the restrictions imposed by the other packages. This is likely only suitable when you have a significant difference between the relative costs of the packages.
+  \item \textbf{Pick the best decomposition with the largest impact on a single application} - This may or may not be easy depending on the restrictions imposed by the other packages. This is likely only suitable when you have a significant difference between the relative costs of the packages.
   \item \textbf{Choose some mutually beneficial layout} - This could be a complicated decision to make, and might lead to specific novel layouts for particular couplings. If the relative costs of the two packages are similar, then we expect this to be a good choice.
   \item \textbf{Perform a transposition of the data between packages} - Considering a simple two package application, with a victim that requires it's data transposed, this would lead to two transposition at entry to and exit from the victim package. Ideally this transposition could be overlapped with independent work.
 \end{itemize}
+
+Although our 2d implementation limits us to picking the best decomposition for Fast 2d, we recognise that the 3d version will allow a choice between multiple decompositions. Much of this discussion focusses upon the algorithms at scale rather than single node performance where we have observed good composition performance for all of the algorithms. 
+
+An important technique for improving the symptoms of poor scaling due to communication overheads is the exploitation of shared memory. We are currently in the process of measuring the effects of reducing the number of MPI ranks required using OpenMP for node-level parallelism in each application. Our expectation is that this will further delay the effects of the performance degradation caused by the decomposition choices.
 
 \section{Patterns Affecting Performance for Multi-Package Applications}
 
@@ -447,7 +453,13 @@ We further recognise that there are many requirements not handled by our existin
 
 \section{Conclusion}
 
+As architectures are becoming more complex, domain scientists will rely more upon computer scientists to assist with optimising their applications for modern supercomputers. Mini-apps are the perfect vehicle for such investigations, and are being used extensively. Discovering which aspects of real production applications are not covered by the individual applications is essential, and the purpose of this research was to motivate further investigation into those problems.
+
 Although we have only been able to compose three applications in this paper, we have already discovered and discussed some interesting problems that can arise in the process. Importantly we have been able to observe an important fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the application than the dominant conflicting performance characteristics present amongst the applications.
+
+Changes that directly influence shared data structures are very likely to affect the performance of individual packages. In our case the mesh data could be maintained on a regular structured mesh for all of the applications, but the way that the mesh was decomposed was directly influenced by the FFT application, Fast 2d. Depending on the problem dimensions and level of scaling, this had a significant impact on the performance of the combined solve. In order to reduce the effect of this issue, the utilisation of shared memory is essential, although this will only defer the problem by some factor.
+
+There are many more combinations of applications that need to be investigated, and we expect that concentrating on those applications that have conflicting performance characteristics will provide the most insight.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,multi}
