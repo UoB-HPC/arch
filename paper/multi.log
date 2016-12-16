@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  16 DEC 2016 14:48
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015) (preloaded format=pdflatex 2015.10.27)  16 DEC 2016 15:01
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -364,7 +364,7 @@ LaTeX Warning: Empty `thebibliography' environment on input line 24.
 Here is how much of TeX's memory you used:
  2911 strings out of 493089
  37815 string characters out of 6134841
- 109112 words of memory out of 5000000
+ 108112 words of memory out of 5000000
  6344 multiletter control sequences out of 15000+600000
  11484 words of font info for 44 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
@@ -383,7 +383,7 @@ mr7.pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmr9
 pfb></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmsy7.pf
 b></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmti10.pfb
 ></usr/local/texlive/2015/texmf-dist/fonts/type1/public/amsfonts/cm/cmtt9.pfb>
-Output written on multi.pdf (15 pages, 269707 bytes).
+Output written on multi.pdf (15 pages, 269746 bytes).
 PDF statistics:
  116 PDF objects out of 1000 (max. 8388607)
  78 compressed objects within 1 object stream

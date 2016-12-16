@@ -115,13 +115,13 @@ This research is primarily focussed upon discussing the implication of composing
 
 In this section we will discuss the general composition of packages, and then present some basic details about each application, including a description of the numerical method and parallelisation strategy. To ensure a clear discussion, we will explain the initial development of each application prior to discussing our efforts to couple them together. This means that we will explain how each application was optimally developed, but with the caveat that this would likely have to change once coupling was required. We did not actively consider the coupling during the up-front development of each application, instead opting to choose the best strategy for each application in isolation.
 
-\section{Composition of Dwarfs}
+\subsection{Composition of Dwarfs}
 
-It would be possible to compose packages from any of the domains within science and engineering, but an aim of this research was to use canonical algorithms that can act as proxies for wider classes of application. In this paper we have chosen to continue on from the work discussed by Asanovic et al. \cite{Asanovic2006}, who outlined a number of Dwarfs, each of which describes a different computational class that features in modern supercomputing applications. We hope that considering applications from each of the Dwarfs will offer general insights that can be applied to the wider field.
+It would be possible to compose packages from any of the domains within science and engineering, but an aim of this research was to use canonical algorithms that can act as proxies for wider classes of application. In this paper we have chosen to continue on from the work discussed by Asanovic et al. \cite{Asanovic2006}, who outlined a number of Dwarfs, each of which describes a different computational class that features in modern supercomputing applications. Selecting algorithms that strongly correlate to the characteristics of an individual Dwarfs will offer general insights that can be applied to the wider field.
 
 Each of the Dwarfs has a unique set of computational and communicational characteristics that mean that they expose different requirements of modern computing hardware. While many of those characteristics have been analysed and optimised heavily on existing architectures, we intend to uncover the extent to which those classes can co-exist within an application. At this stage we will re-iterate that that the majority of production applications that solve significant scientific problems will require packages encompassing a number of the classes described by the Dwarfs.
 
-The Dwarfs cover broad families of algorithms, each of which encapsulates a subset of possible performance characteristics, with some overlap of characteristics amongst the Dwarfs. An aim of our research is to expose dominant performance characteristics, as we hypothesise that there will be an unequal weighting of the importance of those characteristics. 
+The Dwarfs cover broad families of algorithms, each of which encapsulates a subset of possible performance characteristics, with some overlap of characteristics amongst the Dwarfs. An aim of this research is to expose some dominant performance characteristics, as we hypothesise that there will be an unequal weighting of the importance of those characteristics. 
 
 The Dwarfs that we consider in this paper are:
 
@@ -134,13 +134,13 @@ The Dwarfs that we consider in this paper are:
 
 We will present the results of coupling Hot 2d with Flow 2d, and Hot 2d with Fast 2d. To support this we also discuss the potential difficulties that we anticipate will arise when composing the other Dwarfs together. 
 
-It would be possible to end up with large spaghetti applications when composing multiple packages together, which would dilute the merits of using mini-apps. We have made every effort to ensure that the applications we develop for this purpose are simple while expressing the correct performance profiles, so that the agility of the individual mini-apps will still apply when composed.
+It would be possible to end up with large spaghetti applications when composing multiple packages together, which would dilute the merits of using mini-apps. We have made every effort to ensure that the applications we develop for this purpose are simple while expressing the correct performance profiles, so that the agility of the individual mini-apps will still apply when composed. It is not our intention to introduce ground-breaking accuracy or methods into our applications.
 
 \subsection{Fast - Fast Fourier Transform for Poisson's Equation}
 
 \label{sec:fast}
 
-The fast fourier transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation. The primary reason for choosing this particular approach is not scientific relevance, rather that it will result in verifiable outputs, while still capturing some important performance characteristics of the class of algorithms.
+The Fast Fourier Transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation. The primary reason for choosing this particular approach is not scientific relevance, rather that it will result in verifiable outputs, while still capturing some important performance characteristics of the class of algorithms.
 
 The mini-app is flexible and can use a hand-rolled algorithm for the one dimensonal FFT and inverse FFT steps, but also provides an option to use the optimised Intel MKL library version. Our initial assumption is that the implementation of the FFT solve would be less important to the performance than the choice of decomposition strategy, given that the FFT operation is notoriously bound by the \textit{'all to all'} communication of data among processes.
 
@@ -333,14 +333,14 @@ To ensure different effects are not seen with diverse architectures, we collecte
 
 \begin{table}[h]
   \begin{center}
-    \begin{tabular}{ccccc}
+    \begin{tabular}{c|c|c|c|c}
       \hline
-      \textbf{Device} & \textbf{Hot (s)} & \textbf{Flow (s)} & \textbf{Hot'n'Flow (s)} & \textbf{Difference (s)} \\
+      \textbf{Device} & \textbf{Hot 2d} & \textbf{Flow 2d} & \textbf{Hot 2d + Flow 2d} & \textbf{Difference} \\
       \hline
-      \textit{\textbf{Haswell 32 Core}} & 119.3 & 10.3 & 129.9 & 0.28\\
-      \textit{\textbf{Broadwell 44 Core}} & 109.4 & 8.9 & 118.8 & 0.4\\
-      \textit{\textbf{KNL}} & 36.8 & 4.4 & 41.3 & 0.01 \\
-      \textit{\textbf{K20X}} & 85.0 & 7.4 & 92.4 & -0.08 \\
+      \textit{\textbf{Haswell 32 Core}} & 119.3s & 10.3s & 129.9s & 0.0\% \\
+      \textit{\textbf{Broadwell 44 Core}} & 109.4s & 8.9s & 118.8s & 0.0\% \\
+      \textit{\textbf{KNL}} & 36.8s & 4.4s & 41.3s & 0.0\% \\
+      \textit{\textbf{K20X}} & 85.0s & 7.4s & 92.4s & 0.0\% \\
       \textit{\textbf{Power8}} & & & & \\
     \end{tabular}
   \end{center}
