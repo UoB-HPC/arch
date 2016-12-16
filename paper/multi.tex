@@ -63,18 +63,18 @@
 
 
 \begin{abstract}
-  In this paper we discuss the composition of scientific packages, and how this affects performance on highly parallel supercomputing hardware. We introduce three new mini-apps: Hot, Flow, and Fast, which solve heat diffusion and hydrodynamics, and perform parallel FFTs to solve Poissons equation. The mini-apps represent three of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together.
+  In this paper we discuss the composition of scientific packages, and how this affects performance on highly parallel supercomputing hardware. We introduce three new mini-apps: Hot, Flow, and Fast, which solve heat diffusion, hydrodynamics, and use an FFT to solve Poisson's equation. The mini-apps represent three of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together.
 
   Although much research has been performed that evaluates the performance profile of the seven Dwarfs, production applications rarely utilise only a single package for solving a scientific problem. We start by presenting a motivational discussion of the relevant Dwarfs, considering their invidual performance characteristics and which of those characteristics are dominant. Following this we present performance results of coupling Hot, Flow, and Fast together, using them to solve test problems on modern hardware.  
 
   The paper ends with a discussion of some of the most important performance issues that we can forsee when coupling applications together, motivating a stream of future work in the area.
 
-  \keywords{performance portability,mini-apps,high performance computing,openmp 4}
+  \keywords{multi-package composition,parallel dwarfs,mini-apps,high-performance-computing}
 \end{abstract}
 
 \section{Introduction}
 
-A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers \cite{}. Some context of the challenges currently faced by the community is presented to demonstrate the importance of this research. 
+A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers \cite{}. Context of the challenges currently faced by the community is presented to demonstrate the importance of this research. 
 
 \subsection{The Use of Mini-Apps to Optimise for Modern Architectures}
 
@@ -88,11 +88,11 @@ A great many studies have been performed that have used mini-apps to investigate
 
 This paper is a window into a set of work that is attempting to extend the success of mini-apps for evaluating modern architectures and programming environments. It is essential that the community is mindful of the purpose of mini-apps, which is to discover optimisations that have real world impact. Our aim is to begin to capture the features of production scientific codes that have been yet unexplored with mini-apps, to improve the validity of future performance investigations. 
 
-Much of the mini-app optimisation focus has been limited to individual applications which have, in general, performed well on modern hardware, using a range modern parallel programming models. Up until this point the individual mini-apps have failed to expose some important aspects of large-scale scientific applications, in that they are isolated instances of algorithms that do not encapsulate the multi-package hierarchies that scientists are truly interested in seeing results for.
+Much of the mini-app optimisation focus has been limited to individual applications which have, in general, performed well on modern hardware, using a range modern parallel programming models. Up until this point the individual mini-apps have failed to expose some important aspects of large-scale scientific applications. The majority of mini-apps contain individual algorithms and do not encapsulate the multi-package hierarchies that scientists are truly interested in seeing results for.
 
 In order to limit our focus to the most important algorithms that might be encountered within scientific production codes, we will follow the seven Dwarfs of parallel programming. In the 2006 View from Berkely paper \cite{Asanovic2006}, a number of important classes of parallel algorithm were discussed and categoried as parallel programming Dwarfs. Each of the Dwarfs exposes a diverse computational and communicational pattern and can encompass many of the algorithms you are likely to see in production scientific applications.  
 
-Their paper eluded to the necessity for those Dwarfs to be composed together and investigated as coupled application. Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominant performance characteristics when combining multiple packages, as would be seen in a common scientific production application. Each mini-app represents one of a subset of the Dwarfs, and we plan to consider all of the Dwarfs in future research.
+Their paper alluded to the necessity for those Dwarfs to be composed together and investigated as coupled application. Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominant performance characteristics when combining multiple packages, as would be seen in a common scientific production application. Each mini-app represents one of a subset of the Dwarfs, and we plan to consider all of the Dwarfs in future research.
 
 We recognise that many of the issues we discuss or uncover will have been discovered by application developers or performance engineers attempting to combine multiple packages together in the past. However, it can often be challenging to generalise approaches from specific use cases, which is one of the benefits of mini-apps, where a general strategy can be employed and discussed. Ultimately, it is essential to the relevance of results obtained by mini-apps that such features are considered alongside other performance studies. 
 
@@ -127,7 +127,7 @@ The Dwarfs that we consider in this paper are:
 
 \begin{itemize}
   \item \textbf{Spectral Methods} - \textit{Fast}: A Fast Fourier Transform solver for Poisson's equation (Section \ref{sec:fast}).
-  \item \textbf{Sparse Linear Algebra} - \textit{Hot}: An heat diffusion application, that uses a Conjugate Gradient linear solver (Section \ref{sec:hot}).
+  \item \textbf{Sparse Linear Algebra} - \textit{Hot}: A heat diffusion application, that uses a Conjugate Gradient linear solver (Section \ref{sec:hot}).
   \item \textbf{Structured Grid} - \textit{Flow}: A Lagrangian-Eulerian hydrodynamics application that uses an explicit 5 point stencil (Section \ref{sec:flow}).
   %\item \textbf{Monte Carlo} - \textit{Bright}: A time-dependent Monte Carlo neutral particle tracking application that tallies energy depositions (Section \ref{sec:bright}).
 \end{itemize}
@@ -140,9 +140,9 @@ It would be possible to end up with large spaghetti applications when composing 
 
 \label{sec:fast}
 
-The Fast Fourier Transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs \cite{}. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation. The primary reason for choosing this particular approach is not scientific relevance, rather that it will result in verifiable outputs, while still capturing some important performance characteristics of the Spectral class of algorithms.
+The Fast Fourier Transform (FFT) is an important algorithm to a number of scientific and engineering domains, and there exists extensive literature regarding optimisation of parallel FFTs \cite{Swarztrauber1987} \cite{Takahashi2009}. As part of this research we have developed a highly simplified FFT mini-app, which solves Poisson's equation. The primary reason for choosing this particular approach is not scientific relevance, rather that it will result in verifiable outputs, while still capturing some important performance characteristics of the Spectral class of algorithms.
 
-We are currently relying on the optimised Intel MKL library version of the one dimensional FFT, and we then parallelise that manually using MPI. Our initial assumption is that the implementation of the FFT solve would be less important to the performance than the choice of decomposition strategy, given that the FFT operation is notoriously bound by the \textit{'All-to-All'} communication of data among processes \cite{}.
+We are currently relying on the optimised Intel MKL library version of the one dimensional FFT, and we then parallelise that manually using MPI. Our initial assumption is that the implementation of the FFT solve would be less important to the performance than the choice of decomposition strategy, given that the FFT operation is notoriously bound by the \textit{'All-to-All'} communication of data among processes \cite{Takahashi2009}.
 
 %Prior to our experimentation, we anticipated that the inclusion of an FFT package within a multi-package application would likely result in conflicts over the optimal domain decomposition. We have observed similar issues with domain decompisition conflicts for wavefront parallelism, making this pattern of great interest.
 
@@ -165,7 +165,7 @@ The arithmetic requirement of this package is low and the algorithm is generally
 
 In order to parallelise the FFT's it is necessary to perform a matrix transposition as part of each of the FFTs, which requires packing buffers, performing All-to-All communications with MPI, and then locally transposing the data. Due to the fact that we are performing an FFT before the solve, and then a subsequent inverse FFT, it is possible to reduce the number of transpositions from four to two, saving on the number of All-to-All communications.
 
-The parallel decomposition of the FFT operation is architecture dependent, and in particular varies depending on how many computational elements the problem will be executed on. In the 2d implementation you are limited to a one dimensional decomposition, either row-wise or column-wise, and the parallelism is therefore limited by the problem dimensions \cite{}. The reason for this restriction is that each process has data dependencies along each axis, and so tiling would greatly increase the amount of All-to-All communication required. 
+The parallel decomposition of the FFT operation is architecture dependent, and in particular varies depending on how many computational elements the problem will be executed on. In the 2d implementation you are limited to a one dimensional decomposition, either row-wise or column-wise, and the parallelism is therefore limited by the problem dimensions. The reason for this restriction is that each process has data dependencies along each axis, and so tiling would greatly increase the amount of All-to-All communication required. 
 
 A 3d port of the application is imminent and will allow for greater flexibility, as the problem can be decomposed using either slabs or pencils. While the decomposition of the FFT can be easily solved and optimised for particular architecture in isolation, the issue is particularly important when composing an FFT package with other packages, as different decompositions might negatively impact on the performance of the whole application leading to a larger search space of decisions when optimising an application.
 
@@ -180,16 +180,22 @@ We have developed a simple conjugate gradient (CG) solver that implicitly solves
 Heat conduction in two dimensions can be specified as follows:
 
 \begin{align}
-  \frac{\partial u}{\partial t} - \alpha (\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}) = 0 \\ 
-  \alpha = \frac{k}{\rho c_p} \\
-  u^n_{i,j} = u^{n+1}_{i,j}
+  \frac{\partial u}{\partial t} - \alpha \left(\frac{\partial^2u}{\partial x^2} + \frac{\partial^2u}{\partial y^2}\right) = 0 \\ 
+  \alpha = \frac{k}{\rho c_p}
 \end{align}
+\begin{equation}
+  \begin{split}
+    u^n_{i,j} = u^{n+1}_{i,j} 
+    & - \frac{\alpha dt}{dx^2}(u^{n+1}_{i,j-1} - 2u^{n+1}_{i,j} + u^{n+1}_{i,j+1}) \\
+    & - \frac{\alpha dt}{dy^2}(u^{n+1}_{i-1,j} - 2u^{n+1}_{i,j} + u^{n+1}_{i+1,j})
+  \end{split}
+\end{equation}
 
 Where $u$ is the temperature, $\alpha$ is the thermal diffusivity, $k$ is the thermal conductivity, $\rho$ is the density, and $c_p$ is the specific heat capacity. As you can see from equation (7), this particular form of the equation requires an implicit solve. The conjugate gradient method is an iterative method that descends towards a solution using conjugate vectors. To calculate the edge centered densities from the cell centered values on the mesh, we simply use the arithmetic mean.
 
 \subsubsection{Parallelisation}
 
-The best decomposition for this mini-app is regular cartesian, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results. The algorithm does not expose any load imbalance, and nearest neighbour halo exchanges are performed each timestep. At each iteration two scalar values, $\alpha$ and $\beta$, are calculated, which need to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
+The best decomposition for this mini-app is generally a regular cartesian tile, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results. The algorithm does not expose any load imbalance, and nearest neighbour halo exchanges are performed each timestep. At each iteration two scalar values, $\alpha$ and $\beta$, are calculated, which need to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
 
 As each of the core kernels contains some simple sparse linear algebra operation, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
 
@@ -201,11 +207,11 @@ The Flow mini-app is a Lagrangian-Eulerian hydrodynamics solver that is staggere
 
 \subsubsection{Fundamental Method}
 
-The Lagrangian-Eulerian algorithm takes Euler's equations and explicitly solves them on a structured grid. The application uses simple smoothing to introduce artificial viscosity, with shock heating accounted for as part of the mechanical work update. For the mass flux calculations, a Van-Leer flux limiter is used to maintain a monotonic profile at shock boundaries, and slope-limited second-order interpolations are performed for energy and momentum to ensure monotonic behaviour for all dependent variables \cite{}.
+The Lagrangian-Eulerian algorithm takes Euler's equations and explicitly solves them on a structured grid. The application uses simple smoothing to introduce artificial viscosity, with shock heating accounted for as part of the mechanical work update. For the mass flux calculations, a Van-Leer flux limiter is used to maintain a monotonic profile at shock boundaries, and slope-limited second-order interpolations are performed for energy and momentum to ensure monotonic behaviour for all dependent variables \cite{Berger2005}.
 
-Directional splitting is used in order to make the application two-dimensional, with the leading dimension switched each timestep, in order to maintain symmetry of the solution. Our explicit timestep control limits the timestep based on the CFL condition, stopping sound waves travelling further than a single cell per timestep, accounting for the additional spreading that occurs due to the artificial viscous stresses \cite{}. We have made the algorithm second order in time by interpolating our velocities half a timestep upstream for the advection stages.
+Directional splitting is used in order to make the application two-dimensional, with the leading dimension switched each timestep, in order to maintain symmetry of the solution. Our explicit timestep control limits the timestep based on the CFL condition, stopping sound waves travelling further than a single cell per timestep, accounting for the additional spreading that occurs due to the artificial viscous stresses \cite{Bowers1991}. We have made the algorithm second order in time by interpolating our velocities half a timestep upstream for the advection stages.
 
-As with the heat condution application, the boundary conditions we chose for this application are reflective, which particularly useful for tracking conservation to verify the results.
+As with the heat condution application, the boundary conditions we chose for this application are reflective, which is particularly useful for tracking conservation to verify the results.
 
 \subsubsection{Parallelisation}
 
@@ -261,11 +267,11 @@ Although the Dwarfs imply some high-level classification of algorithms, we belie
   \label{tab:perf-char-mini-apps}
 \end{table}
 
-We have seen in previous work which of those characteristics matter to the individual application, such as \textit{Memory Bandwidth} for indiviual application performance and \textit{All-to-All} communications for scalability. Our intention is to investigate how the computational and communicational profiles of those applications interact with eachother when packages are composed and make some commentary about the dominant performance characteristics.
+We have seen in previous work which of those characteristics matter to the individual application, such as \textit{Memory Bandwidth} for indiviual application performance and \textit{All-to-All} communications for scalability. Our intention is to investigate how the computational and communicational profiles of those applications interact with each other when packages are composed and make some commentary about the dominant performance characteristics.
 
-We can pre-emptively assess some of the likely effects that running multiple mini-apps at once lead to. We would expect that there could be an impact on cache utilisation, and a generally increased memory footprint, while some state could be shared potentially improving the overall performance. Table \ref{tab:perf-char-mini-apps} lists some of the key performance characteristics of the applications that we investigate in this paper. 
+We can pre-emptively assess some of the likely effects that running multiple mini-apps at once lead to. We would expect that there could be an impact on cache utilisation, and a generally increased memory footprint, while some state could be shared, potentially improving the overall performance. Table \ref{tab:perf-char-mini-apps} lists some of the key performance characteristics of the applications that we investigate in this paper. 
 
-Some communication costs could be saved if variables could be communicated once for all applications, during the \textit{Nearest Neighbour} or \textit{All to All communications}, for instance. We do no expose any \textit{Load Imbalance} as part of our suite of applications, but are currently in the process of develop Bright, which is a Monte Carlo neutral particle tracking application, that we expect to suffer from significant load balancing issues. As two of the applications are \textit{Memory Bandwidth} bound, it might be possible to overlap the costly memory access delays with independent computation from other applications. It is also possible that data structures between the individual applications will require some form of transformation, which we expect to have a major influence on performance. 
+Some communication costs could be saved if variables could be communicated once for all applications, during the \textit{Nearest Neighbour} or \textit{All to All communications}, for instance. We do no expose any \textit{Load Imbalance} as part of our suite of applications, but are currently in the process of developing \textit{Bright}, which is a Monte Carlo neutral particle tracking application, that we expect to suffer from significant load balancing issues. As two of the applications are \textit{Memory Bandwidth} bound, it might be possible to overlap the costly memory access delays with independent computation from other applications. It is also possible that data structures between the individual applications will require some form of transformation, which we expect to have a major influence on performance. 
 
 \section{Coupling}
 
@@ -290,20 +296,18 @@ Although we had some preconceptions regarding the likely effects of composing pa
 
 \subsection{Experimental Setup}
 
-Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. 
+Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms \cite{Bird2013} \cite{}. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. 
 
 \begin{table}[h]
   \begin{center}
     \begin{tabular}{l|c|c}
       \hline
-      \textbf{} & \textbf{Mem BW} & \textbf{FLOPS}  \\
+      \textbf{} & \textbf{Peak Mem BW} & \textbf{Peak FLOPS}  \\
       \hline
-      \textit{\textbf{}} & 62 GB/s & ??? G/flops \\
-      \textit{\textbf{Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz}} & 62 GB/s & ??? G/flops \\
-      
-      \textit{\textbf{Intel Xeon Phi 7210 (64 core)}} & 450 GB/s & ??? G/flops \\
-      \textit{\textbf{NVIDIA K20X Kepler}} & 180 GB/s & ??? G/flops \\
-      \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & ??? G/flops \\
+      \textit{\textbf{Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz}} & 78 GB/s & 330 Gflops \\
+      \textit{\textbf{Intel Xeon Phi 7210 (64 core)}} & 450 GB/s & 2.6 Tflops \\
+      \textit{\textbf{NVIDIA K20X Kepler}} & 180 GB/s & 1.3 Tflops \\
+      \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & 1.4 Tflops \\
     \end{tabular}
   \end{center}
   \caption{The devices used in this performance analysis.}
@@ -362,7 +366,7 @@ We wanted to continue this investigation on some other types of hardware to ensu
 %The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
 
 
-The results demonstrate that Hot and Flow are performance compatible, meaning they do not interfere with the performance profile of eachother. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
+The results demonstrate that Hot and Flow are performance compatible, meaning they do not interfere with the performance profile of each other. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
 
 An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size, we observe an order of magnitudes difference in the runtimes of the two applications (Table \ref{tab:hot-flow-multi-device}). There are some important issues with having such a disparity in the runtimes. It may be possible to optimise for a single application and generally ignore the performance of the other. Also, it might be profitable to adjust the numerical method of the faster package in order to increase accuracy or improve some other beneficial metric.
 
@@ -370,7 +374,7 @@ An interesting feature of the two mini-apps is that they have vastly different p
 
 \subsection{Fast 3d + Hot 3d}
 
-As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
+As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{Pissis2008}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
 
 \subsubsection{Conflict Resolution}
 
@@ -379,7 +383,7 @@ In the event that the data structures within two packages conflict, we can theor
 \begin{itemize}
   \item \textbf{Pick the best decomposition with the largest impact on a single application} - This may or may not be easy depending on the restrictions imposed by the other packages. This is likely only suitable when you have a significant difference between the relative costs of the packages.
   \item \textbf{Choose some mutually beneficial layout} - This could be a complicated decision to make, and might lead to specific novel layouts for particular couplings. If the relative costs of the two packages are similar, then we expect this to be a good choice.
-  \item \textbf{Perform a transposition of the data between packages} - Considering a simple two package application, with a victim that requires it's data transposed, this would lead to two transposition at entry to and exit from the victim package. Ideally this transposition could be overlapped with independent work.
+  \item \textbf{Perform a transposition of the data between packages} - In the case of a simple two package application, consider a 'victim' that will have it's data transposed to resolve dependencies. This would lead to two transpositions, one at entry to and one at exit from the victim package. Ideally this transposition could be overlapped with independent work.
 \end{itemize}
 
 Although our 2d implementation limits us to picking the best decomposition for Fast 2d, we recognise that the 3d version will allow a choice between multiple decompositions. Much of this discussion focusses upon the algorithms at scale rather than single node performance where we have observed good composition performance for all of the algorithms. 
@@ -455,7 +459,7 @@ We further recognise that there are many requirements not handled by our existin
 
 As architectures are becoming more complex, domain scientists will rely more upon computer scientists to assist with optimising their applications for modern supercomputers. Mini-apps are the perfect vehicle for such investigations, and are being used extensively. Discovering which aspects of real production applications are not covered by the individual applications is essential, and the purpose of this research was to motivate further investigation into those problems.
 
-Although we have only been able to compose three applications in this paper, we have already discovered and discussed some interesting problems that can arise in the process. Importantly we have been able to observe an important fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the application than the dominant conflicting performance characteristics present amongst the applications.
+Although we have only been able to compose three applications in this paper, we have already discovered and discussed some interesting problems that can arise in the process. Importantly we have been able to observe a fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the application than the dominant conflicting performance characteristics present amongst the applications.
 
 Changes that directly influence shared data structures are very likely to affect the performance of individual packages. In our case the mesh data could be maintained on a regular structured mesh for all of the applications, but the way that the mesh was decomposed was directly influenced by the FFT application, Fast 2d. Depending on the problem dimensions and level of scaling, this had a significant impact on the performance of the combined solve. In order to reduce the effect of this issue, the utilisation of shared memory is essential, although this will only defer the problem by some factor.
 
