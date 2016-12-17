@@ -35,7 +35,7 @@
 \mainmatter  % start of an individual contribution
 
 % first the title is needed
-\title{Composing HPC Packages and the Influence of Dominant Performance Characteristics}
+\title{Composing the Dwarfs - \\A Performance Analysis of Coupled Mini-Apps}
 
 % a short form should be given in case it is too long for the running head
 \titlerunning{Composing the Dwarfs}
@@ -294,7 +294,7 @@ Although we had some preconceptions regarding the likely effects of composing pa
 
 \subsection{Experimental Setup}
 
-Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms \cite{Bird2013} \cite{}. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. 
+Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms \cite{Bird2013} \cite{Ivanov2015}. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. 
 
 \begin{table}[h]
   \begin{center}
@@ -304,7 +304,6 @@ Each of the mini-apps has been optimised using modern techniques from years of r
       \hline
       \textit{\textbf{Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz}} & 78 GB/s & 330 Gflops \\
       \textit{\textbf{Intel Xeon Phi 7210 (64 core)}} & 450 GB/s & 2.6 Tflops \\
-      \textit{\textbf{NVIDIA K20X Kepler}} & 180 GB/s & 1.3 Tflops \\
       \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & 1.4 Tflops \\
     \end{tabular}
   \end{center}
@@ -348,7 +347,7 @@ To ensure different effects are not seen with diverse architectures, we collecte
       \textit{\textbf{K40m}} & 85.0s & 7.4s & 92.4s & 0.0\% \\
     \end{tabular}
   \end{center}
-  \caption{The performance of Hot, Flow, and Hot'n'Flow on multiple devices for the $5000^2$ for 50 iterations.}
+  \caption{The performance of Hot, Flow, and Hot + Flow on multiple devices for the $5000^2$ for 50 iterations. The code run on the Haswell 32 Core was compiled with the Cray compilers, version 8.5, while the KNL was Intel 17, and the K40m was CUDA 8.0.}
   \label{tab:hot-flow-multi-device}
 \end{table}
 
@@ -357,7 +356,7 @@ We wanted to continue this investigation on some other types of hardware to ensu
 %\begin{figure}
 %  \centering
 %  \includegraphics[width=1.0\linewidth]{gpu_storm}
-%  \caption{Scaling Hot, Flow, and Hot'n'Flow on a CS STORM node containing 8 NVIDIA K40 GPUs.}
+%  \caption{Scaling Hot, Flow, and Hot + Flow on a CS STORM node containing 8 NVIDIA K40 GPUs.}
 %  \label{fig:scaling-hot-flow-storm}
 %\end{figure}
 %
@@ -374,10 +373,38 @@ An interesting feature of the two mini-apps is that they have vastly different p
 
 As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{Pissis2008}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
 
-A challenge that we encountered while collecting the results is that the FFT All-to-All communications were highly sensitive to the network, which gave us inconsistent times and we had to run the results many times to achieve an accurate minimum. We will re-run the results on a supercomputer with a better network to avoid this.
+A challenge we encountered while collecting the results for this composition that the FFT All-to-All communications were highly sensitive to the network, which gave us inconsistent times and we will re-run the results on a supercomputer with a better network to avoid this.
 
+\begin{figure}
+  \centering
+  \includegraphics[width=1.0\linewidth]{hot_fast_scaling}
+  \caption{Scaling Hot 2d, Fast 2d, and Hot 2d + Fast 2d on multiple nodes containing dual socket Sandy Bridge CPUs (16 cores). The problem size was $2048^2$ for 100 iterations.}
+  \label{fig:scaling-hot-fast-sandybridge}
+\end{figure}
 
+We chose a problem size that was a power of 2 as this is optimal for the one dimensional FFT. At this problem size we were not able to achieve reasonable scaling for the Fast application, as seen in Figure \ref{fig:scaling-hot-fast-sandybridge}. The compute time was significantly less than the communication time, which meant it was not possible to overlap the two. The poor scaling of the All-to-All communication dominates the scaling of Hot in this case, such that Hot 2d + Fast 2d scales poorly, and is clearly affected by the scaling of Fast 2d. 
 
+\subsubsection{Decomposition Effect}
+
+Figure \ref{fig:scaling-hot-fast-sandybridge} is that the scaling of the row decomposition is significantly worse for than the tiled decomposition, as the communication begins to dominate the performance much earlier.
+
+\begin{table}[h]
+  \begin{center}
+    \begin{tabular}{c|c|c|c|c|c}
+      \hline
+      \textbf{Device} & \textbf{16 Cores} & \textbf{32 Cores} & \textbf{64 Cores} & \textbf{128 Cores} & \textbf{256 Cores} \\
+      \hline
+      \textit{\textbf{Hot (tiles)}} & 74.79s & 31.3s &  9.91s  & 5.15s & 4.83s \\
+      \textit{\textbf{Hot (rows)}}  & 70.44s & 32.1s &  10.76s & 6.32s & 6.04s \\ 
+      \textit{\textbf{Hot (cols)}}  & 74.93s & 34.6s &  11.51s & 6.63s & 6.24s \\
+      \textit{\textbf{Tiles vs Rows}}  & 0.95x & 1.02x & 1.09x & 1.23x & 1.25x \\
+    \end{tabular}
+  \end{center}
+  \caption{The absolute runtime of the Hot application scaled across many cores, comparing the performance of tiles vs row decompositions.}
+  \label{tab:hot-tiles-vs-rows}
+\end{table}
+
+The results in Table \ref{tab:hot-tiles-vs-rows} demonstrate that when there are a small number of ranks, there is little to no difference between the difference decompositions. Once we reach 256 cores this difference has risen to 1.23x, where the communication costs have not yet overtaken the performance. We plan to immediately collect results that go to higher nodes counts in order to test whether the decomposition difference is maintained or becomes hidden by the communication overheads.
 
 \subsubsection{Conflict Resolution}
 
@@ -456,7 +483,9 @@ We further recognise that there are many requirements not handled by our existin
 
 \section{Related Work}
 
+Karlin et al. \cite{Karlin2012} performed a number optimisations such a loop fusion and data layout changes to improve the performance of the shock hydro mini-app LULESH. In previous work our group has used mini-apps, including TeaLeaf, RotorSim and BUDE, to investigate the performance of parallel programming models, and evaluate modern architecture \cite{McIntosh2014} \cite{Martineau2016}. Bird et al. \cite{Bird2013} performed algorithmic optimisations and developed an OpenCL port of EPOCH3D, a particle-in-cell mini-app. 
 
+Hart et al. \cite{Hart2015} ported the NekBone mini-app to OpenMP 4.0 to conduct a performance evaluation of the programming model. Ivanov et al. \cite{Ivanov2015} optimised the MPI communication strategy within Nekbone, improving its parallel performance. Reguly et al. \cite{Reguly2014} used the OPS DSL to optimise the CloverLeaf fluid dynamics code.
 
 \section{Conclusion}
 
@@ -466,7 +495,7 @@ Although we have only been able to compose three applications in this paper, we 
 
 Changes that directly influence shared data structures are very likely to affect the performance of individual packages. In our case the mesh data could be maintained on a regular structured mesh for all of the applications, but the way that the mesh was decomposed was directly influenced by the FFT application, Fast 2d. Depending on the problem dimensions and level of scaling, this had a significant impact on the performance of the combined solve. In order to reduce the effect of this issue, the utilisation of shared memory is essential, although this will only defer the problem by some factor.
 
-There are many more combinations of applications that need to be investigated, and we expect that concentrating on those applications that have conflicting performance characteristics will provide the most insight.
+It is now clear that there are fewer incidental effects than might be expected, as the runtime of each application summed together perfectly in the majority of cases. There are many more combinations of applications that need to be investigated, and we expect that concentrating on those applications that have conflicting performance characteristics will provide the most insight.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,multi}

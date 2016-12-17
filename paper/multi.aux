@@ -1,7 +1,7 @@
 \relax 
 \citation{}
 \citation{Mantevo}
-\@writefile{toc}{\contentsline {title}{Composing HPC Packages and the Influence of Dominant Performance Characteristics}{1}}
+\@writefile{toc}{\contentsline {title}{Composing the Dwarfs - \unskip \ \ignorespaces A Performance Analysis of Coupled Mini-Apps}{1}}
 \@writefile{toc}{\authcount {2}}
 \@writefile{toc}{\contentsline {author}{Matt Martineau \and Simon McIntosh-Smith}{1}}
 \@writefile{toc}{\contentsline {section}{\numberline {1}Introduction}{1}}
@@ -39,7 +39,7 @@
 \newlabel{tab:perf-char-mini-apps}{{1}{8}}
 \@writefile{toc}{\contentsline {section}{\numberline {5}Coupling}{8}}
 \citation{Bird2013}
-\citation{}
+\citation{Ivanov2015}
 \@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces The data dependency of our coupled Hot and Flow applications.}}{9}}
 \newlabel{fig:hot-flow-flow}{{1}{9}}
 \@writefile{toc}{\contentsline {section}{\numberline {6}Performance Analysis of Compositions}{9}}
@@ -52,22 +52,34 @@
 \newlabel{fig:scaling-hot-flow-haswell}{{2}{10}}
 \citation{Pissis2008}
 \@writefile{toc}{\contentsline {subsubsection}{Other Devices}{11}}
-\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces The performance of Hot, Flow, and Hot'n'Flow on multiple devices for the $5000^2$ for 50 iterations.}}{11}}
+\@writefile{lot}{\contentsline {table}{\numberline {3}{\ignorespaces The performance of Hot, Flow, and Hot + Flow on multiple devices for the $5000^2$ for 50 iterations. The code run on the Haswell 32 Core was compiled with the Cray compilers, version 8.5, while the KNL was Intel 17, and the K40m was CUDA 8.0.}}{11}}
 \newlabel{tab:hot-flow-multi-device}{{3}{11}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Fast 3d + Hot 3d}{11}}
-\@writefile{toc}{\contentsline {subsubsection}{Conflict Resolution}{12}}
-\@writefile{toc}{\contentsline {section}{\numberline {7}Patterns Affecting Performance for Multi-Package Applications}{12}}
-\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Diminishing Scalability for Increasing Core Counts}{13}}
-\newlabel{sec:scalability-inhibit}{{7.1}{13}}
-\@writefile{toc}{\contentsline {section}{\numberline {8}Future Compositions}{14}}
-\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces The composition of a prospective multi-package application.}}{14}}
-\newlabel{fig:multi-package-flow}{{3}{14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {6.3}Fast 3d + Hot 3d}{12}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces Scaling Hot 2d, Fast 2d, and Hot 2d + Fast 2d on multiple nodes containing dual socket Sandy Bridge CPUs (16 cores). The problem size was $2048^2$ for 100 iterations.}}{12}}
+\newlabel{fig:scaling-hot-fast-sandybridge}{{3}{12}}
+\@writefile{toc}{\contentsline {subsubsection}{Decomposition Effect}{12}}
+\@writefile{lot}{\contentsline {table}{\numberline {4}{\ignorespaces The absolute runtime of the Hot application scaled across many cores, comparing the performance of tiles vs row decompositions.}}{13}}
+\newlabel{tab:hot-tiles-vs-rows}{{4}{13}}
+\@writefile{toc}{\contentsline {subsubsection}{Conflict Resolution}{13}}
+\@writefile{toc}{\contentsline {section}{\numberline {7}Patterns Affecting Performance for Multi-Package Applications}{14}}
+\@writefile{toc}{\contentsline {subsection}{\numberline {7.1}Diminishing Scalability for Increasing Core Counts}{15}}
+\newlabel{sec:scalability-inhibit}{{7.1}{15}}
+\@writefile{toc}{\contentsline {section}{\numberline {8}Future Compositions}{15}}
+\citation{Karlin2012}
+\citation{McIntosh2014}
+\citation{Martineau2016}
+\citation{Bird2013}
+\citation{Hart2015}
+\citation{Ivanov2015}
+\citation{Reguly2014}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces The composition of a prospective multi-package application.}}{16}}
+\newlabel{fig:multi-package-flow}{{4}{16}}
+\@writefile{toc}{\contentsline {section}{\numberline {9}Future Work}{16}}
+\@writefile{toc}{\contentsline {section}{\numberline {10}Related Work}{16}}
+\@writefile{toc}{\contentsline {section}{\numberline {11}Conclusion}{16}}
 \bibstyle{IEEEtran}
 \bibdata{IEEEabrv,multi}
 \bibcite{Mantevo}{1}
-\@writefile{toc}{\contentsline {section}{\numberline {9}Future Work}{15}}
-\@writefile{toc}{\contentsline {section}{\numberline {10}Related Work}{15}}
-\@writefile{toc}{\contentsline {section}{\numberline {11}Conclusion}{15}}
 \bibcite{Hart2015}{2}
 \bibcite{Bercea2015}{3}
 \bibcite{Martineau2016}{4}
@@ -79,4 +91,8 @@
 \bibcite{Berger2005}{10}
 \bibcite{Bowers1991}{11}
 \bibcite{Bird2013}{12}
-\bibcite{Pissis2008}{13}
+\bibcite{Ivanov2015}{13}
+\bibcite{Pissis2008}{14}
+\bibcite{Karlin2012}{15}
+\bibcite{McIntosh2014}{16}
+\bibcite{Reguly2014}{17}
