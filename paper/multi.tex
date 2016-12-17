@@ -63,18 +63,14 @@
 
 
 \begin{abstract}
-  In this paper we discuss the composition of scientific packages, and how this affects performance on highly parallel supercomputing hardware. We introduce three new mini-apps: Hot, Flow, and Fast, which solve heat diffusion, hydrodynamics, and use an FFT to solve Poisson's equation. The mini-apps represent three of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together.
-
-  Although much research has been performed that evaluates the performance profile of the seven Dwarfs, production applications rarely utilise only a single package for solving a scientific problem. We start by presenting a motivational discussion of the relevant Dwarfs, considering their invidual performance characteristics and which of those characteristics are dominant. Following this we present performance results of coupling Hot, Flow, and Fast together, using them to solve test problems on modern hardware.  
-
-  The paper ends with a discussion of some of the most important performance issues that we can forsee when coupling applications together, motivating a stream of future work in the area.
+  In this paper we discuss the composition of multiple scientific packages, and how this affects performance on highly parallel supercomputing hardware. We introduce three new mini-apps: Hot, Flow, and Fast, which solve heat diffusion, hydrodynamics, and use an FFT to solve Poisson's equation. The mini-apps represent three of the seven Dwarfs of parallel programming, and have been developed with the purpose of evaluating the impact of coupling those algorithms together. Although much research has been performed that evaluates the performance profile of the seven Dwarfs, production applications rarely utilise only a single package for solving a scientific problem. We start by presenting a motivational discussion of the relevant Dwarfs, considering their invidual performance characteristics and which of those characteristics are dominant. Following this we present performance results of coupling Hot, Flow, and Fast together, using them to solve test problems on modern hardware. The paper ends with a discussion of some of the most important performance issues that we can forsee when coupling applications together, motivating a stream of future work in the area.
 
   \keywords{multi-package composition,parallel dwarfs,mini-apps,high-performance-computing}
 \end{abstract}
 
 \section{Introduction}
 
-A great amount of work is being devoted to understanding how scientific production applications will be ported to run on modern supercomputers \cite{}. Context of the challenges currently faced by the community is presented to demonstrate the importance of this research. 
+A great amount of work is being devoted to understanding how scientific production applications will be ported to run on exascale supercomputers \cite{Kogge2013}. Context of the challenges currently faced by the community is presented to demonstrate the importance of this research. 
 
 \subsection{The Use of Mini-Apps to Optimise for Modern Architectures}
 
@@ -86,13 +82,13 @@ A great many studies have been performed that have used mini-apps to investigate
 
 \subsection{Extending the Single Mini-App Focus}
 
-This paper is a window into a set of work that is attempting to extend the success of mini-apps for evaluating modern architectures and programming environments. It is essential that the community is mindful of the purpose of mini-apps, which is to discover optimisations that have real world impact. Our aim is to begin to capture the features of production scientific codes that have been yet unexplored with mini-apps, to improve the validity of future performance investigations. 
+This paper is a window into a set of work that is attempting to extend the success of mini-apps for evaluating modern architectures and programming environments. It is essential that the community is mindful of the purpose of mini-apps, which is to discover optimisations that have real world impact. Our aim is to begin to capture the features of production scientific codes that have been as yet unexplored with mini-apps, to improve the validity of future performance investigations. 
 
 Much of the mini-app optimisation focus has been limited to individual applications which have, in general, performed well on modern hardware, using a range modern parallel programming models. Up until this point the individual mini-apps have failed to expose some important aspects of large-scale scientific applications. The majority of mini-apps contain individual algorithms and do not encapsulate the multi-package hierarchies that scientists are truly interested in seeing results for.
 
-In order to limit our focus to the most important algorithms that might be encountered within scientific production codes, we will follow the seven Dwarfs of parallel programming. In the 2006 View from Berkely paper \cite{Asanovic2006}, a number of important classes of parallel algorithm were discussed and categoried as parallel programming Dwarfs. Each of the Dwarfs exposes a diverse computational and communicational pattern and can encompass many of the algorithms you are likely to see in production scientific applications.  
+In order to limit our focus to the most important algorithms that might be encountered within scientific production codes, we will follow the seven Dwarfs of parallel programming. In the 2006 View from Berkeley paper \cite{Asanovic2006}, a number of important classes of parallel algorithm were discussed and categorised as parallel programming Dwarfs. Each of the Dwarfs exposes a diverse computational and communicational pattern and can encompass many of the algorithms you are likely to see in production scientific applications.  
 
-Their paper alluded to the necessity for those Dwarfs to be composed together and investigated as coupled application. Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominant performance characteristics when combining multiple packages, as would be seen in a common scientific production application. Each mini-app represents one of a subset of the Dwarfs, and we plan to consider all of the Dwarfs in future research.
+Their paper alluded to the necessity for those Dwarfs to be composed together and investigated as coupled applications. Our intention is to use a new suite of mini-apps, tailored for composition, to expose the dominant performance characteristics when combining multiple packages, as would be seen in a common scientific production application. Each mini-app represents one of the Dwarfs, and we plan to consider all of the Dwarfs in future research.
 
 We recognise that many of the issues we discuss or uncover will have been discovered by application developers or performance engineers attempting to combine multiple packages together in the past. However, it can often be challenging to generalise approaches from specific use cases, which is one of the benefits of mini-apps, where a general strategy can be employed and discussed. Ultimately, it is essential to the relevance of results obtained by mini-apps that such features are considered alongside other performance studies. 
 
@@ -193,7 +189,7 @@ Where $u$ is the temperature, $\alpha$ is the thermal diffusivity, $k$ is the th
 
 \subsubsection{Parallelisation}
 
-The best decomposition for this mini-app is generally a regular cartesian tile, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results. The algorithm does not expose any load imbalance, and nearest neighbour halo exchanges are performed each timestep. At each iteration two scalar values, $\alpha$ and $\beta$, are calculated, which need to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
+The best decomposition for this mini-app is generally a regular Cartesian tile, minimising the surface area to volume of each rank to reduce communication overheads. In terms of boundary conditions we selected reflective, as this was simple, and improves the verifiability of the results. The algorithm does not expose any load imbalance, and nearest neighbour halo exchanges are performed each timestep. At each iteration two scalar values, $\alpha$ and $\beta$, are calculated, which need to be distributed amongst all of the ranks. The implication is that each iteration requires two calls to MPI\_Allreduce, an obvious performance bottleneck at scale. 
 
 As each of the core kernels contains some simple sparse linear algebra operation, such as a dot product or sparse matrix-vector multiply, it was straightforward to parallelise with OpenMP and CUDA, given the extent of the data-parallelism exposed by the algorithms.
 
@@ -209,7 +205,7 @@ The Lagrangian-Eulerian algorithm takes Euler's equations and explicitly solves 
 
 Directional splitting is used in order to make the application two-dimensional, with the leading dimension switched each timestep, in order to maintain symmetry of the solution. Our explicit timestep control limits the timestep based on the CFL condition, stopping sound waves travelling further than a single cell per timestep, accounting for the additional spreading that occurs due to the artificial viscous stresses \cite{Bowers1991}. We have made the algorithm second order in time by interpolating our velocities half a timestep upstream for the advection stages.
 
-As with the heat condution application, the boundary conditions we chose for this application are reflective, which is particularly useful for tracking conservation to verify the results.
+As with the heat conduction application, the boundary conditions we chose for this application are reflective, which is particularly useful for tracking conservation to verify the results.
 
 \subsubsection{Parallelisation}
 
@@ -265,11 +261,11 @@ Although the Dwarfs imply some high-level classification of algorithms, we belie
   \label{tab:perf-char-mini-apps}
 \end{table}
 
-We have seen in previous work which of those characteristics matter to the individual application, such as \textit{Memory Bandwidth} for indiviual application performance and \textit{All-to-All} communications for scalability. Our intention is to investigate how the computational and communicational profiles of those applications interact with each other when packages are composed and make some commentary about the dominant performance characteristics.
+We have seen in previous work which of those characteristics matter to the individual application, such as \textit{Memory Bandwidth} for performance of memory bound packages and \textit{All-to-All} communications for scalability. Our intention is to investigate how the computational and communicational profiles of those applications interact with each other when packages are composed and make some commentary about the dominant performance characteristics.
 
 We can pre-emptively assess some of the likely effects that running multiple mini-apps at once lead to. We would expect that there could be an impact on cache utilisation, and a generally increased memory footprint, while some state could be shared, potentially improving the overall performance. Table \ref{tab:perf-char-mini-apps} lists some of the key performance characteristics of the applications that we investigate in this paper. 
 
-Some communication costs could be saved if variables could be communicated once for all applications, during the \textit{Nearest Neighbour} or \textit{All to All communications}, for instance. We do no expose any \textit{Load Imbalance} as part of our suite of applications, but are currently in the process of developing \textit{Bright}, which is a Monte Carlo neutral particle tracking application, that we expect to suffer from significant load balancing issues. As two of the applications are \textit{Memory Bandwidth} bound, it might be possible to overlap the costly memory access delays with independent computation from other applications. It is also possible that data structures between the individual applications will require some form of transformation, which we expect to have a major influence on performance. 
+Some communication costs could be saved if variables could be communicated once for all applications, during the \textit{Nearest Neighbour} or \textit{All to All communications}, for instance. We do no expose any \textit{Load Imbalance} as part of our suite of applications, but are currently in the process of developing \textit{Bright}, which is a Monte Carlo neutral particle tracking application, that we expect to suffer from significant load balancing issues. As two of the applications are \textit{Memory Bandwidth} bound, it might be possible to overlap the costly memory access delays with independent computation from other applications. It is also possible that data structures between the individual applications will require some form of transformation, which will have a major influence on performance. 
 
 \section{Coupling}
 
@@ -277,7 +273,9 @@ As the mini-apps and their composition routines were developed by computer scien
 
 We could see two different approaches to coupling the applications, the first of which involves directly coupling their constituent equations and solving the whole system at once. This approach has two important drawbacks: (1) the complexity of this approach is significant, especially considering that we plan to extend this project into a suite of seven algorithms, and (2) reducing the algorithms into a single solve would not capture the potential difficulties of coupling distinct packages together.
 
-In general we do not consider the coupling approach to be necessarily valid from a scientific standpoint. Our intention is simply to model a simple data dependency between the applications, that leads to them having to rely on shared meshes and decompositions. It is likely important future work to investigate the impact of performing more detailed couplings, but would require complex domain-specific knowledge far beyond the scope of our research. A simple example of how we have handled coupling can be seen in Figure \ref{fig:hot-flow-flow}, where the initial conditions of density ($\rho$), energy ($\epsilon$), and momentum ($\rho u$ and $\rho v$) are passed in to start the cycle. Once the Flow phase is complete, the density and energy are passed to Hot, which then solves the timestep for temperature $\mu$, and passes back the updated energy to start the cycle again.
+In general we do not consider the coupling approach to be necessarily valid from a scientific standpoint. Our intention is to model a simple data dependency between the applications, that leads to them having to rely on shared meshes and decompositions. It is likely important future work to investigate the impact of performing more detailed couplings, but would require complex domain-specific knowledge far beyond the scope of our research. 
+
+A simple example of how we have handled coupling can be seen in Figure \ref{fig:hot-flow-flow}, where the initial conditions of density ($\rho$), energy ($\epsilon$), and momentum ($\rho u$ and $\rho v$) are passed in to start the cycle. Once the Flow phase is complete, the density and energy are passed to Hot, which then solves the timestep for temperature $\mu$, and passes back the updated energy to start the cycle again.
 
 \begin{figure}
   \centering
@@ -294,15 +292,15 @@ Although we had some preconceptions regarding the likely effects of composing pa
 
 \subsection{Experimental Setup}
 
-Each of the mini-apps has been optimised using modern techniques from years of research optimising similar algorithms \cite{Bird2013} \cite{Ivanov2015}. We expect that the individual performance of the application is close to optimal, without sacrificing portability through the use of non-portable programming techniques. 
+Each of the mini-apps has been optimised individually, drawing on the experience other mini-app optimisation exercises \cite{Bird2013} \cite{Ivanov2015}. As the applications are all brand new, we recognise that their individual performance could be improved in places, but believe the results will be relevant regardless of whether the applications require future tuning. When composing production applications it is possible that one or more of the applications will be sub-optimal, and the definition of optimal may change depending upon the nature of the composition.
 
 \begin{table}[h]
   \begin{center}
     \begin{tabular}{l|c|c}
       \hline
-      \textbf{} & \textbf{Peak Mem BW} & \textbf{Peak FLOPS}  \\
+      \textbf{} & \textbf{Achievable Mem BW} & \textbf{Peak FLOPS}  \\
       \hline
-      \textit{\textbf{Intel(R) Xeon(R) CPU E5-2670 0 @ 2.60GHz}} & 78 GB/s & 330 Gflops \\
+      \textit{\textbf{Intel Xeon CPU E5-2670 0 @ 2.60GHz}} & 78 GB/s & 330 Gflops \\
       \textit{\textbf{Intel Xeon Phi 7210 (64 core)}} & 450 GB/s & 2.6 Tflops \\
       \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & 1.4 Tflops \\
     \end{tabular}
@@ -311,7 +309,7 @@ Each of the mini-apps has been optimised using modern techniques from years of r
   \label{tab:hardware}
 \end{table}
 
-We will state the compilers and toolkit versions used as and when we present relevant data, and the devices we execute on can be found in Table \ref{tab:hardware}. The devices we have chosen are present in many of the largest and most active supercomputers in the world, which we hope will strengthen the relevance of any findings.
+Table \ref{tab:hardware} lists the devices that we are presenting in this version of the paper. We have access to more modern devices including Broadwell CPUs and P100 GPUs, which we are currently collecting results on. 
 
 As the heat diffusion solver is iterative, it is possible to have some variance in the number of iterations performed based on the problem dimensions and initial conditions. In order to make the results more comparable across devices and between experiments we fixed the iteration count.
 
@@ -319,9 +317,6 @@ As the heat diffusion solver is iterative, it is possible to have some variance 
 
 Given the performance characteristics we have described for both Hot and Flow, we couldn't predict any significant issues that might arise when coupling them. Both of the applications differ in their methods, as Hot is a linear solver, and Flow is a set of explicit advection routines. However, they both work on a structured mesh and solve using a five point stencil, as well as sharing nearest neighbour communications.
 
-\subsubsection{Scaling}
-
-We provide the scaling of composing the two packages into a single application.
 
 \begin{figure}
   \centering
@@ -329,6 +324,9 @@ We provide the scaling of composing the two packages into a single application.
   \caption{Scaling Hot 2d, Flow 2d, and Hot 2d + Flow 2d on multiple nodes containing dual socket 16 core Haswell CPUs.}
   \label{fig:scaling-hot-flow-haswell}
 \end{figure}
+\subsubsection{Scaling}
+
+We provide the scaling of composing the two packages into a single application.
 
 As can be seen in Figure \ref{fig:scaling-hot-flow-haswell}, the results of scaling the application across 32 nodes of dual socket 16 core Haswell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
 
@@ -336,22 +334,22 @@ As can be seen in Figure \ref{fig:scaling-hot-flow-haswell}, the results of scal
 
 To ensure different effects are not seen with diverse architectures, we collected results from a range of devices.
 
+We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated. Table \ref{tab:hot-flow-multi-device} shows that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results. 
+
 \begin{table}[h]
   \begin{center}
     \begin{tabular}{c|c|c|c|c}
       \hline
       \textbf{Device} & \textbf{Hot 2d} & \textbf{Flow 2d} & \textbf{Hot 2d + Flow 2d} & \textbf{Difference} \\
       \hline
-      \textit{\textbf{Haswell 32 Core}} & 119.3s & 10.3s & 129.9s & 0.0\% \\
+      \textit{\textbf{Haswell (32 Cores)}} & 119.3s & 10.3s & 129.9s & 0.0\% \\
       \textit{\textbf{KNL}} & 36.8s & 4.4s & 41.3s & 0.0\% \\
       \textit{\textbf{K40m}} & 85.0s & 7.4s & 92.4s & 0.0\% \\
     \end{tabular}
   \end{center}
-  \caption{The performance of Hot, Flow, and Hot + Flow on multiple devices for the $5000^2$ for 50 iterations. The code run on the Haswell 32 Core was compiled with the Cray compilers, version 8.5, while the KNL was Intel 17, and the K40m was CUDA 8.0.}
+  \caption{The performance of Hot, Flow, and Hot + Flow on multiple devices for the $5000^2$ for 50 iterations. The code run on the Haswell (32 Core) was compiled with the Cray compilers, version 8.5, while the KNL was Intel 17, and the K40m was CUDA 8.0.}
   \label{tab:hot-flow-multi-device}
 \end{table}
-
-We wanted to continue this investigation on some other types of hardware to ensure that there weren't any other effects that we had not anticipated. Table \ref{tab:hot-flow-multi-device} shows that, for the large problem size, device type did not influence the performance degradation, with all devices achieving similarly good results. 
 
 %\begin{figure}
 %  \centering
@@ -363,22 +361,22 @@ We wanted to continue this investigation on some other types of hardware to ensu
 %The scaling was generally quite poor on this node and we only achieved a maximum of 50\% efficiency even for the invidual applications. We were surprised to see that the composition of the two applications had lead to some performance bug, which had totally limited scaling on the multi-GPU node.
 
 
-The results demonstrate that Hot and Flow are performance compatible, meaning they do not interfere with the performance profile of each other. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected towards the limits of the scalability of each application.
+The results demonstrate that Hot and Flow are performance compatible, meaning they do not interfere with the performance profile of each other. Although we have not seen a performance degradation at this scale, we think it will be important work to investigate how scaling is affected as the node count is increased further, and whether the effectiveness of using shared memory to improve scalability is altered because of the compositions.
 
-An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size, we observe an order of magnitudes difference in the runtimes of the two applications (Table \ref{tab:hot-flow-multi-device}). There are some important issues with having such a disparity in the runtimes. It may be possible to optimise for a single application and generally ignore the performance of the other. Also, it might be profitable to adjust the numerical method of the faster package in order to increase accuracy or improve some other beneficial metric.
+An interesting feature of the two mini-apps is that they have vastly different performance weightings. For the $5000^2$ problem size, which is a reasonable problem size, we observe an order of magnitudes difference in the run times of the two applications (Table \ref{tab:hot-flow-multi-device}). There are some important issues with having such a disparity in the run times. It may be possible to optimise for a single application and generally ignore the performance of the other. Also, it might be profitable to adjust the numerical method of the faster package in order to increase accuracy or improve some other beneficial metric.
 
 %Although the composition of the applications did not show any significant performance degradation, this is a useful result for future investigations as it proves that the 
 
 \subsection{Fast 3d + Hot 3d}
 
-As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{Pissis2008}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
+As mentioned throughout the paper, we considered that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{Pissis2008}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
 
 A challenge we encountered while collecting the results for this composition that the FFT All-to-All communications were highly sensitive to the network, which gave us inconsistent times and we will re-run the results on a supercomputer with a better network to avoid this.
 
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{hot_fast_scaling}
-  \caption{Scaling Hot 2d, Fast 2d, and Hot 2d + Fast 2d on multiple nodes containing dual socket Sandy Bridge CPUs (16 cores). The problem size was $2048^2$ for 100 iterations.}
+  \caption{Scaling Hot 2d, Fast 2d, and Hot 2d + Fast 2d on multiple nodes containing dual socket Sandy Bridge CPUs (16 cores). The problem size was $2048^2$ for 100 iterations, and the applications were compiled with the Intel Compilers version 16.2.}
   \label{fig:scaling-hot-fast-sandybridge}
 \end{figure}
 
@@ -386,7 +384,7 @@ We chose a problem size that was a power of 2 as this is optimal for the one dim
 
 \subsubsection{Decomposition Effect}
 
-Figure \ref{fig:scaling-hot-fast-sandybridge} is that the scaling of the row decomposition is significantly worse for than the tiled decomposition, as the communication begins to dominate the performance much earlier.
+Figure \ref{fig:scaling-hot-fast-sandybridge} shows the scaling of the \textit{tiles} decomposition as it is the best performing option, however the scaling of the \textit{rows} decomposition is significantly worse for than the \textit{tiles} decomposition as you increase the node count. For this particular application, the communication costs are increased as the decomposition is reduced to a wide tile with large halos.
 
 \begin{table}[h]
   \begin{center}
@@ -425,10 +423,10 @@ An important technique for improving the symptoms of poor scaling due to communi
 Our research has uncovered a number of areas that we recognise present risks or opportunities to the performance of multi-package applications. 
 
 \begin{itemize}
-  \item \textbf{Diverse Computational Weightings} - Each package will expose some fixed or dynamic performance cost for particular problems. We observed with Hot and Flow that the difference in solve times differed by an order of magnitude depending on configuration.
+  \item \textbf{Diverse Computational Weightings} - Each package will expose some fixed or dynamic performance cost for particular problems. We observed with Hot and Flow that solve times differed by an order of magnitude depending on configuration.
   \item \textbf{Different Optimal Data Layouts} - If choosing an optimal data layout for a package results in a sub-optimal data layout for the other packages, the trade-off is going to be challenging to manage. It is also often the case that applications require different layouts for different architectures, which greatly amplifies this issue. 
   \item \textbf{Competing Decompositions} - It is possible that different packages within an application might require different decompositions for optimal performance. We extend this discussion in Section \ref{sec:scalability-inhibit} to predict a key bottleneck to multi-package scaling.
-  \item \textbf{Load Imbalance} - If there is a significant load imbalance in one of the packages the usual approach would be to dynamically adapt the decomposition to re-balance, however when operating in a multi-package environment this will create a load imbalance for the other packages, which will be challenging to handle.
+  \item \textbf{Load Imbalance} - If there is a significant load imbalance in one of the packages the usual approach would be to dynamically adapt the decomposition to re-balance, however when operating in a multi-package environment this will create a load imbalance for the other packages, which will be challenging to handle and we don't yet have a solution to.
   \item \textbf{Capacity Requirements} - As you increase the number of packages that are included in an application, the capacity requirements can be inflated significantly. It will be important to overlap as much of the capacity as possible in order to minimise this effect. On devices with low capacity, such as accelerator devices, this issue might become a truly limiting factor.
 \end{itemize}
 
@@ -442,17 +440,15 @@ As the unstructured characteristic greatly increases the complexity of each indi
 
 \label{sec:scalability-inhibit}
 
-Modern supercomputing has reached a scale where the core counts at the node level are increasingly significantly each year, and this has major implications for writing portable and performant code. In particular, many of the largest supercomputers in the world include heterogeneous devices, such as accelerators, which greatly increase the core count, and require that significant data-parallelism is exposed within scientific application's algorithms in order to perform well.
+Modern supercomputing has reached a scale where the core counts at the node level are increasing significantly each year, and this has major implications for writing portable and performant code. In particular, many of the largest supercomputers in the world include heterogeneous devices, such as accelerators, which greatly increase the core count, and require that abundant data-parallelism is exposed within scientific application's algorithms in order to perform well.
 
 Accelerator devices like the Intel Xeon Phi processors, have greater numbers of cores than existing Intel CPUs, for instance the Knights Landing has between 64 and 72, each with 4 hardware threads, whereas the Intel Xeon Broadwell can have up to 22 cores per socket, each core supporting up to 2 hardware threads. The IBM POWER8 CPU also exposes a large thread count, with up to 12 cores per socket and 8 hardware threads for a total of 192 threads.
 
 This continual increase in the number of computational units available on a node has major implications for the scalability of codes, and this is amplified by the increasing number of nodes that are hosting those devices. It is well known that many algorithms reach a turnover point for strong scaling, past which communication costs begin to overwhelm the performance, and decomposing a problem will experience diminishing returns. Regardless of node-level application performance, as communication becomes the limiting factor, we are reaching a stage where the scalability of applications demands that the highly parallel applications exploit shared memory as much as possible.
 
-We predict that it will be particularly important to understand the influence of composing multiple packages on the potential for exploiting local shared memory.
+Exploiting shared memory for a single package can be challenging, depending on the structure of the algorithms it contains. Combining multiple packages using shared memory and hybridising with MPI could cause major issues from a thread placement/affinity perspective.
 
-%Extending the discussion to GPGPUs, NVIDIA's Tesla K40 devices have 15 streaming multi-processors (SMX), each of which support 192 processing elements, for a total of 2880 CUDA cores. While those 'CUDA cores' are not cores in the traditional sense, rather individual processing elements, this does not change the fact that any algorithm targeted at these archiectures will need to expose an increasingly large level of parallelism. More recently, NVIDIA released the Tesla P100, which has increased the number of SMXs to 56 and decreased the number of processing elements in each to 64 (two warps), for a total of 3584 CUDA cores.
-
-%The benefit of GPUs is that they offer good performance and can handle significant portions of a problem and require no partitioning within the devices. More recently supercomputing resources have started to include multiple accelerator devices on a single node, and this offers the opportunity for programmers to exploit massive node-level parallelism to improve the scalability of applications. Of course this requires that there is some suitably performant method for communicating within a node. The upcoming NVLINK technology that will be distributed by NVIDIA is intended to provide fast communications between the GPUs on a node and quite improved performance compared to PCIe when communicating with the host CPU. Our expectation is that if this technology can be used to its full extent, it should offer great potential improvements to the scalability of HPC applications. 
+%Extending the discussion to GPGPUs, NVIDIA released the Tesla P100 recently, which has increased the number of streaming multiprocessors to 56 and decreased the number of processing elements in each to 64 (two warps), for a total of 3584 CUDA cores. The benefit of GPUs is that they offer good performance and can handle significant portions of a problem and require no partitioning within the devices. Utilising multiThe upcoming NVLINK technology that will be distributed by NVIDIA is intended to provide fast communications between the GPUs on a node and quite improved performance compared to PCIe when communicating with the host CPU. Our expectation is that if this technology can be used to its full extent, it should offer great potential improvements to the scalability of HPC applications. 
 
 %\subsection{Asynchronicity Among Packages}
 %
@@ -464,9 +460,8 @@ We predict that it will be particularly important to understand the influence of
 
 \section{Future Compositions}
 
-We expect that it will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven Dwarfs of parallel programming. The Bright mini-app hosts a Monte Carlo neutral particle tracking algorithm that we are currently developing. Due to the inherent load imbalance of the problem, it is likely that the application will cause significant performance degradations in general.
+It will be useful to extend this work to investigate the performance of diverse applications types, in particular we plan to develop new applications that cover the seven Dwarfs of parallel programming. The \textit{Bright} mini-app hosts a Monte Carlo neutral particle tracking algorithm that we are currently developing. Due to the inherent load imbalance of the problem, it is likely that the application will cause significant performance degradations in general.
 
-Including more applications into the potential compositions leads to many possible combinations. For instance, taking our all four of our in-development mini-apps we could perform the following coupling:
 
 \begin{figure}
   \centering
@@ -475,11 +470,13 @@ Including more applications into the potential compositions leads to many possib
   \label{fig:multi-package-flow}
 \end{figure}
 
+Including more applications into the potential compositions leads to many possible combinations. For instance, taking all four of our in-development mini-apps we could perform the coupling detailed in Figure \ref{fig:multi-package-flow}.
+
 Although the combination of applications might not appear in production applications, we expect that this combination of performance profiles would likely exist in codes ranging from Astrophysics to modelling Combustion in engines. The resulting performance profile would include significant All-to-All communication, several competing decompositions and load imbalance. We have not yet been able to determine the capacity requirements of such an application, but expect it to become an issue.
 
 \section{Future Work}
 
-We further recognise that there are many requirements not handled by our existing applications, such as multiple materials, complex unstructured geometries, and adaptive mesh refinement. Each of these has a significant influence on the performance of individual algorithms, and likely introduces new issues for coupling packages together. As such it will be essential to consider new mini-apps that can proxy those particular features and consider their performance on new hardware.
+We recognise that there are many requirements not handled by our existing applications, such as multiple materials, complex unstructured geometries, and adaptive mesh refinement. Each of these has a significant influence on the performance of individual algorithms, and likely introduces new issues for coupling packages together. As such it will be essential to consider new mini-apps that can proxy those particular features and consider their performance on new hardware.
 
 \section{Related Work}
 
@@ -491,11 +488,11 @@ Hart et al. \cite{Hart2015} ported the NekBone mini-app to OpenMP 4.0 to conduct
 
 As architectures are becoming more complex, domain scientists will rely more upon computer scientists to assist with optimising their applications for modern supercomputers. Mini-apps are the perfect vehicle for such investigations, and are being used extensively. Discovering which aspects of real production applications are not covered by the individual applications is essential, and the purpose of this research was to motivate further investigation into those problems.
 
-Although we have only been able to compose three applications in this paper, we have already discovered and discussed some interesting problems that can arise in the process. Importantly we have been able to observe a fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the application than the dominant conflicting performance characteristics present amongst the applications.
+Although we have only been able to compose three applications in this paper, we have already discovered and discussed some interesting problems that can arise in the process. Importantly we have been able to observe a fundamental rule with multi-package applications, that the complexity and computational cost of the individual package matters less to the overall performance of the composed application than the dominant conflicting performance characteristics present amongst the applications.
 
 Changes that directly influence shared data structures are very likely to affect the performance of individual packages. In our case the mesh data could be maintained on a regular structured mesh for all of the applications, but the way that the mesh was decomposed was directly influenced by the FFT application, Fast 2d. Depending on the problem dimensions and level of scaling, this had a significant impact on the performance of the combined solve. In order to reduce the effect of this issue, the utilisation of shared memory is essential, although this will only defer the problem by some factor.
 
-It is now clear that there are fewer incidental effects than might be expected, as the runtime of each application summed together perfectly in the majority of cases. There are many more combinations of applications that need to be investigated, and we expect that concentrating on those applications that have conflicting performance characteristics will provide the most insight.
+It is now clear that there are fewer incidental effects than might be expected, as the runtime of each application summed together perfectly in the majority of cases. There are many more combinations of applications that need to be investigated, and concentrating on those applications that have conflicting performance characteristics will provide the most insight.
 
 \bibliographystyle{IEEEtran}
 \bibliography{IEEEabrv,multi}

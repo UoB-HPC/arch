@@ -21,6 +21,11 @@
 \providecommand{\BIBdecl}{\relax}
 \BIBdecl
 
+\bibitem{Kogge2013}
+P.~Kogge and J.~Shalf, ``{Exascale Computing Trends: Adjusting to the "New
+  Normal" for Computer Architecture},'' \emph{Computing in Science \&
+  Engineering}, vol.~15, no.~6, pp. 16--26, 2013.
+
 \bibitem{Mantevo}
 M.~Heroux, D.~Doerfler \emph{et~al.}, ``{Improving Performance via
   Mini-applications},'' Sandia National Laboratories, Tech. Rep. SAND2009-5574,
