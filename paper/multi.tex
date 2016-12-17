@@ -374,6 +374,11 @@ An interesting feature of the two mini-apps is that they have vastly different p
 
 As mentioned throughout the paper, we expected that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{Pissis2008}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
 
+A challenge that we encountered while collecting the results is that the FFT All-to-All communications were highly sensitive to the network, which gave us inconsistent times and we had to run the results many times to achieve an accurate minimum. We will re-run the results on a supercomputer with a better network to avoid this.
+
+
+
+
 \subsubsection{Conflict Resolution}
 
 In the event that the data structures within two packages conflict, we can theorise some potential resolutions:
