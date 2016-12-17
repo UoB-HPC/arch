@@ -1,0 +1,1360 @@
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+rm -rf obj/* multi.exe *.vtk *.bov *.dat *.cub *.ptx *.lst
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c comms.c -o obj/comms.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c main.c -o obj/main.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c mesh.c -o obj/mesh.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c profiler.c -o obj/profiler.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c shared.c -o obj/shared.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c state.c -o obj/state.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c omp3/data.c -o obj/omp3/data.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c omp3/halos.c -o obj/omp3/halos.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c omp3/shared.c -o obj/omp3/shared.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c hot/omp3/hot.c -o obj/omp3/hot.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c wet/omp3/wet.c -o obj/omp3/wet.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -DENABLE_PROFILING -DDEBUG -DMPI -DROWS -c fast/omp3/fast.c -o obj/omp3/fast.o
+mpiicc -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include  obj/comms.o  obj/main.o  obj/mesh.o  obj/profiler.o  obj/shared.o  obj/state.o  obj/omp3/data.o  obj/omp3/halos.o  obj/omp3/shared.o  obj/omp3/hot.o  obj/omp3/wet.o  obj/omp3/fast.o -O3 -g -qopenmp -no-prec-div -xhost -std=gnu99 -DMKL_ILP64 -I/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/include -lm  -L/cm/shared/languages/Intel-Compiler-XE-16-U2/compilers_and_libraries_2016.2.181/linux/mkl/lib/intel64 -lmkl_intel_lp64 -lmkl_core -lmkl_intel_thread -lmkl_blacs_intelmpi_lp64 -lpthread -lm -o multi.omp3
+ld: obj/comms.o: No such file: No such file or directory
+make: *** [multi] Error 1
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:0@node31-033] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:1@node47-017] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:2@node47-016] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:3@node47-015] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): /panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:12@node31-039] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:10@node47-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:7@node47-009] execvp error on file ./multi.omp3 (No such file or directory)
+HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:9@node47-007] execvp error on file ./multi.omp3 (No such file or directory)
+HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:9@node47-007] execvp error on file ./multi.omp3 (No such file or directory)
+HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:4@node47-014] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:7@node47-009] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:9@node47-007] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:6@node47-010] execvp error on file ./multi.omp3 (No such file or directory)
+HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:13@node31-036] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:6@node47-010] [proxy:0:5@node47-013] execvp error on file ./multi.omp3 (No such file or directory)
+HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] [proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:11@node46-002] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:6@node47-010] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:8@node47-008] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): [proxy:0:15@node31-034] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:14@node31-035] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+[proxy:0:5@node47-013] HYDU_create_process (./utils/launch/launch.c:111): execvp error on file ./multi.omp3 (No such file or directory)
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 61: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 62: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 63: bind: warning: line editing not enabled
+/panfs/panasas01/cosc/mm14628/.bashrc: line 64: bind: warning: line editing not enabled
