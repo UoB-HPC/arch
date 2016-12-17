@@ -48,10 +48,12 @@ void initialise_comms(
 
 #endif 
 
+  #if 0
   // Add on the halo padding to the local mesh
   mesh->local_nx += 2*PAD;
   mesh->local_ny += 2*PAD;
   mesh->local_nz += 2*PAD;
+#endif // if 0
 
   if(mesh->rank == MASTER) {
 #ifdef APP_3D
@@ -154,7 +156,9 @@ void decompose_2d_cartesian(
   int found_even = 0;
   float mratio = 0.0f;
 
-#if 0
+#ifdef TILES
+  printf("using tiles decomposition\n");
+
   // Determine decomposition that minimises perimeter to area ratio
   for(int ff = 1; ff <= sqrt(nranks); ++ff) {
     if(nranks % ff) continue;
@@ -187,10 +191,19 @@ void decompose_2d_cartesian(
       ranks_y = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_x : new_ranks_y;
     }
   }
-#endif // if 0
+#endif
 
+#ifdef ROWS
+  printf("using row decomposition\n");
   ranks_x = 1;
   ranks_y = nranks;
+#endif
+
+#ifdef COLS
+  printf("using col decomposition\n");
+  ranks_x = nranks;
+  ranks_y = 1;
+#endif
 
   // Calculate the offsets up until our rank, and then fetch rank dimensions
   int off = 0;
