@@ -7,10 +7,11 @@ from operator import itemgetter
 
 applications = [ 'Hot 2d + Fast 2d', 'Hot 2d (tiles)', 'Fast 2d', 'Ideal' ]
 labels = [ '2 nodes', '4 nodes', '8 nodes', '16 nodes' ]
-results = [[1.319375322, 5.482812723, 6.185036203, 9.907216495],
-        [2.389456869, 7.546922301, 14.5223301, 15.48447205],
-        #[2.194392523, 6.546468401, 11.14556962, 11.66225166],
-        [0.988993711, 1.270707071, 2.588477366, 6.418367347],
+results = [
+        [1.905256724, 3.637106184, 8.658333333, 21.20408163],
+        [1.970254958, 3.968616262, 11.03968254, 66.23809524],
+        #[1.982168331, 4.068814056, 11.62761506, 38.59722222],
+        [1.38559322 , 1.879310345, 2.637096774, 4.246753247],
         [2, 4, 8, 16]]
 
 icons = [ 'o-', 'v-', 's-', '>-', 'p-' ]
@@ -32,7 +33,7 @@ def Program():
     locs, xlabels = plt.xticks(ind, labels, fontsize=12, rotation=90)
     plt.setp(xlabels, rotation=45)
     #ax.set_xlim([1, len(labels)-1])
-    ax.set_ylim([0, 17])
+    #ax.set_ylim([0, 17])
 
     handles,axlabels=ax.get_legend_handles_labels()
     ax.legend(handles, applications, loc='upper center', 

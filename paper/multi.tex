@@ -300,7 +300,7 @@ Each of the mini-apps has been optimised individually, drawing on the experience
       \hline
       \textbf{} & \textbf{Achievable Mem BW} & \textbf{Peak FLOPS}  \\
       \hline
-      \textit{\textbf{Intel Xeon CPU E5-2670 0 @ 2.60GHz}} & 78 GB/s & 330 Gflops \\
+      \textit{\textbf{Intel Xeon CPU E5-2670 v3 2.30 GHz }} & 56 GB/s & 500 Gflops \\
       \textit{\textbf{Intel Xeon Phi 7210 (64 core)}} & 450 GB/s & 2.6 Tflops \\
       \textit{\textbf{NVIDIA K40m Kepler}} & 190 GB/s & 1.4 Tflops \\
     \end{tabular}
@@ -309,7 +309,7 @@ Each of the mini-apps has been optimised individually, drawing on the experience
   \label{tab:hardware}
 \end{table}
 
-Table \ref{tab:hardware} lists the devices that we are presenting in this version of the paper. We have access to more modern devices including Broadwell CPUs and P100 GPUs, which we are currently collecting results on. 
+Table \ref{tab:hardware} lists the devices that we are presenting in this version of the paper. We have access to more modern devices including Intel Broadwell CPUs and NVIDIA P100 GPUs, which we are currently collecting results on. 
 
 As the heat diffusion solver is iterative, it is possible to have some variance in the number of iterations performed based on the problem dimensions and initial conditions. In order to make the results more comparable across devices and between experiments we fixed the iteration count.
 
@@ -328,7 +328,7 @@ Given the performance characteristics we have described for both Hot and Flow, w
 
 We provide the scaling of composing the two packages into a single application.
 
-As can be seen in Figure \ref{fig:scaling-hot-flow-haswell}, the results of scaling the application across 32 nodes of dual socket 16 core Haswell CPUs demonstrate a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
+As can be seen in Figure \ref{fig:scaling-hot-flow-haswell}, scaling the application across 32 nodes of dual socket 16 core Haswell CPUs demonstrates a consistent performance profile. Each of the applications beat the ideal scaling performance over a single node due to the improved utilisation of cache that occurs as the problem is decomposed into smaller chunks. There is a noticeable gap in the scaling of the two large packages at 16 nodes, that greatly reduces by the time that 32 nodes are used. This appears to be an effect of the increased data requirement that comes from executing two applications sequentially, where the overall capacity required to fit within cache is increased and so the improvements due to cache are slightly delayed.
 
 \subsubsection{Other Devices}
 
@@ -367,42 +367,43 @@ An interesting feature of the two mini-apps is that they have vastly different p
 
 %Although the composition of the applications did not show any significant performance degradation, this is a useful result for future investigations as it proves that the 
 
-\subsection{Fast 3d + Hot 3d}
+\subsection{Fast 2d + Hot 2d}
 
 As mentioned throughout the paper, we considered that combining Fast 2d with any of the other mini-apps would lead to conflicts over domain decomposition. For Fast 2d the decomposition ends up being tightly coupled to the resulting algorithm, and in general the literature only suggested one dimensional decompositions for this particular type of problem in 2d \cite{Pissis2008}. The underlying reason for this decision is that tiling the entire space results in increased inter-process communication. As the parallel FFT algorithm is considered bound by All-to-All communications, this option is therefore deficient.
-
-A challenge we encountered while collecting the results for this composition that the FFT All-to-All communications were highly sensitive to the network, which gave us inconsistent times and we will re-run the results on a supercomputer with a better network to avoid this.
 
 \begin{figure}
   \centering
   \includegraphics[width=1.0\linewidth]{hot_fast_scaling}
-  \caption{Scaling Hot 2d, Fast 2d, and Hot 2d + Fast 2d on multiple nodes containing dual socket Sandy Bridge CPUs (16 cores). The problem size was $2048^2$ for 100 iterations, and the applications were compiled with the Intel Compilers version 16.2.}
-  \label{fig:scaling-hot-fast-sandybridge}
+  \caption{Scaling Hot 2d, Fast 2d, and Hot 2d + Fast 2d on multiple nodes containing dual socket Haswell CPUs (32 cores). The problem size was $5000^2$ for 10 iterations, and the applications were compiled with the Intel Compilers version 16.3.}
+  \label{fig:scaling-hot-fast-haswell}
 \end{figure}
 
-We chose a problem size that was a power of 2 as this is optimal for the one dimensional FFT. At this problem size we were not able to achieve reasonable scaling for the Fast application, as seen in Figure \ref{fig:scaling-hot-fast-sandybridge}. The compute time was significantly less than the communication time, which meant it was not possible to overlap the two. The poor scaling of the All-to-All communication dominates the scaling of Hot in this case, such that Hot 2d + Fast 2d scales poorly, and is clearly affected by the scaling of Fast 2d. 
+At this problem size, the scaling of Fast was deficient, and this had a significant impact on the scalability of the composed application (\ref{fig:scaling-hot-fast-haswell}). The super-linear speedup achieved by Hot due to cache effects is negated by the overwhelming dominance of the All-to-All communications. The time to solution of Hot is an order of magnitude higher on 1 node, but by 16 nodes Hot solves the problem 2x faster than Fast. 
+
+We understand that the All-to-All communications are a significant bottleneck, and will attempt overlapping the communication with some of the compute. As there is so much time spent communicating, it might be possible to overlap some of the communication in Fast with independent computation in Hot. 
 
 \subsubsection{Decomposition Effect}
 
-Figure \ref{fig:scaling-hot-fast-sandybridge} shows the scaling of the \textit{tiles} decomposition as it is the best performing option, however the scaling of the \textit{rows} decomposition is significantly worse for than the \textit{tiles} decomposition as you increase the node count. For this particular application, the communication costs are increased as the decomposition is reduced to a wide tile with large halos.
+Figure \ref{fig:scaling-hot-fast-haswell} shows the scaling of the \textit{tiles} decomposition as it is the best performing option, however the scaling of the \textit{rows} decomposition is significantly worse for than the \textit{tiles} decomposition as you increase the node count. For this particular application, the communication costs are increased as the decomposition is reduced to a wide tile with large halos.
 
 \begin{table}[h]
   \begin{center}
     \begin{tabular}{c|c|c|c|c|c}
       \hline
-      \textbf{Device} & \textbf{16 Cores} & \textbf{32 Cores} & \textbf{64 Cores} & \textbf{128 Cores} & \textbf{256 Cores} \\
+      \textbf{Device} & \textbf{1 node} & \textbf{2 nodes} & \textbf{4 nodes} & \textbf{8 nodes} & \textbf{16 nodes} \\
       \hline
-      \textit{\textbf{Hot (tiles)}} & 74.79s & 31.3s &  9.91s  & 5.15s & 4.83s \\
-      \textit{\textbf{Hot (rows)}}  & 70.44s & 32.1s &  10.76s & 6.32s & 6.04s \\ 
-      \textit{\textbf{Hot (cols)}}  & 74.93s & 34.6s &  11.51s & 6.63s & 6.24s \\
-      \textit{\textbf{Tiles vs Rows}}  & 0.95x & 1.02x & 1.09x & 1.23x & 1.25x \\
+      \textit{\textbf{Hot (tiles)}} & 27.82s & 14.12s &  7.01s  & 2.34s & 0.42s \\
+      \textit{\textbf{Hot (rows)}}  & 27.79s & 14.02s &  6.83s & 2.39s & 0.72s \\ 
+      \textit{\textbf{Tiles vs Rows}}  & 1.00x & 0.99x & 0.97x & 1.02x & 1.72x \\
     \end{tabular}
   \end{center}
-  \caption{The absolute runtime of the Hot application scaled across many cores, comparing the performance of tiles vs row decompositions.}
+  \caption{The absolute runtime of the Hot application scaled across many cores, comparing the performance of tiles vs row decompositions. The problem was $5000^2$ for 10 iterations, and the application was compiled with Intel 16.3.}
   \label{tab:hot-tiles-vs-rows}
 \end{table}
 
-The results in Table \ref{tab:hot-tiles-vs-rows} demonstrate that when there are a small number of ranks, there is little to no difference between the difference decompositions. Once we reach 256 cores this difference has risen to 1.23x, where the communication costs have not yet overtaken the performance. We plan to immediately collect results that go to higher nodes counts in order to test whether the decomposition difference is maintained or becomes hidden by the communication overheads.
+The results in Table \ref{tab:hot-tiles-vs-rows} demonstrate that when there are a small number of ranks, there is little to no difference between the decompositions. At the point that the communication becomes dominant, the performance shifts drastically and the tiles decomposition is 1.72x faster than the rows decomposition. We plan to immediately collect results that go to higher nodes counts in order to test whether the decomposition difference is maintained or becomes hidden by the communication overheads.
+
+At 16 nodes, Fast solves the problem in 0.77s, and the runtime of Hot 2d + Fast 2d is 1.47s. Considering the results in Table \ref{tab:hot-tiles-vs-rows} it makes sense given that Hot was forced to use row decomposition, but could be 1.24x faster if Hot were able to select the optimal decomposition. It is not currently clear how this will change with increasing node counts but we plan to continue the study to thousands of cores to understand the long term strong scaling implications.
 
 \subsubsection{Conflict Resolution}
 
