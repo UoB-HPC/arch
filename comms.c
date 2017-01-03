@@ -156,7 +156,7 @@ void decompose_2d_cartesian(
   int found_even = 0;
   float mratio = 0.0f;
 
-#ifdef TILES
+#if defined(TILES)
   printf("using tiles decomposition\n");
 
   // Determine decomposition that minimises perimeter to area ratio
@@ -191,18 +191,14 @@ void decompose_2d_cartesian(
       ranks_y = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_x : new_ranks_y;
     }
   }
-#endif
-
-#ifdef ROWS
-  printf("using row decomposition\n");
-  ranks_x = 1;
-  ranks_y = nranks;
-#endif
-
-#ifdef COLS
+#elif defined(COLS)
   printf("using col decomposition\n");
   ranks_x = nranks;
   ranks_y = 1;
+#else
+  printf("using row decomposition\n");
+  ranks_x = 1;
+  ranks_y = nranks;
 #endif
 
   // Calculate the offsets up until our rank, and then fetch rank dimensions
