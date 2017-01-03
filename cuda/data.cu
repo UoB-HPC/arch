@@ -82,12 +82,9 @@ void mesh_data_init_2d(
 }
 
 // Initialise state data in device specific manner
-void state_data_init_2d(
+void set_problem_2d(
     const int nx, const int ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off,
-    double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy,
-    double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
-    double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
+    const int x_off, const int y_off, double* rho, double* e, double* x)
 {
   // TODO: Improve what follows, make it a somewhat more general problem 
   // selection mechanism for some important stock problems
@@ -102,7 +99,7 @@ void state_data_init_2d(
   // Introduce a problem
   nblocks = ceil(nx*ny/(double)NTHREADS);
   initialise_problem_state<<<nblocks, NTHREADS>>>(
-      nx, ny, global_nx, global_ny, x_off, y_off, rho, e, rho_old, x);
+      nx, ny, global_nx, global_ny, x_off, y_off, rho, e, x);
   gpu_check(cudaDeviceSynchronize());
 }
 

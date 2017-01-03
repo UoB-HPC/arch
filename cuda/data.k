@@ -46,7 +46,7 @@ __global__ void initialise_default_state(
 __global__ void initialise_problem_state(
     const int nx, const int ny, const int global_nx, 
     const int global_ny, const int x_off, const int y_off, 
-    double* rho, double* e, double* rho_old, double* x)
+    double* rho, double* e, double* x)
 {
   set_cuda_indices(0);
   if(ind0 >= nx*ny) return;
