@@ -11,8 +11,15 @@ void allocate_data(double** buf, size_t len)
   *buf = (double*)malloc(sizeof(double)*len);
 #endif
 
+  // Place the array in device data environment
   double* local_buf = *buf;
 #pragma omp target enter data map(to: local_buf[:len])
+
+  // Zero the array
+#pragma omp target teams distribute parallel for 
+  for(size_t ii = 0; ii < len; ++ii) {
+    local_buf[ii] = 0.0;
+  }
 }
 
 // Allocates some double precision data on the host
@@ -82,32 +89,7 @@ void state_data_init(
     double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
 {
   // Initialise all of the state to 0, but is this best for NUMA?
-//#pragma omp parallel for
-#pragma omp target teams distribute parallel for 
-  for(int ii = 0; ii < local_nx*local_ny; ++ii) {
-    rho[ii] = 0.0;
-    e[ii] = 0.0;
-    rho_old[ii] = 0.0;
-    P[ii] = 0.0;
-  }
-
-#pragma omp target teams distribute parallel for 
-  for(int ii = 0; ii < (local_nx+1)*(local_ny+1); ++ii) {
-    Qxx[ii] = 0.0;
-    Qyy[ii] = 0.0;
-    x[ii] = 0.0;
-    p[ii] = 0.0;
-    rho_u[ii] = 0.0;
-    rho_v[ii] = 0.0;
-    F_x[ii] = 0.0;
-    F_y[ii] = 0.0;
-    uF_x[ii] = 0.0;
-    uF_y[ii] = 0.0;
-    vF_x[ii] = 0.0;
-    vF_y[ii] = 0.0;
-    reduce_array[ii] = 0.0;
-  }
-
+  
   // TODO: Improve what follows, make it a somewhat more general problem 
   // selection mechanism for some important stock problems
 
@@ -135,48 +117,6 @@ void state_data_init(
         e[ii*local_nx+jj] = 2.5;
         x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
       }
-
-#if 0
-      // OFF CENTER SQUARE TEST
-      const int dist = 100;
-      if(jj+x_off-PAD >= global_nx/4-dist && 
-          jj+x_off-PAD < global_nx/4+dist && 
-          ii+y_off-PAD >= global_ny/2-dist && 
-          ii+y_off-PAD < global_ny/2+dist) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-        x[ii*local_nx+jj] = rho[ii*local_nx+jj]*e[ii*local_nx+jj];
-      }
-#endif // if 0
-
-#if 0
-      if(jj+x_off < ((global_nx+2*PAD)/2)) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-        x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
-      }
-#endif // if 0
-
-#if 0
-      if(ii+y_off < (global_ny+2*PAD)/2) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-
-#if 0
-      if(ii+y_off > (global_ny+2*PAD)/2) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
-
-#if 0
-      if(jj+x_off > (global_nx+2*PAD)/2) {
-        rho[ii*local_nx+jj] = 1.0;
-        e[ii*local_nx+jj] = 2.5;
-      }
-#endif // if 0
     }
   }
 }

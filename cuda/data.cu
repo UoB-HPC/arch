@@ -10,6 +10,10 @@ void allocate_data(double** buf, const size_t len)
 {
   gpu_check(
       cudaMalloc((void**)buf, sizeof(double)*len));
+
+  const int nblocks = ceil(len/(double)NTHREADS);
+  zero_array<<<nblocks, NTHREADS>>>(len, *buf);
+  gpu_check(cudaDeviceSynchronize());
 }
 
 // Allocates some double precision data
@@ -20,6 +24,11 @@ void allocate_host_data(double** buf, const size_t len)
 #else
   *buf = (double*)malloc(sizeof(double)*len);
 #endif
+
+#pragma omp parallel for
+  for(size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0.0;
+  }
 }
 
 // Allocates a data array
@@ -81,17 +90,6 @@ void state_data_init_2d(
 {
   // TODO: Improve what follows, make it a somewhat more general problem 
   // selection mechanism for some important stock problems
-
-  int nblocks = ceil(nx*ny/(double)NTHREADS);
-  zero_cell_arrays<<<nblocks, NTHREADS>>>(
-      nx, ny, x_off, y_off, rho, e, rho_old, P);
-  gpu_check(cudaDeviceSynchronize());
-
-  nblocks = ceil((nx+1)*(ny+1)/(double)NTHREADS);
-  zero_edge_arrays<<<nblocks, NTHREADS>>>(
-      nx, ny, Qxx, Qyy, x, p, rho_u, rho_v, F_x, F_y,
-      uF_x, uF_y, vF_x, vF_y, reduce_array);
-  gpu_check(cudaDeviceSynchronize());
 
   // WET STATE INITIALISATION
   // Initialise a default state for the energy and density on the mesh

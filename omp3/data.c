@@ -10,6 +10,12 @@ void allocate_data(double** buf, size_t len)
 #else
   *buf = (double*)malloc(sizeof(double)*len);
 #endif
+
+  // Perform first-touch
+#pragma omp parallel for
+  for(size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0.0;
+  }
 }
 
 // Allocates a host copy of some buffer
@@ -86,69 +92,6 @@ void mesh_data_init_3d(
   }
 }
 
-// Set the cell arrays to 0
-void zero_cell_arrays(
-    const int len, double* rho, double* e, double* rho_old, double* P)
-{
-  // Initialise all of the state to 0, but is this best for NUMA?
-#pragma omp parallel for
-  for(int ii = 0; ii < len; ++ii) {
-    rho[ii] = 0.0;
-    e[ii] = 0.0;
-    rho_old[ii] = 0.0;
-    P[ii] = 0.0;
-  }
-}
-
-// Set the edge arrays to 0
-void zero_edge_arrays_2d(
-    const int len, double* Qxx, double* Qyy,
-    double* x, double* p, double* rho_u, double* rho_v, double* F_x, double* F_y,
-    double* uF_x, double* uF_y, double* vF_x, double* vF_y, double* reduce_array)
-{
-#pragma omp parallel for
-  for(int ii = 0; ii < len; ++ii) {
-    Qxx[ii] = 0.0;
-    Qyy[ii] = 0.0;
-    x[ii] = 0.0;
-    p[ii] = 0.0;
-    rho_u[ii] = 0.0;
-    rho_v[ii] = 0.0;
-    F_x[ii] = 0.0;
-    F_y[ii] = 0.0;
-    uF_x[ii] = 0.0;
-    uF_y[ii] = 0.0;
-    vF_x[ii] = 0.0;
-    vF_y[ii] = 0.0;
-    reduce_array[ii] = 0.0;
-  }
-}
-
-// Set the edge arrays to 0
-void zero_edge_arrays_3d(
-    const int local_nx, const int local_ny, const int local_nz, double* Qxx, 
-    double* Qyy, double* Qzz, double* x, double* p, double* rho_u, double* rho_v, 
-    double* rho_w, double* F_x, double* F_y, double* F_z, double* uF_x, 
-    double* uF_y, double* uF_z, double* vF_x, double* vF_y, double* vF_z, 
-    double* wF_x, double* wF_y, double* wF_z, double* reduce_array)
-{
-  zero_edge_arrays_2d( 
-      (local_nx+1)*(local_ny+1)*(local_nz+1), Qxx, Qyy, x, p, rho_u, 
-      rho_v, F_x, F_y, uF_x, uF_y, vF_x, vF_y, reduce_array);
-
-#pragma omp parallel for
-  for(int ii = 0; ii < (local_nx+1)*(local_ny+1)*(local_nz+1); ++ii) {
-    Qzz[ii] = 0.0;
-    rho_w[ii] = 0.0;
-    F_z[ii] = 0.0;
-    uF_z[ii] = 0.0; 
-    vF_z[ii] = 0.0;
-    wF_x[ii] = 0.0;
-    wF_y[ii] = 0.0;
-    wF_z[ii] = 0.0;
-  }
-}
-
 void set_default_state(
     const int len, double* rho, double* e, double* x)
 {
@@ -164,16 +107,8 @@ void set_default_state(
 // Initialise state data in device specific manner
 void state_data_init_2d(
     const int local_nx, const int local_ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off, double* rho, double* e, double* rho_old, 
-    double* P, double* Qxx, double* Qyy, double* x, double* p, double* rho_u, 
-    double* rho_v, double* F_x, double* F_y, double* uF_x, double* uF_y, 
-    double* vF_x, double* vF_y, double* reduce_array, double* celldx, double* celldy)
+    const int x_off, const int y_off, double* rho, double* e, double* x)
 {
-  zero_cell_arrays(
-      local_nx*local_ny, rho, e, rho_old, P);
-  zero_edge_arrays_2d( 
-      (local_nx+1)*(local_ny+1), Qxx, Qyy, x, p, rho_u, rho_v, F_x, F_y,
-      uF_x, uF_y, vF_x, vF_y, reduce_array);
   set_default_state(
       local_nx*local_ny, rho, e, x);
 
@@ -208,17 +143,8 @@ void state_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
     const int x_off, const int y_off, const int z_off,
-    double* rho, double* e, double* rho_old, double* P, double* Qxx, double* Qyy, 
-    double* Qzz, double* x, double* p, double* rho_u, double* rho_v, double* rho_w, 
-    double* F_x, double* F_y, double* F_z, double* uF_x, double* uF_y, double* uF_z, 
-    double* vF_x, double* vF_y, double* vF_z, double* wF_x, double* wF_y, 
-    double* wF_z, double* reduce_array)
+    double* rho, double* e, double* x)
 {
-  zero_cell_arrays(
-      local_nx*local_ny*local_nz, rho, e, rho_old, P);
-  zero_edge_arrays_3d( 
-      local_nx, local_ny, local_nz, Qxx, Qyy, Qzz, x, p, rho_u, rho_v, rho_w, 
-      F_x, F_y, F_z, uF_x, uF_y, uF_z, vF_x, vF_y, vF_z, wF_x, wF_y, wF_z, reduce_array);
   set_default_state(
       local_nx*local_ny*local_nz, rho, e, x);
 

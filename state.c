@@ -46,9 +46,7 @@ void initialise_state_2d(
 
   state_data_init_2d(
       local_nx, local_ny, global_nx, global_ny, x_off, y_off,
-      state->rho, state->e, state->rho_old, state->P, state->Qxx, state->Qyy,
-      state->x, state->p, state->rho_u, state->rho_v, state->F_x, state->F_y,
-      state->uF_x, state->uF_y, state->vF_x, state->vF_y, state->reduce_array);
+      state->rho, state->e, state->x);
 }
 
 // Initialises the state variables
@@ -109,11 +107,7 @@ void initialise_state_3d(
 
   state_data_init_3d(
       local_nx, local_ny, local_nz, global_nx, global_ny, global_nz, 
-      x_off, y_off, z_off, state->rho, state->e, state->rho_old, 
-      state->P, state->Qxx, state->Qyy, state->Qzz, state->x, state->p, 
-      state->rho_u, state->rho_v, state->rho_w, state->F_x, state->F_y, state->F_z,
-      state->uF_x, state->uF_y, state->uF_z, state->vF_x, state->vF_y, state->vF_z, 
-      state->wF_x, state->wF_y, state->wF_z, state->reduce_array);
+      x_off, y_off, z_off, state->rho, state->e, state->x);
 }
 
 // Deallocate all of the state memory

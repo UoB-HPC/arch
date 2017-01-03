@@ -31,6 +31,8 @@ typedef struct
   int depth;     // Depth of the problem domain
 
   // Mesh differentials
+  double* edgex;
+  double* edgey;
   double* edgedx;
   double* edgedy;
   double* edgedz;
