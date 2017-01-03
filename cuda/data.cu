@@ -64,18 +64,19 @@ void sync_data(const size_t len, double** src, double** dst, int send)
 // Initialises mesh data in device specific manner
 void mesh_data_init_2d(
     const int nx, const int ny, const int global_nx, const int global_ny,
-    double* edgedx, double* edgedy, double* celldx, double* celldy)
+    double* edgex, double* edgey, double* edgedx, double* edgedy, 
+    double* celldx, double* celldy)
 {
   // Simple uniform rectilinear initialisation
   int nblocks = ceil((nx+1)/(double)NTHREADS);
   mesh_data_init_dx<<<nblocks, NTHREADS>>>(
-      nx, ny, global_nx, global_ny,
+      nx, ny, global_nx, global_ny, edgex, edgey,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
 
   nblocks = ceil((ny+1)/(double)NTHREADS);
   mesh_data_init_dy<<<nblocks, NTHREADS>>>(
-      nx, ny, global_nx, global_ny,
+      nx, ny, global_nx, global_ny, edgex, edgey,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
 }

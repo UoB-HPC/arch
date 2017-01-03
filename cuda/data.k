@@ -1,22 +1,26 @@
 
 __global__ void mesh_data_init_dx(
     const int nx, const int ny, const int global_nx, const int global_ny,
-    double* edgedx, double* edgedy, double* celldx, double* celldy)
+    double* edgex, double* edgey, double* edgedx, double* edgedy, 
+    double* celldx, double* celldy)
 {
   set_cuda_indices(0);
   if(ind0 >= (nx+1)) return;
   edgedx[ind0] = WIDTH / (global_nx);
   celldx[ind0] = WIDTH / (global_nx);
+  edgex[ind0] = edgedx[ind0] * ind0;
 }
 
 __global__ void mesh_data_init_dy(
     const int nx, const int ny, const int global_nx, const int global_ny,
-    double* edgedx, double* edgedy, double* celldx, double* celldy)
+    double* edgex, double* edgey, double* edgedx, double* edgedy, 
+    double* celldx, double* celldy)
 {
   set_cuda_indices(0);
   if(ind0 >= (ny+1)) return;
   edgedy[ind0] = HEIGHT / (global_ny);
   celldy[ind0] = HEIGHT / (global_ny);
+  edgey[ind0] = edgedy[ind0] * ind0;
 }
 
 __global__ void zero_array(

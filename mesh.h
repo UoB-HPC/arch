@@ -33,9 +33,12 @@ typedef struct
   // Mesh differentials
   double* edgex;
   double* edgey;
+  double* edgez;
+
   double* edgedx;
   double* edgedy;
   double* edgedz;
+
   double* celldx;
   double* celldy;
   double* celldz;
@@ -87,8 +90,10 @@ typedef struct
 void initialise_mesh_2d(
     Mesh* mesh);
 void mesh_data_init_2d(
-    const int local_nx, const int local_ny, const int global_nx, 
-    const int global_ny, double* edgedx, double* edgedy, 
+    const int local_nx, const int local_ny, 
+    const int global_nx, const int global_ny, 
+    double* edgex, double* edgey, 
+    double* edgedx, double* edgedy, 
     double* celldx, double* celldy);
 
 void initialise_mesh_3d(
@@ -96,6 +101,7 @@ void initialise_mesh_3d(
 void mesh_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
+    double* edgex, double* edgey, double* edgez, 
     double* edgedx, double* edgedy, double* edgedz, 
     double* celldx, double* celldy, double* celldz);
 

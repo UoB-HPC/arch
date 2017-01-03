@@ -5,9 +5,11 @@
 void initialise_mesh_2d(
     Mesh* mesh)
 {
+  allocate_data(&mesh->edgex, (mesh->local_nx+1));
+  allocate_data(&mesh->edgey, (mesh->local_ny+1));
   allocate_data(&mesh->edgedx, (mesh->local_nx+1));
-  allocate_data(&mesh->celldx, (mesh->local_nx+1));
   allocate_data(&mesh->edgedy, (mesh->local_ny+1));
+  allocate_data(&mesh->celldx, (mesh->local_nx+1));
   allocate_data(&mesh->celldy, (mesh->local_ny+1));
 
   mesh->dt = 0.1*C_T*MAX_DT;
@@ -15,7 +17,7 @@ void initialise_mesh_2d(
 
   mesh_data_init_2d(
       mesh->local_nx, mesh->local_ny, mesh->global_nx, mesh->global_ny,
-      mesh->edgedx, mesh->edgedy, mesh->celldx, mesh->celldy);
+      mesh->edgex, mesh->edgey, mesh->edgedx, mesh->edgedy, mesh->celldx, mesh->celldy);
 
   allocate_data(&mesh->north_buffer_out, (mesh->local_nx+1)*PAD);
   allocate_data(&mesh->east_buffer_out, (mesh->local_ny+1)*PAD);
@@ -40,11 +42,14 @@ void initialise_mesh_2d(
 void initialise_mesh_3d(
     Mesh* mesh)
 {
+  allocate_data(&mesh->edgex, (mesh->local_nx+1));
+  allocate_data(&mesh->edgey, (mesh->local_ny+1));
+  allocate_data(&mesh->edgez, (mesh->local_nz+1));
   allocate_data(&mesh->edgedx, (mesh->local_nx+1));
-  allocate_data(&mesh->celldx, (mesh->local_nx+1));
   allocate_data(&mesh->edgedy, (mesh->local_ny+1));
-  allocate_data(&mesh->celldy, (mesh->local_ny+1));
   allocate_data(&mesh->edgedz, (mesh->local_nz+1));
+  allocate_data(&mesh->celldx, (mesh->local_nx+1));
+  allocate_data(&mesh->celldy, (mesh->local_ny+1));
   allocate_data(&mesh->celldz, (mesh->local_nz+1));
 
   mesh->dt = 0.1*C_T*MAX_DT;
@@ -53,6 +58,7 @@ void initialise_mesh_3d(
   mesh_data_init_3d(
       mesh->local_nx, mesh->local_ny, mesh->local_nz, 
       mesh->global_nx, mesh->global_ny, mesh->local_nz,
+      mesh->edgex, mesh->edgey, mesh->edgez, 
       mesh->edgedx, mesh->edgedy, mesh->edgedz, 
       mesh->celldx, mesh->celldy, mesh->celldz);
 
