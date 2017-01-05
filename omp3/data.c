@@ -126,6 +126,14 @@ void set_problem_2d(
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
 
+#if 0
+// POINT CHARGE PROBLEM
+if(jj+x_off == global_nx/2 && ii+y_off == global_ny/2)
+  e[(ii*local_nx)+(jj)] = 10.0/(WIDTH/global_nx*HEIGHT/global_ny);
+  else 
+  e[(ii*local_nx)+(jj)] = 0.0;
+#endif // if 0
+
       // CENTER SQUARE TEST
       if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
           jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
@@ -169,14 +177,6 @@ void set_problem_3d(
     }
   }
 }
-
-#if 0
-// POINT CHARGE PROBLEM
-if(jj+x_off == global_nx/2 && ii+y_off == global_ny/2)
-  e[(ii*local_nx)+(jj)] = 10.0/(WIDTH/global_nx*HEIGHT/global_ny);
-  else 
-  e[(ii*local_nx)+(jj)] = 0.0;
-#endif // if 0
 
 #if 0
   // OFF CENTER SQUARE TEST

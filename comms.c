@@ -48,12 +48,10 @@ void initialise_comms(
 
 #endif 
 
-  #if 0
   // Add on the halo padding to the local mesh
   mesh->local_nx += 2*PAD;
   mesh->local_ny += 2*PAD;
   mesh->local_nz += 2*PAD;
-#endif // if 0
 
   if(mesh->rank == MASTER) {
 #ifdef APP_3D
@@ -109,6 +107,16 @@ double reduce_to_master(
 #endif
 
   return global_val;
+}
+
+// Performs an all to all communication of complex data
+void all_to_all_complex(
+    const int len, double complex* a, double complex* b)
+{
+#ifdef MPI
+  MPI_Alltoall(
+      b, len, MPI_C_DOUBLE_COMPLEX, a, len, MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+#endif
 }
 
 // Performs an mpi barrier

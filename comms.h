@@ -1,5 +1,6 @@
 #pragma once 
 
+#include <complex.h>
 #include "mesh.h"
 #include "shared.h"
 
@@ -46,6 +47,10 @@ double reduce_all_min(
 // Reduces value from all ranks to master
 double reduce_to_master(
     double local_val);
+
+// Performs an all to all communication of complex data
+void all_to_all_complex(
+    const int len, double complex* a, double complex* b);
 
 // Performs a non-blocking mpi send
 void non_block_send(
