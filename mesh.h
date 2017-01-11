@@ -53,7 +53,9 @@ typedef struct
   double dt_h;
 
   int rank;       // Rank that owns this mesh object
-  int nranks;     // Number of ranks that exist
+  int ranks_x;    // The number of ranks in the x dimension
+  int ranks_y;    // The number of ranks in the y dimension
+  int nranks;     // Total number of ranks that exist
   int neighbours[NNEIGHBOURS]; // List of neighbours
 
   // Buffers for MPI communication
@@ -91,7 +93,8 @@ void initialise_mesh_2d(
     Mesh* mesh);
 void mesh_data_init_2d(
     const int local_nx, const int local_ny, 
-    const int global_nx, const int global_ny, 
+    const int global_nx, const int global_ny,
+    const int x_off, const int y_off,
     double* edgex, double* edgey, 
     double* edgedx, double* edgedy, 
     double* celldx, double* celldy);
@@ -101,6 +104,7 @@ void initialise_mesh_3d(
 void mesh_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
+    const int x_off, const int y_off, const int z_off,
     double* edgex, double* edgey, double* edgez, 
     double* edgedx, double* edgedy, double* edgedz, 
     double* celldx, double* celldy, double* celldz);

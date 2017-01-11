@@ -27,13 +27,15 @@ void initialise_comms(
 // ratio of perimeter to area
 void decompose_2d_cartesian(
     const int rank, const int nranks, const int global_nx, const int global_ny,
-    int* neighbours, int* local_nx, int* local_ny, int* x_off, int* y_off);
+    int* neighbours, int* local_nx, int* local_ny, int* ranks_x, int* ranks_y, 
+    int* x_off, int* y_off);
 
 // Decomposes the ranks minimising ratio of perimeter to area
 void decompose_3d_cartesian(
     const int rank, const int nranks, const int global_nx, const int global_ny, 
     const int global_nz, int* neighbours, int* local_nx, int* local_ny, 
-    int* local_nz, int* x_off, int* y_off, int* z_off);
+    int* local_nz, int* ranks_x, int* ranks_y, int* ranks_z, int* x_off, 
+    int* y_off, int* z_off);
 #endif
 
 // Reduces the value across all ranks and returns the sum

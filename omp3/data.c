@@ -51,6 +51,7 @@ void sync_data(const size_t len, double** src, double** dst, int send)
 void mesh_data_init_2d(
     const int local_nx, const int local_ny, 
     const int global_nx, const int global_ny,
+    const int x_off, const int y_off,
     double* edgex, double* edgey, 
     double* edgedx, double* edgedy, 
     double* celldx, double* celldy)
@@ -59,7 +60,7 @@ void mesh_data_init_2d(
 #pragma omp parallel for
   for(int ii = 0; ii < local_nx+1; ++ii) {
     edgedx[ii] = WIDTH / (global_nx);
-    edgex[ii] = edgedx[ii]*ii;
+    edgex[ii] = edgedx[ii]*(x_off+ii);
   }
 #pragma omp parallel for
   for(int ii = 0; ii < local_nx; ++ii) {
@@ -68,7 +69,7 @@ void mesh_data_init_2d(
 #pragma omp parallel for
   for(int ii = 0; ii < local_ny+1; ++ii) {
     edgedy[ii] = HEIGHT / (global_ny);
-    edgey[ii] = edgedy[ii]*ii;
+    edgey[ii] = edgedy[ii]*(y_off+ii);
   }
 #pragma omp parallel for
   for(int ii = 0; ii < local_ny; ++ii) {
@@ -80,20 +81,21 @@ void mesh_data_init_2d(
 void mesh_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
+    const int x_off, const int y_off, const int z_off,
     double* edgex, double* edgey, double* edgez, 
     double* edgedx, double* edgedy, double* edgedz, 
     double* celldx, double* celldy, double* celldz)
 {
   // Initialise as in the 2d case
   mesh_data_init_2d(
-      local_nx, local_ny, global_nx, global_ny, edgex, edgey, 
-      edgedx, edgedy, celldx, celldy);
+      local_nx, local_ny, global_nx, global_ny, x_off, y_off,
+      edgex, edgey, edgedx, edgedy, celldx, celldy);
 
   // Simple uniform rectilinear initialisation
 #pragma omp parallel for
   for(int ii = 0; ii < local_nz+1; ++ii) {
     edgedz[ii] = DEPTH / (global_nz);
-    edgez[ii] = edgedz[ii]*ii;
+    edgez[ii] = edgedz[ii]*(z_off+ii);
   }
 #pragma omp parallel for
   for(int ii = 0; ii < local_nz; ++ii) {

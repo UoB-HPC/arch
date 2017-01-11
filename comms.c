@@ -39,11 +39,13 @@ void initialise_comms(
   decompose_3d_cartesian(
       mesh->rank, mesh->nranks, mesh->global_nx, mesh->global_ny, mesh->global_nz,
       mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->local_nz, 
-      &mesh->x_off, &mesh->y_off, &mesh->z_off);
+      &mesh->ranks_x, &mesh->ranks_y, &mesh->ranks_z, &mesh->x_off, 
+      &mesh->y_off, &mesh->z_off);
 #else
   decompose_2d_cartesian(
       mesh->rank, mesh->nranks, mesh->global_nx, mesh->global_ny, 
-      mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->x_off, &mesh->y_off);
+      mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->ranks_x, 
+      &mesh->ranks_y, &mesh->x_off, &mesh->y_off);
 #endif
 
 #endif 
@@ -157,10 +159,9 @@ void wait_on_messages(const int nmessages)
 // ratio of perimeter to area
 void decompose_2d_cartesian(
     const int rank, const int nranks, const int global_nx, const int global_ny,
-    int* neighbours, int* local_nx, int* local_ny, int* x_off, int* y_off) 
+    int* neighbours, int* local_nx, int* local_ny, int* ranks_x, int* ranks_y, 
+    int* x_off, int* y_off) 
 {
-  int ranks_x = 0;
-  int ranks_y = 0;
   int found_even = 0;
   float mratio = 0.0f;
 
@@ -195,44 +196,44 @@ void decompose_2d_cartesian(
     if((found_even <= is_even) && (mratio == 0.0f || potential_ratio < mratio)) {
       mratio = potential_ratio;
       // If we didn't find even split, prefer longer mesh edge on x dimension
-      ranks_x = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_y : new_ranks_x;
-      ranks_y = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_x : new_ranks_y;
+      *ranks_x = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_y : new_ranks_x;
+      *ranks_y = (!found_even && new_ranks_x > new_ranks_y) ? new_ranks_x : new_ranks_y;
     }
   }
 #elif defined(COLS)
   printf("using col decomposition\n");
-  ranks_x = nranks;
-  ranks_y = 1;
+  *ranks_x = nranks;
+  *ranks_y = 1;
 #else
   printf("using row decomposition\n");
-  ranks_x = 1;
-  ranks_y = nranks;
+  *ranks_x = 1;
+  *ranks_y = nranks;
 #endif
 
   // Calculate the offsets up until our rank, and then fetch rank dimensions
   int off = 0;
-  const int x_rank = (rank%ranks_x);
+  const int x_rank = (rank%(*ranks_x));
   for(int xx = 0; xx <= x_rank; ++xx) {
     *x_off = off;
-    const int x_floor = global_nx/ranks_x;
-    const int x_pad_req = (global_nx != (off + (ranks_x-xx)*x_floor));
+    const int x_floor = global_nx/(*ranks_x);
+    const int x_pad_req = (global_nx != (off + ((*ranks_x)-xx)*x_floor));
     *local_nx = x_pad_req ? x_floor+1 : x_floor;
     off += *local_nx;
   }
   off = 0;
-  const int y_rank = (rank/ranks_x);
+  const int y_rank = (rank/(*ranks_x));
   for(int yy = 0; yy <= y_rank; ++yy) {
     *y_off = off;
-    const int y_floor = global_ny/ranks_y;
-    const int y_pad_req = (global_ny != (off + (ranks_y-yy)*y_floor));
+    const int y_floor = global_ny/(*ranks_y);
+    const int y_pad_req = (global_ny != (off + ((*ranks_y)-yy)*y_floor));
     *local_ny = y_pad_req ? y_floor+1 : y_floor;
     off += *local_ny;
   }
 
   // Calculate the surrounding ranks
-  neighbours[NORTH] = (y_rank < ranks_y-1) ? rank+ranks_x : EDGE;
-  neighbours[EAST] = (x_rank < ranks_x-1) ? rank+1 : EDGE;
-  neighbours[SOUTH] = (y_rank > 0) ? rank-ranks_x : EDGE;
+  neighbours[NORTH] = (y_rank < (*ranks_y)-1) ? rank+(*ranks_x) : EDGE;
+  neighbours[EAST] = (x_rank < (*ranks_x)-1) ? rank+1 : EDGE;
+  neighbours[SOUTH] = (y_rank > 0) ? rank-(*ranks_x) : EDGE;
   neighbours[WEST] = (x_rank > 0) ? rank-1 : EDGE;
 
   printf("rank %d dims %d %d neighbours %d %d %d %d\n",
@@ -244,11 +245,9 @@ void decompose_2d_cartesian(
 void decompose_3d_cartesian(
     const int rank, const int nranks, const int global_nx, const int global_ny, 
     const int global_nz, int* neighbours, int* local_nx, int* local_ny, 
-    int* local_nz, int* x_off, int* y_off, int* z_off) 
+    int* local_nz, int* ranks_x, int* ranks_y, int* ranks_z, int* x_off, 
+    int* y_off, int* z_off) 
 {
-  int ranks_x = 0;
-  int ranks_y = 0;
-  int ranks_z = 0;
   float min_sa_to_vol = 0.0f;
 
   // Determine decomposition that minimises surface area to volume ratio
@@ -269,19 +268,19 @@ void decompose_3d_cartesian(
           min_sa_to_vol = sa_to_vol;
           // Choose edges so that x > y > z for preferred data access
           if(split_x >= split_y && split_x >= split_z) {
-            ranks_x = split_x;
-            ranks_y = (split_y > split_z) ? split_y : split_z;
-            ranks_z = (split_y > split_z) ? split_z : split_y;
+            *ranks_x = split_x;
+            *ranks_y = (split_y > split_z) ? split_y : split_z;
+            *ranks_z = (split_y > split_z) ? split_z : split_y;
           }
           else if(split_y >= split_x && split_y >= split_z) {
-            ranks_x = split_y;
-            ranks_y = (split_x > split_z) ? split_x : split_z;
-            ranks_z = (split_x > split_z) ? split_z : split_x;
+            *ranks_x = split_y;
+            *ranks_y = (split_x > split_z) ? split_x : split_z;
+            *ranks_z = (split_x > split_z) ? split_z : split_x;
           }
           else if(split_z >= split_x && split_z >= split_y) {
-            ranks_x = split_z;
-            ranks_y = (split_x > split_y) ? split_x : split_y;
-            ranks_z = (split_x > split_y) ? split_y : split_x;
+            *ranks_x = split_z;
+            *ranks_y = (split_x > split_y) ? split_x : split_y;
+            *ranks_z = (split_x > split_y) ? split_y : split_x;
           }
         }
       }
@@ -291,40 +290,40 @@ void decompose_3d_cartesian(
   // TODO: Seems refactorable
   // Calculate the offsets up until our rank, and then fetch rank dimensions
   int off = 0;
-  const int x_rank = (rank%ranks_x);
+  const int x_rank = (rank%(*ranks_x));
   for(int xx = 0; xx <= x_rank; ++xx) {
     *x_off = off;
-    const int x_floor = global_nx/ranks_x;
-    const int x_pad_req = (global_nx != (off + (ranks_x-xx)*x_floor));
+    const int x_floor = global_nx/(*ranks_x);
+    const int x_pad_req = (global_nx != (off + ((*ranks_x)-xx)*x_floor));
     *local_nx = x_pad_req ? x_floor+1 : x_floor;
     off += *local_nx;
   }
   off = 0;
-  const int y_rank = ((rank/ranks_x)%ranks_y);
+  const int y_rank = ((rank/(*ranks_x))%(*ranks_y));
   for(int yy = 0; yy <= y_rank; ++yy) {
     *y_off = off;
-    const int y_floor = global_ny/ranks_y;
-    const int y_pad_req = (global_ny != (off + (ranks_y-yy)*y_floor));
+    const int y_floor = global_ny/(*ranks_y);
+    const int y_pad_req = (global_ny != (off + ((*ranks_y)-yy)*y_floor));
     *local_ny = y_pad_req ? y_floor+1 : y_floor;
     off += *local_ny;
   }
   off = 0;
-  const int z_rank = (rank/(ranks_x*ranks_y));
+  const int z_rank = (rank/((*ranks_x)*(*ranks_y)));
   for(int zz = 0; zz <= z_rank; ++zz) {
     *z_off = off;
-    const int z_floor = global_nz/ranks_z;
-    const int z_pad_req = (global_nz != (off + (ranks_z-zz)*z_floor));
+    const int z_floor = global_nz/(*ranks_z);
+    const int z_pad_req = (global_nz != (off + ((*ranks_z)-zz)*z_floor));
     *local_nz = z_pad_req ? z_floor+1 : z_floor;
     off += *local_nz;
   }
 
   // Calculate the surrounding ranks
-  neighbours[SOUTH] = (y_rank > 0) ? rank-ranks_x : EDGE;
+  neighbours[SOUTH] = (y_rank > 0) ? rank-(*ranks_x) : EDGE;
   neighbours[WEST] = (x_rank > 0) ? rank-1 : EDGE;
-  neighbours[FRONT] = (z_rank > 0) ? rank-(ranks_x*ranks_y) : EDGE;
-  neighbours[NORTH] = (y_rank < ranks_y-1) ? rank+ranks_x : EDGE;
-  neighbours[EAST] = (x_rank < ranks_x-1) ? rank+1 : EDGE;
-  neighbours[BACK] = (z_rank < ranks_z-1) ? rank+(ranks_x*ranks_y) : EDGE;
+  neighbours[FRONT] = (z_rank > 0) ? rank-((*ranks_x)*(*ranks_y)) : EDGE;
+  neighbours[NORTH] = (y_rank < (*ranks_y)-1) ? rank+(*ranks_x) : EDGE;
+  neighbours[EAST] = (x_rank < (*ranks_x)-1) ? rank+1 : EDGE;
+  neighbours[BACK] = (z_rank < (*ranks_z)-1) ? rank+((*ranks_x)*(*ranks_y)) : EDGE;
 
   printf("rank %d neighbours %d %d %d %d %d %d\n",
       rank, neighbours[NORTH], neighbours[EAST], neighbours[BACK],
