@@ -166,7 +166,9 @@ void decompose_2d_cartesian(
   float mratio = 0.0f;
 
 #if defined(TILES)
-  printf("using tiles decomposition\n");
+  if(rank == MASTER) {
+    printf("using tiles decomposition\n");
+  }
 
   // Determine decomposition that minimises perimeter to area ratio
   for(int ff = 1; ff <= sqrt(nranks); ++ff) {
@@ -201,11 +203,15 @@ void decompose_2d_cartesian(
     }
   }
 #elif defined(COLS)
-  printf("using col decomposition\n");
+  if(rank == MASTER) {
+    printf("using col decomposition\n");
+  }
   *ranks_x = nranks;
   *ranks_y = 1;
 #else
-  printf("using row decomposition\n");
+  if(rank == MASTER) {
+    printf("using row decomposition\n");
+  }
   *ranks_x = 1;
   *ranks_y = nranks;
 #endif
