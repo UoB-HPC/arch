@@ -60,7 +60,9 @@ void mesh_data_init_2d(
 #pragma omp parallel for
   for(int ii = 0; ii < local_nx+1; ++ii) {
     edgedx[ii] = WIDTH / (global_nx);
-    edgex[ii] = edgedx[ii]*(x_off+ii);
+
+    // Note: correcting for padding
+    edgex[ii] = edgedx[ii]*(x_off+ii-PAD);
   }
 #pragma omp parallel for
   for(int ii = 0; ii < local_nx; ++ii) {
@@ -69,7 +71,9 @@ void mesh_data_init_2d(
 #pragma omp parallel for
   for(int ii = 0; ii < local_ny+1; ++ii) {
     edgedy[ii] = HEIGHT / (global_ny);
-    edgey[ii] = edgedy[ii]*(y_off+ii);
+
+    // Note: correcting for padding
+    edgey[ii] = edgedy[ii]*(y_off+ii-PAD);
   }
 #pragma omp parallel for
   for(int ii = 0; ii < local_ny; ++ii) {
@@ -95,7 +99,7 @@ void mesh_data_init_3d(
 #pragma omp parallel for
   for(int ii = 0; ii < local_nz+1; ++ii) {
     edgedz[ii] = DEPTH / (global_nz);
-    edgez[ii] = edgedz[ii]*(z_off+ii);
+    edgez[ii] = edgedz[ii]*(z_off+ii-PAD);
   }
 #pragma omp parallel for
   for(int ii = 0; ii < local_nz; ++ii) {
@@ -141,7 +145,7 @@ if(jj+x_off == global_nx/2 && ii+y_off == global_ny/2)
           jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
           ii+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
           ii+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
-        rho[ii*local_nx+jj] = 1.0;
+        rho[ii*local_nx+jj] = 100.0;
         e[ii*local_nx+jj] = 2.5;
         x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
       }

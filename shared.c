@@ -149,10 +149,11 @@ void write_all_ranks_to_visit(
 
     if(rank == MASTER) {
       if(ii > MASTER) {
-        MPI_Recv(&dims, nparams, MPI_INT, ii, 0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+        printf("receiving from %d\n", ii);
+        MPI_Recv(&dims, nparams, MPI_INT, ii, TAG_VISIT0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
         remote_data[ii] = (double*)malloc(sizeof(double)*dims[0]*dims[1]);
         MPI_Recv(
-            remote_data[ii], dims[0]*dims[1], MPI_DOUBLE, ii, 1, 
+            remote_data[ii], dims[0]*dims[1], MPI_DOUBLE, ii, TAG_VISIT1, 
             MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
       }
 
@@ -174,8 +175,9 @@ void write_all_ranks_to_visit(
       }
     }
     else if(ii == rank) {
-      MPI_Send(&dims, nparams, MPI_INT, MASTER, 0, MPI_COMM_WORLD);
-      MPI_Send(temp_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, 1, MPI_COMM_WORLD);
+      printf("%d sending\n", ii);
+      MPI_Send(&dims, nparams, MPI_INT, MASTER, TAG_VISIT0, MPI_COMM_WORLD);
+      MPI_Send(temp_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
     }
     barrier();
   }
