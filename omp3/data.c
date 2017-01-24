@@ -145,7 +145,7 @@ if(jj+x_off == global_nx/2 && ii+y_off == global_ny/2)
           jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
           ii+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
           ii+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
-        rho[ii*local_nx+jj] = 100.0;
+        rho[ii*local_nx+jj] = 10.0; 
         e[ii*local_nx+jj] = 2.5;
         x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
       }
