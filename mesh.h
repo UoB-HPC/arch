@@ -6,7 +6,7 @@
 #define WIDTH 10.0      // The width of the problem domain 
 #define HEIGHT 10.0     // The height of the problem domain
 #define DEPTH 10.0      // The depth of the problem domain
-#define MAX_DT 0.004     // The maximum allowed timestep
+#define MAX_DT 0.0004     // The maximum allowed timestep
 
 #define NNEIGHBOURS 6   // This is max size required - for 3d
 
