@@ -12,9 +12,6 @@ void initialise_mesh_2d(
   allocate_data(&mesh->celldx, (mesh->local_nx+1));
   allocate_data(&mesh->celldy, (mesh->local_ny+1));
 
-  mesh->dt = 0.1*C_T*MAX_DT;
-  mesh->dt_h = 0.1*C_T*MAX_DT;
-
   mesh_data_init_2d(
       mesh->local_nx, mesh->local_ny, mesh->global_nx, mesh->global_ny,
       mesh->x_off, mesh->y_off, mesh->edgex, mesh->edgey, 
@@ -52,9 +49,6 @@ void initialise_mesh_3d(
   allocate_data(&mesh->celldx, (mesh->local_nx+1));
   allocate_data(&mesh->celldy, (mesh->local_ny+1));
   allocate_data(&mesh->celldz, (mesh->local_nz+1));
-
-  mesh->dt = 0.1*C_T*MAX_DT;
-  mesh->dt_h = 0.1*C_T*MAX_DT;
 
   mesh_data_init_3d(
       mesh->local_nx, mesh->local_ny, mesh->local_nz, 
