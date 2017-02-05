@@ -11,6 +11,10 @@ void allocate_data(double** buf, size_t len)
   *buf = (double*)malloc(sizeof(double)*len);
 #endif
 
+  if(*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
+
   // Perform first-touch
 #pragma omp parallel for
   for(size_t ii = 0; ii < len; ++ii) {
@@ -131,15 +135,6 @@ void set_problem_2d(
 #pragma omp parallel for 
   for(int ii = 0; ii < local_ny; ++ii) {
     for(int jj = 0; jj < local_nx; ++jj) {
-
-#if 0
-// POINT CHARGE PROBLEM
-if(jj+x_off == global_nx/2 && ii+y_off == global_ny/2)
-  e[(ii*local_nx)+(jj)] = 10.0/(WIDTH/global_nx*HEIGHT/global_ny);
-  else 
-  e[(ii*local_nx)+(jj)] = 0.0;
-#endif // if 0
-
       // CENTER SQUARE TEST
       if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
           jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
@@ -184,44 +179,3 @@ void set_problem_3d(
   }
 }
 
-#if 0
-  // OFF CENTER SQUARE TEST
-  const int dist = 100;
-  if(jj+x_off-PAD >= global_nx/4-dist && 
-      jj+x_off-PAD < global_nx/4+dist && 
-      ii+y_off-PAD >= global_ny/2-dist && 
-      ii+y_off-PAD < global_ny/2+dist) {
-    rho[ii*local_nx+jj] = 1.0;
-    e[ii*local_nx+jj] = 2.5;
-    x[ii*local_nx+jj] = rho[ii*local_nx+jj]*e[ii*local_nx+jj];
-  }
-#endif // if 0
-
-#if 0
-if(jj+x_off < ((global_nx+2*PAD)/2)) {
-  rho[ii*local_nx+jj] = 1.0;
-  e[ii*local_nx+jj] = 2.5;
-  x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
-}
-#endif // if 0
-
-#if 0
-if(ii+y_off < (global_ny+2*PAD)/2) {
-  rho[ii*local_nx+jj] = 1.0;
-  e[ii*local_nx+jj] = 2.5;
-}
-#endif // if 0
-
-#if 0
-if(ii+y_off > (global_ny+2*PAD)/2) {
-  rho[ii*local_nx+jj] = 1.0;
-  e[ii*local_nx+jj] = 2.5;
-}
-#endif // if 0
-
-#if 0
-if(jj+x_off > (global_nx+2*PAD)/2) {
-  rho[ii*local_nx+jj] = 1.0;
-  e[ii*local_nx+jj] = 2.5;
-}
-#endif // if 0

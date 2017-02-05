@@ -1,5 +1,6 @@
 #pragma once
 
+#include <stdio.h>
 #include "profiler.h"
 
 #define ENABLE_VISIT_DUMPS 1 // Enables visit dumps in the descendent applications
@@ -14,6 +15,10 @@
 #define samesign(a, b) ((a*b) > 0.0)
 #define absmin(a, b) ((fabs(a) < fabs(b)) ? (a) : (b))
 #define minmod(a, b) (samesign(a, b) ? (absmin(a, b)) : (0.0))
+
+#define TERMINATE(...) \
+  fprintf(stderr, __VA_ARGS__);\
+  exit(EXIT_FAILURE);
 
 enum { RECV=0, SEND=1 }; // Whether data is sent to/received from device
 

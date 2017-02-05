@@ -99,8 +99,5 @@ void finalise_mesh(Mesh* mesh)
   deallocate_data(mesh->east_buffer_in);
   deallocate_data(mesh->south_buffer_in);
   deallocate_data(mesh->west_buffer_in);
-
-#ifdef APP_3D
-#endif
 }
 

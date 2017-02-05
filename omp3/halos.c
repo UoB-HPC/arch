@@ -23,8 +23,10 @@ void handle_boundary_2d(
         }
       }
 
-      non_block_send(mesh->east_buffer_out, (ny-2*PAD)*PAD, neighbours[EAST], 2, nmessages++);
-      non_block_recv(mesh->east_buffer_in, (ny-2*PAD)*PAD, neighbours[EAST], 3, nmessages++);
+      non_block_send(
+          mesh->east_buffer_out, (ny-2*PAD)*PAD, neighbours[EAST], 2, nmessages++);
+      non_block_recv(
+          mesh->east_buffer_in, (ny-2*PAD)*PAD, neighbours[EAST], 3, nmessages++);
     }
 
     if(neighbours[WEST] != EDGE) {
@@ -35,8 +37,10 @@ void handle_boundary_2d(
         }
       }
 
-      non_block_send(mesh->west_buffer_out, (ny-2*PAD)*PAD, neighbours[WEST], 3, nmessages++);
-      non_block_recv(mesh->west_buffer_in, (ny-2*PAD)*PAD, neighbours[WEST], 2, nmessages++);
+      non_block_send(
+          mesh->west_buffer_out, (ny-2*PAD)*PAD, neighbours[WEST], 3, nmessages++);
+      non_block_recv(
+          mesh->west_buffer_in, (ny-2*PAD)*PAD, neighbours[WEST], 2, nmessages++);
     }
 
     // Pack north and south
@@ -48,8 +52,10 @@ void handle_boundary_2d(
         }
       }
 
-      non_block_send(mesh->north_buffer_out, (nx-2*PAD)*PAD, neighbours[NORTH], 1, nmessages++);
-      non_block_recv(mesh->north_buffer_in, (nx-2*PAD)*PAD, neighbours[NORTH], 0, nmessages++);
+      non_block_send(
+          mesh->north_buffer_out, (nx-2*PAD)*PAD, neighbours[NORTH], 1, nmessages++);
+      non_block_recv(
+          mesh->north_buffer_in, (nx-2*PAD)*PAD, neighbours[NORTH], 0, nmessages++);
     }
 
     if(neighbours[SOUTH] != EDGE) {
@@ -60,8 +66,10 @@ void handle_boundary_2d(
         }
       }
 
-      non_block_send(mesh->south_buffer_out, (nx-2*PAD)*PAD, neighbours[SOUTH], 0, nmessages++);
-      non_block_recv(mesh->south_buffer_in, (nx-2*PAD)*PAD, neighbours[SOUTH], 1, nmessages++);
+      non_block_send(
+          mesh->south_buffer_out, (nx-2*PAD)*PAD, neighbours[SOUTH], 0, nmessages++);
+      non_block_recv(
+          mesh->south_buffer_in, (nx-2*PAD)*PAD, neighbours[SOUTH], 1, nmessages++);
     }
 
     wait_on_messages(nmessages);
@@ -115,7 +123,8 @@ void handle_boundary_2d(
 #pragma omp parallel for collapse(2)
     for(int dd = 0; dd < PAD; ++dd) {
       for(int jj = PAD; jj < nx-PAD; ++jj) {
-        arr[(ny - PAD + dd)*nx + jj] = y_inversion_coeff*arr[(ny - 1 - PAD - dd)*nx + jj];
+        arr[(ny - PAD + dd)*nx + jj] =
+          y_inversion_coeff*arr[(ny - 1 - PAD - dd)*nx + jj];
       }
     }
   }
@@ -133,7 +142,8 @@ void handle_boundary_2d(
 #pragma omp parallel for collapse(2)
     for(int ii = PAD; ii < ny-PAD; ++ii) {
       for(int dd = 0; dd < PAD; ++dd) {
-        arr[ii*nx + (nx - PAD + dd)] = x_inversion_coeff*arr[ii*nx + (nx - 1 - PAD - dd)];
+        arr[ii*nx + (nx - PAD + dd)] =
+          x_inversion_coeff*arr[ii*nx + (nx - 1 - PAD - dd)];
       }
     }
   }
@@ -168,13 +178,16 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int dd = 0; dd < PAD; ++dd) {
-            mesh->east_buffer_out[(ii*ny*PAD)+(jj*PAD)+(dd)] = arr[(ii*nx*ny)+(jj*nx)+(nx-2*PAD+dd)];
+            mesh->east_buffer_out[(ii*ny*PAD)+(jj*PAD)+(dd)] =
+              arr[(ii*nx*ny)+(jj*nx)+(nx-2*PAD+dd)];
           }
         }
       }
 
-      non_block_send(mesh->east_buffer_out, nz*ny*PAD, neighbours[EAST], 2, nmessages++);
-      non_block_recv(mesh->east_buffer_in, nz*ny*PAD, neighbours[EAST], 3, nmessages++);
+      non_block_send(
+          mesh->east_buffer_out, nz*ny*PAD, neighbours[EAST], 2, nmessages++);
+      non_block_recv(
+          mesh->east_buffer_in, nz*ny*PAD, neighbours[EAST], 3, nmessages++);
     }
 
     if(neighbours[WEST] != EDGE) {
@@ -182,13 +195,16 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int dd = 0; dd < PAD; ++dd) {
-            mesh->west_buffer_out[(ii*ny*PAD)+(jj*PAD)+(dd)] = arr[(ii*nx*ny)+(jj*nx)+(PAD+dd)];
+            mesh->west_buffer_out[(ii*ny*PAD)+(jj*PAD)+(dd)] =
+              arr[(ii*nx*ny)+(jj*nx)+(PAD+dd)];
           }
         }
       }
 
-      non_block_send(mesh->west_buffer_out, nz*ny*PAD, neighbours[WEST], 3, nmessages++);
-      non_block_recv(mesh->west_buffer_in, nz*ny*PAD, neighbours[WEST], 2, nmessages++);
+      non_block_send(
+          mesh->west_buffer_out, nz*ny*PAD, neighbours[WEST], 3, nmessages++);
+      non_block_recv(
+          mesh->west_buffer_in, nz*ny*PAD, neighbours[WEST], 2, nmessages++);
     }
 
     // Pack north and south
@@ -197,13 +213,16 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int dd = 0; dd < PAD; ++dd) {
           for(int kk = 0; kk < nx; ++kk) {
-            mesh->north_buffer_out[(ii*PAD*nx)+(dd*nx)+(kk)] = arr[(ii*nx*ny)+((ny-2*PAD+dd)*nx)+(kk)];
+            mesh->north_buffer_out[(ii*PAD*nx)+(dd*nx)+(kk)] =
+              arr[(ii*nx*ny)+((ny-2*PAD+dd)*nx)+(kk)];
           }
         }
       }
 
-      non_block_send(mesh->north_buffer_out, nz*nx*PAD, neighbours[NORTH], 1, nmessages++);
-      non_block_recv(mesh->north_buffer_in, nz*nx*PAD, neighbours[NORTH], 0, nmessages++);
+      non_block_send(
+          mesh->north_buffer_out, nz*nx*PAD, neighbours[NORTH], 1, nmessages++);
+      non_block_recv(
+          mesh->north_buffer_in, nz*nx*PAD, neighbours[NORTH], 0, nmessages++);
     }
 
     if(neighbours[SOUTH] != EDGE) {
@@ -211,13 +230,16 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int dd = 0; dd < PAD; ++dd) {
           for(int kk = 0; kk < nx; ++kk) {
-            mesh->south_buffer_out[(ii*PAD*nx)+(dd*nx)+(kk)] = arr[(ii*nx*ny)+((PAD+dd)*nx)+(kk)];
+            mesh->south_buffer_out[(ii*PAD*nx)+(dd*nx)+(kk)] =
+              arr[(ii*nx*ny)+((PAD+dd)*nx)+(kk)];
           }
         }
       }
 
-      non_block_send(mesh->south_buffer_out, nz*nx*PAD, neighbours[SOUTH], 0, nmessages++);
-      non_block_recv(mesh->south_buffer_in, nz*nx*PAD, neighbours[SOUTH], 1, nmessages++);
+      non_block_send(
+          mesh->south_buffer_out, nz*nx*PAD, neighbours[SOUTH], 0, nmessages++);
+      non_block_recv(
+          mesh->south_buffer_in, nz*nx*PAD, neighbours[SOUTH], 1, nmessages++);
     }
 
     // Pack front and back
@@ -226,13 +248,16 @@ void handle_boundary_3d(
       for(int dd = 0; dd < PAD; ++dd) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int kk = 0; kk < nx; ++kk) {
-            mesh->front_buffer_out[(dd*nx*ny)+(jj*nx)+(kk)] = arr[((PAD+dd)*nx*ny)+(jj*nx)+(kk)];
+            mesh->front_buffer_out[(dd*nx*ny)+(jj*nx)+(kk)] =
+              arr[((PAD+dd)*nx*ny)+(jj*nx)+(kk)];
           }
         }
       }
 
-      non_block_send(mesh->front_buffer_out, nx*ny*PAD, neighbours[FRONT], 4, nmessages++);
-      non_block_recv(mesh->front_buffer_in, nx*ny*PAD, neighbours[FRONT], 5, nmessages++);
+      non_block_send(
+          mesh->front_buffer_out, nx*ny*PAD, neighbours[FRONT], 4, nmessages++);
+      non_block_recv(
+          mesh->front_buffer_in, nx*ny*PAD, neighbours[FRONT], 5, nmessages++);
     }
 
     if(neighbours[BACK] != EDGE) {
@@ -240,13 +265,16 @@ void handle_boundary_3d(
       for(int dd = 0; dd < PAD; ++dd) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int kk = 0; kk < nx; ++kk) {
-            mesh->back_buffer_out[(dd*nx*ny)+(jj*nx)+(kk)] = arr[((nz-2*PAD+dd)*nx*ny)+(jj*nx)+(kk)];
+            mesh->back_buffer_out[(dd*nx*ny)+(jj*nx)+(kk)] =
+              arr[((nz-2*PAD+dd)*nx*ny)+(jj*nx)+(kk)];
           }
         }
       }
 
-      non_block_send(mesh->back_buffer_out, nx*ny*PAD, neighbours[BACK], 5, nmessages++);
-      non_block_recv(mesh->back_buffer_in, nx*ny*PAD, neighbours[BACK], 4, nmessages++);
+      non_block_send(
+          mesh->back_buffer_out, nx*ny*PAD, neighbours[BACK], 5, nmessages++);
+      non_block_recv(
+          mesh->back_buffer_in, nx*ny*PAD, neighbours[BACK], 4, nmessages++);
     }
 
     wait_on_messages(nmessages);
@@ -257,7 +285,8 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int dd = 0; dd < PAD; ++dd) {
-            arr[(ii*nx*ny)+(jj*nx)+(nx-PAD+dd)] = mesh->east_buffer_in[(ii*ny*PAD)+(jj*PAD)+(dd)];
+            arr[(ii*nx*ny)+(jj*nx)+(nx-PAD+dd)] =
+              mesh->east_buffer_in[(ii*ny*PAD)+(jj*PAD)+(dd)];
           }
         }
       }
@@ -268,7 +297,8 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int dd = 0; dd < PAD; ++dd) {
-            arr[(ii*nx*ny)+(jj*nx)+dd] = mesh->west_buffer_in[(ii*ny*PAD)+(jj*PAD)+(dd)];
+            arr[(ii*nx*ny)+(jj*nx)+dd] =
+              mesh->west_buffer_in[(ii*ny*PAD)+(jj*PAD)+(dd)];
           }
         }
       }
@@ -280,7 +310,8 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int dd = 0; dd < PAD; ++dd) {
           for(int kk = 0; kk < nx; ++kk) {
-            arr[(ii*nx*ny)+((ny-PAD+dd)*nx)+(kk)] = mesh->north_buffer_in[(ii*PAD*nx)+(dd*nx)+(kk)];
+            arr[(ii*nx*ny)+((ny-PAD+dd)*nx)+(kk)] =
+              mesh->north_buffer_in[(ii*PAD*nx)+(dd*nx)+(kk)];
           }
         }
       }
@@ -291,7 +322,8 @@ void handle_boundary_3d(
       for(int ii = 0; ii < nz; ++ii) {
         for(int dd = 0; dd < PAD; ++dd) {
           for(int kk = 0; kk < nx; ++kk) {
-            arr[(ii*nx*ny)+(dd*nx)+(kk)] = mesh->south_buffer_in[(ii*PAD*nx)+(dd*nx)+(kk)];
+            arr[(ii*nx*ny)+(dd*nx)+(kk)] =
+              mesh->south_buffer_in[(ii*PAD*nx)+(dd*nx)+(kk)];
           }
         }
       }
@@ -303,7 +335,8 @@ void handle_boundary_3d(
       for(int dd = 0; dd < PAD; ++dd) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int kk = 0; kk < nx; ++kk) {
-            arr[(dd*nx*ny)+(jj*nx)+(kk)] = mesh->front_buffer_in[(dd*nx*ny)+(jj*nx)+(kk)];
+            arr[(dd*nx*ny)+(jj*nx)+(kk)] = 
+              mesh->front_buffer_in[(dd*nx*ny)+(jj*nx)+(kk)];
           }
         }
       }
@@ -314,7 +347,8 @@ void handle_boundary_3d(
       for(int dd = 0; dd < PAD; ++dd) {
         for(int jj = 0; jj < ny; ++jj) {
           for(int kk = 0; kk < nx; ++kk) {
-            arr[((nz-PAD+dd)*nx*ny)+(jj*nx)+(kk)] = mesh->back_buffer_in[(dd*nx*ny)+(jj*nx)+(kk)];
+            arr[((nz-PAD+dd)*nx*ny)+(jj*nx)+(kk)] =
+              mesh->back_buffer_in[(dd*nx*ny)+(jj*nx)+(kk)];
           }
         }
       }
@@ -333,7 +367,8 @@ void handle_boundary_3d(
     for(int ii = 0; ii < nz; ++ii) {
       for(int jj = 0; jj < ny; ++jj) {
         for(int dd = 0; dd < PAD; ++dd) {
-          arr[(ii*nx*ny)+(jj*nx)+(nx-PAD+dd)] = x_inversion_coeff*arr[(ii*nx*ny)+(jj*nx)+(nx-1-PAD-dd)];
+          arr[(ii*nx*ny)+(jj*nx)+(nx-PAD+dd)] = 
+            x_inversion_coeff*arr[(ii*nx*ny)+(jj*nx)+(nx-1-PAD-dd)];
         }
       }
     }
@@ -345,7 +380,8 @@ void handle_boundary_3d(
     for(int ii = 0; ii < nz; ++ii) {
       for(int jj = 0; jj < ny; ++jj) {
         for(int dd = 0; dd < PAD; ++dd) {
-          arr[(ii*nx*ny)+(jj*nx)+(PAD-1-dd)] = x_inversion_coeff*arr[(ii*nx*ny)+(jj*nx)+(PAD+dd)];
+          arr[(ii*nx*ny)+(jj*nx)+(PAD-1-dd)] =
+            x_inversion_coeff*arr[(ii*nx*ny)+(jj*nx)+(PAD+dd)];
         }
       }
     }
@@ -357,7 +393,8 @@ void handle_boundary_3d(
     for(int ii = 0; ii < nz; ++ii) {
       for(int dd = 0; dd < PAD; ++dd) {
         for(int kk = 0; kk < nx; ++kk) {
-          arr[(ii*nx*ny)+((ny-PAD+dd)*nx)+(kk)] = y_inversion_coeff*arr[(ii*nx*ny)+((ny-1-PAD-dd)*nx)+(kk)];
+          arr[(ii*nx*ny)+((ny-PAD+dd)*nx)+(kk)] =
+            y_inversion_coeff*arr[(ii*nx*ny)+((ny-1-PAD-dd)*nx)+(kk)];
         }
       }
     }
@@ -369,7 +406,8 @@ void handle_boundary_3d(
     for(int ii = 0; ii < nz; ++ii) {
       for(int dd = 0; dd < PAD; ++dd) {
         for(int kk = 0; kk < nx; ++kk) {
-          arr[(ii*nx*ny)+((PAD-1-dd)*nx)+(kk)] = y_inversion_coeff*arr[(ii*nx*ny)+((PAD+dd)*nx)+(kk)];
+          arr[(ii*nx*ny)+((PAD-1-dd)*nx)+(kk)] =
+            y_inversion_coeff*arr[(ii*nx*ny)+((PAD+dd)*nx)+(kk)];
         }
       }
     }
@@ -381,7 +419,8 @@ void handle_boundary_3d(
     for(int dd = 0; dd < PAD; ++dd) {
       for(int jj = 0; jj < ny; ++jj) {
         for(int kk = 0; kk < nx; ++kk) {
-          arr[((PAD-1-dd)*nx*ny)+(jj*nx)+(kk)] = z_inversion_coeff*arr[((PAD+dd)*nx*ny)+(jj*nx)+(kk)];
+          arr[((PAD-1-dd)*nx*ny)+(jj*nx)+(kk)] =
+            z_inversion_coeff*arr[((PAD+dd)*nx*ny)+(jj*nx)+(kk)];
         }
       }
     }
@@ -393,7 +432,8 @@ void handle_boundary_3d(
     for(int dd = 0; dd < PAD; ++dd) {
       for(int jj = 0; jj < ny; ++jj) {
         for(int kk = 0; kk < nx; ++kk) {
-          arr[((nz-PAD+dd)*nx*ny)+(jj*nx)+(kk)] = z_inversion_coeff*arr[((nz-1-PAD-dd)*nx*ny)+(jj*nx)+(kk)];
+          arr[((nz-PAD+dd)*nx*ny)+(jj*nx)+(kk)] =
+            z_inversion_coeff*arr[((nz-1-PAD-dd)*nx*ny)+(jj*nx)+(kk)];
         }
       }
     }

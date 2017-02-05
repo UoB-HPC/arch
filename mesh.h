@@ -10,8 +10,6 @@
 
 #define NNEIGHBOURS 6   // This is max size required - for 3d
 
-#define C_T 0.3
-
 #ifdef __cplusplus
 extern "C" {
 #endif
