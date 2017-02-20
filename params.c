@@ -10,9 +10,6 @@
 int get_parameter_line(
     const char* param_name, const char* filename, char** param_line);
 
-// Skips a token in the stream
-void get_tok(char** param_line, char tok[MAX_STR_LEN]) 
-
 // Returns a parameter from the parameter file of type integer
 int get_int_parameter(const char* param_name, const char* filename) 
 { 
@@ -45,53 +42,42 @@ double get_double_parameter(const char* param_name, const char* filename)
 
 // Fetches all of the problem parameters
 int get_problem_parameter(
-    const int index, const int ndims, const char* filename, char** variables, 
-    double** values, int* nvariables)
+    const int index, const char* filename, 
+    char** keys, double* values, int* nkeys)
 {
-  char tok[MAX_STR_LEN];
   char line[MAX_STR_LEN];
   char counter[MAX_STR_LEN];
   char* param_line = line;
-  int max_variables = *nvariables;
 
   sprintf(counter, "problem_%d", index);
-  if(get_parameter_line(counter, filename, &param_line)) {
-    nvariables = 0;
-
-    // Parse the dependent variables
-    for(int ii = 0; ii < max_variables; ++ii) {
-      get_tok(&param_line, tok);
-
-      if(!strmatch(tok, ":")) {
-        size_t token_len = 0;
-        size_t value_start = 0;
-        for(size_t cc = 0; cc < strlen(tok); ++cc) {
-          if(!token_len && (tok[cc] == ' ' || tok[cc] == '=')) {
-            token_len = cc;
-          }
-          else if(token_len && (tok[cc] != ' ' && tok[cc] != '=')) {
-            value_start = cc;
-          }
-        }
-        strncpy(variables[(*nvariables)], tok, token_len);
-        sscanf(tok+value_start, "%lf", values[(*nvariables)]);
-        (*nvariables)++;
-      }
-      else {
-        for(int ii = 0; ii < 2*ndims; ++ii) {
-          // Parse the bounds
-          skip_whitespace(&param_line);
-          sscanf(param_line, "%d", &bounds[ii]);
-        }
-        return 1;
-      }
-    }
-
-    TERMINATE(
-        "Problem configuration is incorrect %s.\n", param_line);
+  if(!get_parameter_line(counter, filename, &param_line)) {
+    return 0;
   }
 
-  return 0;
+  // Parse the kv pairs
+  int key_index = 0;
+  int parse_value = 0;
+  for(size_t cc = 0; cc < strlen(param_line); ++cc) {
+    if(param_line[cc] == '=') {
+      // We are finished adding the key, time to get value
+      parse_value = 1;
+      key_index = 0;
+    }
+    else if(param_line[cc] != ' ') {
+      if(parse_value) {
+        sscanf(&param_line[cc], "%lf", &values[(*nkeys)++]);
+
+        // Move the pointer to next space
+        while(param_line[++cc] != ' ');
+        parse_value = 0;
+      }
+      else {
+        keys[*nkeys][key_index++] = param_line[cc];
+      }
+    }
+  }
+
+  return 1;
 }
 
 // Fetches a line from a parameter file with corresponding token
@@ -108,8 +94,10 @@ int get_parameter_line(
     skip_whitespace(param_line);
 
     // Read in the parameter name
-    get_tok(param_line, tok);
+    sscanf(*param_line, "%s", tok);
     if(strmatch(tok, param_name)) {
+      *param_line += strlen(tok);
+      skip_whitespace(param_line);
       fclose(fp);
       return 1;
     }
@@ -131,20 +119,4 @@ void skip_whitespace(char** param_line)
     }
   }
 }
-
-// Skips a token in the stream
-void get_tok(char** param_line, char tok[MAX_STR_LEN]) 
-{
-  sscanf(*param_line, "%s", tok);
-  *param_line += strlen(tok);
-  skip_whitespace(param_line);
-}
-
-#if 0
-// Make sure the user has entered sane values
-assert((*xpos) >= 0 && (*xpos) <= global_nx);
-assert((*ypos) >= 0 && (*ypos) <= global_ny);
-assert((*width) > 0 && (*xpos)+(*width) <= global_nx);
-assert((*height) > 0 && (*ypos)+(*height) <= global_ny);
-#endif // if 0
 
