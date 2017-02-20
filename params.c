@@ -5,8 +5,6 @@
 #include "shared.h"
 #include "params.h"
 
-#define MAX_STR_LEN 1024
-
 int get_parameter_line(
     const char* param_name, const char* filename, char** param_line);
 

@@ -1,4 +1,4 @@
-problem_0 density=10.0 energy=1.0 xpos=0.0 ypos=0.0 width=1.0 height=1.0
+problem_0 density=10.0 energy=1.0 xpos=0.4 ypos=0.4 width=0.2 height=0.2
 width 1.0e0     // The width of the problem domain in m
 height 1.0e0    // The height of the problem domain in m
 depth 1.0e0     // The depth of the problem domain in m

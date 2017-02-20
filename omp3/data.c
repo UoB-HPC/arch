@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "../shared.h"
 #include "../mesh.h"
+#include "../params.h"
 
 // Allocates some double precision data
 void allocate_data(double** buf, size_t len)
@@ -127,27 +128,67 @@ void set_default_state(
 
 // Initialise state data in device specific manner
 void set_problem_2d(
-    const int local_nx, const int local_ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off, double* rho, double* e, double* x)
+    const int local_nx, const int local_ny, const int x_off, const int y_off,
+    const double* edgex, const double* edgey, const int ndims,
+    const char* arch_params_filename, double* rho, double* e, double* x)
 {
   set_default_state(
       local_nx*local_ny, rho, e, x);
 
-  // Introduce a problem
-#pragma omp parallel for 
-  for(int ii = 0; ii < local_ny; ++ii) {
-    for(int jj = 0; jj < local_nx; ++jj) {
-      // CENTER SQUARE TEST
-      if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
-          jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
-          ii+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
-          ii+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
-        rho[ii*local_nx+jj] = 1.0; 
-        e[ii*local_nx+jj] = 2.5;
-        x[ii*local_nx+jj] = rho[ii*local_nx+jj]*0.1;
+  char* keys_space = (char*)malloc(sizeof(char)*MAX_KEYS*(MAX_STR_LEN+1));
+  char** keys = (char**)malloc(sizeof(char*)*MAX_KEYS);
+  double* values = (double*)malloc(sizeof(double)*MAX_KEYS);
+  for(int ii = 0; ii < MAX_KEYS; ++ii) {
+    keys[ii] = &keys_space[ii*(MAX_STR_LEN+1)];
+  }
+
+  int nkeys = 0;
+  int nproblem_entries = 0;
+  while(get_problem_parameter(
+        nproblem_entries++, arch_params_filename, keys, values, &nkeys)) {
+
+    // The last four keys are the bound specification
+    double xpos = values[nkeys-4];
+    double ypos = values[nkeys-3];
+    double width = values[nkeys-2];
+    double height = values[nkeys-1];
+
+    // Loop through the mesh and set the problem
+    for(int ii = 0; ii < local_ny; ++ii) {
+      for(int jj = 0; jj < local_nx; ++jj) {
+        double global_xpos = edgex[jj+x_off];
+        double global_ypos = edgey[ii+y_off];
+
+        // Check we are in bounds of the problem entry
+        if(global_xpos >= xpos && global_ypos >= ypos && 
+           global_xpos < xpos+width && global_ypos < ypos+height)
+        {
+          // The upper bound excludes the bounding box for the entry
+          for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
+            if(strmatch(keys[kk], "density")) {
+              rho[ii*local_nx+jj] = values[kk];
+            }
+            else if(strmatch(keys[kk], "energy")) {
+              e[ii*local_nx+jj] = values[ii];
+            }
+            else if(strmatch(keys[kk], "temperature")) {
+              x[ii*local_nx+jj] = values[kk];
+            }
+            else {
+              TERMINATE("Found unrecognised key in %s : %s.\n", 
+                  arch_params_filename, keys[kk]);
+            }
+          }
+        }
       }
     }
+
+    nkeys = 0;
   }
+
+  free(keys_space);
+  free(keys);
+  free(values);
 }
 
 // Initialise state data in device specific manner
@@ -165,19 +206,9 @@ void set_problem_3d(
   for(int ii = 0; ii < local_nz; ++ii) {
     for(int jj = 0; jj < local_ny; ++jj) {
       for(int kk = 0; kk < local_nx; ++kk) {
-        const int ind = ii*local_nx*local_ny+jj*local_nx+kk;
-
-        // CENTER TUBE TEST
-        if(kk+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
-            kk+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
-            jj+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
-            jj+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
-          rho[ind] = 10.0;
-          e[ind] = 2.5;
-          x[ind] = rho[ind]*0.1;
-        }
       }
     }
   }
 }
+
 

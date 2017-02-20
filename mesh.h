@@ -52,6 +52,7 @@ extern "C" {
     int ranks_y;    // The number of ranks in the y dimension
     int nranks;     // Total number of ranks that exist
     int neighbours[NNEIGHBOURS]; // List of neighbours
+    int ndims;      // The number of dimensions
 
     // Buffers for MPI communication
     double* north_buffer_out;

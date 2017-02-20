@@ -4,8 +4,9 @@
 
 // Initialises the shared_data variables
 void initialise_shared_data_2d(
-    const int global_nx, const int global_ny, const int local_nx, const int local_ny, 
-    const int x_off, const int y_off, SharedData* shared_data) 
+    const int local_nx, const int local_ny, const int x_off, const int y_off, 
+    const int ndims, const char* arch_params_filename, 
+    const double* edgex, const double* edgey, SharedData* shared_data) 
 {
   // Shared shared_data
   allocate_data(&shared_data->rho, local_nx*local_ny);
@@ -34,8 +35,8 @@ void initialise_shared_data_2d(
   shared_data->v = shared_data->p;
 
   set_problem_2d(
-      local_nx, local_ny, global_nx, global_ny, x_off, y_off,
-      shared_data->rho, shared_data->e, shared_data->x);
+      local_nx, local_ny, x_off, y_off, edgex, edgey, ndims, 
+      arch_params_filename, shared_data->rho, shared_data->e, shared_data->x);
 }
 
 // Initialises the shared_data variables

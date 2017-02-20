@@ -8,6 +8,8 @@
 #define VEC_ALIGN 32    // The vector alignment to be used by memory allocators
 #define TAG_VISIT0 1000
 #define TAG_VISIT1 1001
+#define MAX_STR_LEN 1024
+#define MAX_KEYS 10
 
 // Helper macros
 #define strmatch(a, b) (strcmp(a, b) == 0)

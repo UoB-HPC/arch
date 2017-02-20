@@ -42,13 +42,16 @@ extern "C" {
 
   } SharedData;
 
-  // Initialises the shared_data variables for two dimensional applications
+  // Initialises the shared_data variables
   void initialise_shared_data_2d(
-      const int global_nx, const int global_ny, const int local_nx, const int local_ny, 
-      const int x_off, const int y_off, SharedData* shared_data);
+      const int local_nx, const int local_ny, const int x_off, const int y_off, 
+      const int ndims, const char* arch_params_filename, 
+      const double* edgex, const double* edgey, SharedData* shared_data);
+  // Initialise state data in device specific manner
   void set_problem_2d(
-      const int local_nx, const int local_ny, const int global_nx, const int global_ny,
-      const int x_off, const int y_off, double* rho, double* e, double* x);
+      const int local_nx, const int local_ny, const int x_off, const int y_off,
+      const double* edgex, const double* edgey, const int ndims,
+      const char* arch_params_filename, double* rho, double* e, double* x);
 
   // Initialiases the shared_data variables for three dimensional applications
   void initialise_shared_data_3d(
