@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "profiler.h"
 
+#define ARCH_PARAMS "arch.params"
 #define ENABLE_VISIT_DUMPS 1 // Enables visit dumps in the descendent applications
 #define VEC_ALIGN 32    // The vector alignment to be used by memory allocators
 #define TAG_VISIT0 1000

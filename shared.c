@@ -37,7 +37,7 @@ void write_to_visit_3d(
     TERMINATE("Could not open file %s\n", bovname);
   }
 
-  fprintf(bovfp, "TIME: %.4f\n", time);
+  fprintf(bovfp, "TIME: %.8f\n", time);
   fprintf(bovfp, "DATA_FILE: %s\n", datname);
   fprintf(bovfp, "DATA_SIZE: %d %d %d\n", nx, ny, nz);
   fprintf(bovfp, "DATA_FORMAT: DOUBLE\n");
