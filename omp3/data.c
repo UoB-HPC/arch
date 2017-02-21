@@ -128,9 +128,10 @@ void set_default_state(
 
 // Initialise state data in device specific manner
 void set_problem_2d(
-    const int local_nx, const int local_ny, const int x_off, const int y_off,
-    const double* edgex, const double* edgey, const int ndims,
-    const char* problem_def_filename, double* rho, double* e, double* x)
+    const int global_nx, const int global_ny, const int local_nx, 
+    const int local_ny, const int x_off, const int y_off, const double* edgex, 
+    const double* edgey, const int ndims, const char* problem_def_filename, 
+    double* rho, double* e, double* x)
 {
   set_default_state(
       local_nx*local_ny, rho, e, x);
@@ -149,11 +150,15 @@ void set_problem_2d(
       break;
     }
 
+    // Fetch the width and height of the mesh
+    const double mesh_width = edgex[global_nx+PAD];
+    const double mesh_height = edgey[global_ny+PAD];
+
     // The last four keys are the bound specification
-    double xpos = values[nkeys-4];
-    double ypos = values[nkeys-3];
-    double width = values[nkeys-2];
-    double height = values[nkeys-1];
+    double xpos = values[nkeys-4]*mesh_width;
+    double ypos = values[nkeys-3]*mesh_height;
+    double width = values[nkeys-2]*mesh_width;
+    double height = values[nkeys-1]*mesh_height;
 
     // Loop through the mesh and set the problem
     for(int ii = 0; ii < local_ny; ++ii) {
@@ -161,6 +166,11 @@ void set_problem_2d(
         double global_xpos = edgex[jj+x_off];
         double global_ypos = edgey[ii+y_off];
 
+        // TODO: THIS DOESN'T INITIALISE INSIDE THE HALO REGIONS
+        // IT WOULD BE USEFUL TO CHECK THAT THIS BEHAVIOUR IS CORRECT.
+        // ALSO SHOULD BE GOOD IDEA TO ENFORCE A HALO EXCHANGE IMMEDIATELY TO
+        // FILL THOSE BUFFERS WITH THE CORRECT VALUES.
+        //
         // Check we are in bounds of the problem entry
         if(global_xpos >= xpos && global_ypos >= ypos && 
             global_xpos < xpos+width && global_ypos < ypos+height)
