@@ -130,10 +130,12 @@ void set_default_state(
 void set_problem_2d(
     const int local_nx, const int local_ny, const int x_off, const int y_off,
     const double* edgex, const double* edgey, const int ndims,
-    const char* arch_params_filename, double* rho, double* e, double* x)
+    const char* problem_def_filename, double* rho, double* e, double* x)
 {
   set_default_state(
       local_nx*local_ny, rho, e, x);
+
+  printf("Loading problem from %s.\n", problem_def_filename);
 
   char* keys_space = (char*)malloc(sizeof(char)*MAX_KEYS*(MAX_STR_LEN+1));
   char** keys = (char**)malloc(sizeof(char*)*MAX_KEYS);
@@ -145,7 +147,7 @@ void set_problem_2d(
   int nkeys = 0;
   int nproblem_entries = 0;
   while(get_problem_parameter(
-        nproblem_entries++, arch_params_filename, keys, values, &nkeys)) {
+        nproblem_entries++, problem_def_filename, keys, values, &nkeys)) {
 
     // The last four keys are the bound specification
     double xpos = values[nkeys-4];
@@ -176,7 +178,7 @@ void set_problem_2d(
             }
             else {
               TERMINATE("Found unrecognised key in %s : %s.\n", 
-                  arch_params_filename, keys[kk]);
+                  problem_def_filename, keys[kk]);
             }
           }
         }
