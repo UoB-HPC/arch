@@ -39,16 +39,14 @@ double get_double_parameter(const char* param_name, const char* filename)
 }
 
 // Fetches all of the problem parameters
-int get_problem_parameter(
-    const int index, const char* filename, 
+int get_key_value_parameter(
+    const char* specifier, const char* filename, 
     char** keys, double* values, int* nkeys)
 {
   char line[MAX_STR_LEN];
-  char counter[MAX_STR_LEN];
   char* param_line = line;
 
-  sprintf(counter, "problem_%d", index);
-  if(!get_parameter_line(counter, filename, &param_line)) {
+  if(!get_parameter_line(specifier, filename, &param_line)) {
     return 0;
   }
 
@@ -65,13 +63,19 @@ int get_problem_parameter(
       if(parse_value) {
         sscanf(&param_line[cc], "%lf", &values[(*nkeys)++]);
 
-        // Move the pointer to next space
-        while(param_line[++cc] != ' ');
+        // Move the pointer to next space or end of line
+        while((++cc < strlen(param_line)) && (param_line[cc] != ' '))
+        {
+          printf("%c", param_line[cc]);
+        }
         parse_value = 0;
       }
       else {
         keys[*nkeys][key_index++] = param_line[cc];
       }
+    }
+    else if(param_line[cc] == '#') {
+      break; // We have encountered a comment so bail
     }
   }
 

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <string.h>
 #include "profiler.h"
 
 #define ARCH_PARAMS "arch.params"
@@ -18,6 +19,8 @@
 #define samesign(a, b) ((a*b) > 0.0)
 #define absmin(a, b) ((fabs(a) < fabs(b)) ? (a) : (b))
 #define minmod(a, b) (samesign(a, b) ? (absmin(a, b)) : (0.0))
+#define within_tolerance(a, b, eps) \
+  (fabs(a-b) <= ((fabs(a) > fabs(b) ? fabs(b) : fabs(a))*eps))
 
 #define TERMINATE(...) \
   fprintf(stderr, __VA_ARGS__);\

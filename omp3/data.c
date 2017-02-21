@@ -135,8 +135,6 @@ void set_problem_2d(
   set_default_state(
       local_nx*local_ny, rho, e, x);
 
-  printf("Loading problem from %s.\n", problem_def_filename);
-
   char* keys_space = (char*)malloc(sizeof(char)*MAX_KEYS*(MAX_STR_LEN+1));
   char** keys = (char**)malloc(sizeof(char*)*MAX_KEYS);
   double* values = (double*)malloc(sizeof(double)*MAX_KEYS);
@@ -145,9 +143,16 @@ void set_problem_2d(
   }
 
   int nkeys = 0;
-  int nproblem_entries = 0;
-  while(get_problem_parameter(
-        nproblem_entries++, problem_def_filename, keys, values, &nkeys)) {
+  int nentries = 0;
+  while(1) {
+    char specifier[MAX_STR_LEN];
+    sprintf(specifier, "problem_%d", nentries++);
+
+    int nkeys = 0;
+    if(!get_key_value_parameter(
+          specifier, problem_def_filename, keys, values, &nkeys)) {
+      break;
+    }
 
     // The last four keys are the bound specification
     double xpos = values[nkeys-4];
@@ -163,7 +168,7 @@ void set_problem_2d(
 
         // Check we are in bounds of the problem entry
         if(global_xpos >= xpos && global_ypos >= ypos && 
-           global_xpos < xpos+width && global_ypos < ypos+height)
+            global_xpos < xpos+width && global_ypos < ypos+height)
         {
           // The upper bound excludes the bounding box for the entry
           for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
@@ -184,8 +189,6 @@ void set_problem_2d(
         }
       }
     }
-
-    nkeys = 0;
   }
 
   free(keys_space);
