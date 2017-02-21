@@ -41,7 +41,7 @@ double get_double_parameter(const char* param_name, const char* filename)
 // Fetches all of the problem parameters
 int get_key_value_parameter(
     const char* specifier, const char* filename, 
-    char** keys, double* values, int* nkeys)
+    char* keys, double* values, int* nkeys)
 {
   char line[MAX_STR_LEN];
   char* param_line = line;
@@ -50,32 +50,32 @@ int get_key_value_parameter(
     return 0;
   }
 
+  const size_t param_len = strlen(param_line);
+  assert(param_len < MAX_STR_LEN);
+
   // Parse the kv pairs
   int key_index = 0;
   int parse_value = 0;
-  for(size_t cc = 0; cc < strlen(param_line); ++cc) {
+  for(size_t cc = 0; cc < param_len; ++cc) {
     if(param_line[cc] == '=') {
       // We are finished adding the key, time to get value
       parse_value = 1;
       key_index = 0;
+    }
+    else if(param_line[cc] == '#') {
+      break; // We have encountered a comment so bail
     }
     else if(param_line[cc] != ' ') {
       if(parse_value) {
         sscanf(&param_line[cc], "%lf", &values[(*nkeys)++]);
 
         // Move the pointer to next space or end of line
-        while((++cc < strlen(param_line)) && (param_line[cc] != ' '))
-        {
-          printf("%c", param_line[cc]);
-        }
+        while((++cc < param_len) && (param_line[cc] != ' '));
         parse_value = 0;
       }
       else {
-        keys[*nkeys][key_index++] = param_line[cc];
+        keys[((*nkeys)*MAX_STR_LEN)+key_index++] = param_line[cc];
       }
-    }
-    else if(param_line[cc] == '#') {
-      break; // We have encountered a comment so bail
     }
   }
 

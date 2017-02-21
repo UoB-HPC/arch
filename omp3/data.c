@@ -135,14 +135,9 @@ void set_problem_2d(
   set_default_state(
       local_nx*local_ny, rho, e, x);
 
-  char* keys_space = (char*)malloc(sizeof(char)*MAX_KEYS*(MAX_STR_LEN+1));
-  char** keys = (char**)malloc(sizeof(char*)*MAX_KEYS);
+  char* keys = (char*)malloc(sizeof(char)*MAX_KEYS*MAX_STR_LEN);
   double* values = (double*)malloc(sizeof(double)*MAX_KEYS);
-  for(int ii = 0; ii < MAX_KEYS; ++ii) {
-    keys[ii] = &keys_space[ii*(MAX_STR_LEN+1)];
-  }
 
-  int nkeys = 0;
   int nentries = 0;
   while(1) {
     char specifier[MAX_STR_LEN];
@@ -172,18 +167,19 @@ void set_problem_2d(
         {
           // The upper bound excludes the bounding box for the entry
           for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
-            if(strmatch(keys[kk], "density")) {
+            const char* key = &keys[kk*MAX_STR_LEN];
+            if(strmatch(key, "density")) {
               rho[ii*local_nx+jj] = values[kk];
             }
-            else if(strmatch(keys[kk], "energy")) {
+            else if(strmatch(key, "energy")) {
               e[ii*local_nx+jj] = values[ii];
             }
-            else if(strmatch(keys[kk], "temperature")) {
+            else if(strmatch(key, "temperature")) {
               x[ii*local_nx+jj] = values[kk];
             }
             else {
               TERMINATE("Found unrecognised key in %s : %s.\n", 
-                  problem_def_filename, keys[kk]);
+                  problem_def_filename, key);
             }
           }
         }
@@ -191,7 +187,6 @@ void set_problem_2d(
     }
   }
 
-  free(keys_space);
   free(keys);
   free(values);
 }
