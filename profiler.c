@@ -69,12 +69,12 @@ void profiler_print_full_profile(struct Profile* profile)
   double total_elapsed_time = 0.0;
   for(int ii = 0; ii < profile->profiler_entry_count; ++ii) {
     total_elapsed_time += profile->profiler_entries[ii].time;
-    printf("%-39s%8d%28.08F\n", profile->profiler_entries[ii].name, 
+    printf("%-39s%8d%28.9F\n", profile->profiler_entries[ii].name, 
         profile->profiler_entries[ii].calls, 
         profile->profiler_entries[ii].time);
   }
 
-  printf("\nTotal elapsed time: %.03Fs, entries * are excluded.\n", total_elapsed_time);
+  printf("\nTotal elapsed time: %.9Fs, entries * are excluded.\n", total_elapsed_time);
   printf("\n-------------------------------------------------------------\n\n");
 }
 
