@@ -6,7 +6,7 @@
 
 #define ARCH_PARAMS "arch.params"
 #define ENABLE_VISIT_DUMPS 1 // Enables visit dumps in the descendent applications
-#define VEC_ALIGN 32    // The vector alignment to be used by memory allocators
+#define VEC_ALIGN 256    // The vector alignment to be used by memory allocators
 #define TAG_VISIT0 1000
 #define TAG_VISIT1 1001
 #define MAX_STR_LEN 1024
@@ -40,7 +40,8 @@ extern "C" {
   void initialise_devices(int rank);
 
   // Wrappers for data (de)allocation
-  void allocate_data(double** buf, size_t len);
+  size_t allocate_data(double** buf, size_t len);
+  size_t allocate_int_data(int** buf, size_t len);
   void allocate_host_data(double** buf, size_t len);
   void deallocate_data(double* buf);
   void deallocate_host_data(double* buf);

@@ -4,7 +4,7 @@
 #include "../params.h"
 
 // Allocates some double precision data
-void allocate_data(double** buf, size_t len)
+size_t allocate_data(double** buf, size_t len)
 {
 #ifdef INTEL
   *buf = (double*)_mm_malloc(sizeof(double)*len, VEC_ALIGN);
@@ -21,6 +21,30 @@ void allocate_data(double** buf, size_t len)
   for(size_t ii = 0; ii < len; ++ii) {
     (*buf)[ii] = 0.0;
   }
+
+  return sizeof(double)*len;
+}
+
+// Allocates some int precision data
+size_t allocate_int_data(int** buf, size_t len)
+{
+#ifdef INTEL
+  *buf = (int*)_mm_malloc(sizeof(int)*len, VEC_ALIGN);
+#else
+  *buf = (int*)malloc(sizeof(int)*len);
+#endif
+
+  if(*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
+
+  // Perform first-touch
+#pragma omp parallel for
+  for(size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0;
+  }
+
+  return sizeof(int)*len;
 }
 
 // Allocates a host copy of some buffer
