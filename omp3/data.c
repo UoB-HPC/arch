@@ -53,6 +53,12 @@ void allocate_host_data(double** buf, size_t len)
   // Not necessary as host-only
 }
 
+// Allocates a host copy of some buffer
+void allocate_host_int_data(double** buf, size_t len)
+{
+  // Not necessary as host-only
+}
+
 // Allocates a data array
 void deallocate_data(double* buf)
 {
@@ -155,9 +161,10 @@ void set_default_state(
 // Initialise state data in device specific manner
 void set_problem_2d(
     const int global_nx, const int global_ny, const int local_nx, 
-    const int local_ny, const int x_off, const int y_off, const double* edgex, 
-    const double* edgey, const int ndims, const char* problem_def_filename, 
-    double* rho, double* e, double* x)
+    const int local_ny, const int x_off, const int y_off, const int mesh_width, 
+    const int mesh_height, const double* edgex, const double* edgey, 
+    const int ndims, const char* problem_def_filename, double* rho, 
+    double* e, double* x)
 {
   set_default_state(
       local_nx*local_ny, rho, e, x);
@@ -175,10 +182,6 @@ void set_problem_2d(
           specifier, problem_def_filename, keys, values, &nkeys)) {
       break;
     }
-
-    // Fetch the width and height of the mesh
-    const double mesh_width = edgex[global_nx+PAD];
-    const double mesh_height = edgey[global_ny+PAD];
 
     // The last four keys are the bound specification
     double xpos = values[nkeys-4]*mesh_width;

@@ -1,12 +1,13 @@
 #include <stdlib.h>
 #include "../cuda/shared.h"
 #include "../shared.h"
+#include "../shared_data.h"
 #include "../mesh.h"
-#include "../state.h"
+#include "../params.h"
 #include "data.k"
 
 // Allocates some double precision data
-void allocate_data(double** buf, const size_t len)
+size_t allocate_data(double** buf, const size_t len)
 {
   gpu_check(
       cudaMalloc((void**)buf, sizeof(double)*len));
@@ -14,6 +15,19 @@ void allocate_data(double** buf, const size_t len)
   const int nblocks = ceil(len/(double)NTHREADS);
   zero_array<<<nblocks, NTHREADS>>>(len, *buf);
   gpu_check(cudaDeviceSynchronize());
+  return len;
+}
+
+// Allocates some integer data
+size_t allocate_int_data(int** buf, const size_t len)
+{
+  gpu_check(
+      cudaMalloc((void**)buf, sizeof(int)*len));
+
+  const int nblocks = ceil(len/(double)NTHREADS);
+  zero_int_array<<<nblocks, NTHREADS>>>(len, *buf);
+  gpu_check(cudaDeviceSynchronize());
+  return len;
 }
 
 // Allocates some double precision data
@@ -31,6 +45,21 @@ void allocate_host_data(double** buf, const size_t len)
   }
 }
 
+// Allocates some double precision data
+void allocate_host_int_data(int** buf, const size_t len)
+{
+#ifdef INTEL
+  *buf = (int*)_mm_malloc(sizeof(int)*len, VEC_ALIGN);
+#else
+  *buf = (int*)malloc(sizeof(int)*len);
+#endif
+
+#pragma omp parallel for
+  for(size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0.0;
+  }
+}
+
 // Allocates a data array
 void deallocate_data(double* buf)
 {
@@ -39,7 +68,24 @@ void deallocate_data(double* buf)
 }
 
 // Allocates a data array
+void deallocate_int_data(double* buf)
+{
+  gpu_check(
+      cudaFree(buf));
+}
+
+// Allocates a data array
 void deallocate_host_data(double* buf)
+{
+#ifdef INTEL
+  _mm_free(buf);
+#else
+  free(buf);
+#endif
+}
+
+// Allocates a data array
+void deallocate_host_int_data(double* buf)
 {
 #ifdef INTEL
   _mm_free(buf);
@@ -61,57 +107,125 @@ void sync_data(const size_t len, double** src, double** dst, int send)
   }
 }
 
+// Synchronise data
+void sync_int_data(const size_t len, int** src, int** dst, int send)
+{
+  if(send) {
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(int)*len, cudaMemcpyHostToDevice));
+  }
+  else {
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(int)*len, cudaMemcpyDeviceToHost));
+  }
+}
+
 // Initialises mesh data in device specific manner
 void mesh_data_init_2d(
-    const int nx, const int ny, const int global_nx, const int global_ny,
+    const int local_nx, const int local_ny, const int global_nx, const int global_ny,
+    const int x_off, const int y_off, const double width, const double height, 
     double* edgex, double* edgey, double* edgedx, double* edgedy, 
     double* celldx, double* celldy)
 {
   // Simple uniform rectilinear initialisation
-  int nblocks = ceil((nx+1)/(double)NTHREADS);
+  int nblocks = ceil((local_nx+1)/(double)NTHREADS);
   mesh_data_init_dx<<<nblocks, NTHREADS>>>(
-      nx, ny, global_nx, global_ny, edgex, edgey,
+      local_nx, local_ny, global_nx, global_ny, x_off, width, edgex, edgey,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
 
-  nblocks = ceil((ny+1)/(double)NTHREADS);
+  nblocks = ceil((local_ny+1)/(double)NTHREADS);
   mesh_data_init_dy<<<nblocks, NTHREADS>>>(
-      nx, ny, global_nx, global_ny, edgex, edgey,
+      local_nx, local_ny, global_nx, global_ny, y_off, height, edgex, edgey,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
 }
 
 // Initialise state data in device specific manner
 void set_problem_2d(
-    const int nx, const int ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off, double* rho, double* e, double* x)
+    const int global_nx, const int global_ny, const int local_nx, 
+    const int local_ny, const int x_off, const int y_off, const int mesh_width, 
+    const int mesh_height, const double* edgex, const double* edgey, 
+    const int ndims, const char* problem_def_filename, double* rho, 
+    double* e, double* x)
 {
-  // TODO: Improve what follows, make it a somewhat more general problem 
-  // selection mechanism for some important stock problems
-
-  // WET STATE INITIALISATION
-  // Initialise a default state for the energy and density on the mesh
-  nblocks = ceil(nx*ny/(double)NTHREADS);
+  int nblocks = ceil(local_nx*local_ny/(double)NTHREADS);
   initialise_default_state<<<nblocks, NTHREADS>>>(
-      nx, ny, rho, e, rho_old, x);
+      local_nx, local_ny, rho, e, x);
   gpu_check(cudaDeviceSynchronize());
 
-  // Introduce a problem
-  nblocks = ceil(nx*ny/(double)NTHREADS);
-  initialise_problem_state<<<nblocks, NTHREADS>>>(
-      nx, ny, global_nx, global_ny, x_off, y_off, rho, e, x);
-  gpu_check(cudaDeviceSynchronize());
+  int* h_keys;
+  int* d_keys;
+  allocate_int_data(&d_keys, MAX_KEYS);
+  allocate_host_int_data(&h_keys, MAX_KEYS);
+
+  double* h_values;
+  double* d_values;
+  allocate_data(&d_values, MAX_KEYS);
+  allocate_host_data(&h_values, MAX_KEYS);
+
+  int nentries = 0;
+  while(1) {
+    char specifier[MAX_STR_LEN];
+    char keys[MAX_STR_LEN*MAX_KEYS];
+    sprintf(specifier, "problem_%d", nentries++);
+
+    int nkeys = 0;
+    if(!get_key_value_parameter(
+          specifier, problem_def_filename, keys, h_values, &nkeys)) {
+      break;
+    }
+
+    // The last four keys are the bound specification
+    double xpos = h_values[nkeys-4]*mesh_width;
+    double ypos = h_values[nkeys-3]*mesh_height;
+    double width = h_values[nkeys-2]*mesh_width;
+    double height = h_values[nkeys-1]*mesh_height;
+
+    for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
+      const char* key = &keys[kk*MAX_STR_LEN];
+      if(strmatch(key, "density")) {
+        h_keys[kk] = DENSITY_KEY;
+      }
+      else if(strmatch(key, "energy")) {
+        h_keys[kk] = ENERGY_KEY;
+      }
+      else if(strmatch(key, "temperature")) {
+        h_keys[kk] = TEMPERATURE_KEY;
+      }
+      else {
+        TERMINATE("Found unrecognised key in %s : %s.\n", 
+            problem_def_filename, key);
+      }
+    }
+
+    sync_int_data(MAX_KEYS, &h_keys, &d_keys, SEND);
+    sync_data(MAX_KEYS, &h_values, &d_values, SEND);
+
+    // Introduce a problem
+    nblocks = ceil(local_nx*local_ny/(double)NTHREADS);
+    initialise_problem_state<<<nblocks, NTHREADS>>>(
+        local_nx, local_ny, global_nx, global_ny, x_off, y_off, nkeys, ndims, xpos, 
+        ypos, width, height, edgey, edgex, rho, e, x, d_keys, d_values);
+    gpu_check(cudaDeviceSynchronize());
+  }
+
+  free(h_keys);
+  free(h_values);
 }
 
 void mesh_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
+    const int x_off, const int y_off, const int z_off,
+    const double width, const double height, const double depth,
+    double* edgex, double* edgey, double* edgez, 
     double* edgedx, double* edgedy, double* edgedz, 
     double* celldx, double* celldy, double* celldz)
 {
-  printf("CUDA 3d INCOMPLETE");
-  exit(1);
+  TERMINATE("CUDA 3d INCOMPLETE");
 }
+
 void state_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
@@ -122,7 +236,15 @@ void state_data_init_3d(
     double* uF_x, double* uF_y, double* uF_z, double* vF_x, double* vF_y, double* vF_z, 
     double* wF_x, double* wF_y, double* wF_z, double* reduce_array)
 {
-  printf("CUDA 3d INCOMPLETE");
-  exit(1);
+  TERMINATE("CUDA 3d INCOMPLETE");
+}
+
+void set_problem_3d(
+    const int local_nx, const int local_ny, const int local_nz, 
+    const int global_nx, const int global_ny, const int global_nz,
+    const int x_off, const int y_off, const int z_off,
+    double* rho, double* e, double* x)
+{
+  TERMINATE("CUDA 3d INCOMPLETE");
 }
 

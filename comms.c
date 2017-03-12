@@ -162,10 +162,9 @@ void decompose_2d_cartesian(
     int* neighbours, int* local_nx, int* local_ny, int* ranks_x, int* ranks_y, 
     int* x_off, int* y_off) 
 {
+#if defined(TILES)
   int found_even = 0;
   float mratio = 0.0f;
-
-#if defined(TILES)
   if(rank == MASTER) {
     printf("using tiles decomposition\n");
   }

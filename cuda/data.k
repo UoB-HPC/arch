@@ -1,63 +1,108 @@
 
-__global__ void mesh_data_init_dx(
-    const int nx, const int ny, const int global_nx, const int global_ny,
-    double* edgex, double* edgey, double* edgedx, double* edgedy, 
-    double* celldx, double* celldy)
+__device__ int cuda_strmatch(const char* str, const char* compare) 
 {
-  set_cuda_indices(0);
-  if(ind0 >= (nx+1)) return;
-  edgedx[ind0] = WIDTH / (global_nx);
-  celldx[ind0] = WIDTH / (global_nx);
-  edgex[ind0] = edgedx[ind0] * ind0;
-}
-
-__global__ void mesh_data_init_dy(
-    const int nx, const int ny, const int global_nx, const int global_ny,
-    double* edgex, double* edgey, double* edgedx, double* edgedy, 
-    double* celldx, double* celldy)
-{
-  set_cuda_indices(0);
-  if(ind0 >= (ny+1)) return;
-  edgedy[ind0] = HEIGHT / (global_ny);
-  celldy[ind0] = HEIGHT / (global_ny);
-  edgey[ind0] = edgedy[ind0] * ind0;
+  while(*compare != '\0') { \
+    if(*compare != *str) {
+      return 0;
+    }
+    compare++; // Move the pointers along
+    str++; // Move the pointers along
+  }
+  return 1;
 }
 
 __global__ void zero_array(
     const int len, double* array)
 {
   const int gid = threadIdx.x + blockIdx.x*blockDim.x;
-  if(gid > len) return;
+  if(gid >= len) return;
   array[gid] = 0.0;
 }
 
-__global__ void initialise_default_state(
-    const int nx, const int ny, 
-    double* rho, double* e, double* rho_old, double* x)
+__global__ void zero_int_array(
+    const int len, int* array)
 {
-  set_cuda_indices(0);
+  const int gid = threadIdx.x + blockIdx.x*blockDim.x;
+  if(gid >= len) return;
+  array[gid] = 0;
+}
+
+__global__ void initialise_default_state(
+    const int nx, const int ny, double* rho, double* e, double* x)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int jj = (gid % (nx));
+  const int ii = (gid / (nx));
   if(ind0 >= nx*ny) return;
 
+#if 0
   rho[ind0] = 0.125;
   e[ind0] = 2.0;
   x[ind0] = rho[ind0]*0.1;
+#endif // if 0
 }
 
 __global__ void initialise_problem_state(
     const int nx, const int ny, const int global_nx, 
-    const int global_ny, const int x_off, const int y_off, 
-    double* rho, double* e, double* x)
+    const int global_ny, const int x_off, const int y_off, const int nkeys,
+    const int ndims, const double xpos, const double ypos, const double width, 
+    const double height, const double* edgex, const double* edgey,
+    double* rho, double* e, double* x, int* keys, double* values)
 {
-  set_cuda_indices(0);
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  const int jj = (gid % (nx));
+  const int ii = (gid / (nx));
   if(ind0 >= nx*ny) return;
 
-  // CENTER SQUARE TEST
-  if(jj+x_off >= (global_nx+2*PAD)/2-(global_nx/5) && 
-      jj+x_off < (global_nx+2*PAD)/2+(global_nx/5) && 
-      ii+y_off >= (global_ny+2*PAD)/2-(global_ny/5) && 
-      ii+y_off < (global_ny+2*PAD)/2+(global_ny/5)) {
-    rho[ind0] = 1.0;
-    e[ind0] = 2.5;
-    x[ind0] = rho[ii*nx+jj]*0.1;
+  double global_xpos = edgex[jj+x_off];
+  double global_ypos = edgey[ii+y_off];
+
+  // TODO: THIS DOESN'T INITIALISE INSIDE THE HALO REGIONS
+  // IT WOULD BE USEFUL TO CHECK THAT THIS BEHAVIOUR IS CORRECT.
+  // ALSO SHOULD BE GOOD IDEA TO ENFORCE A HALO EXCHANGE IMMEDIATELY TO
+  // FILL THOSE BUFFERS WITH THE CORRECT VALUES.
+  //
+  // Check we are in bounds of the problem entry
+  if(global_xpos >= xpos && global_ypos >= ypos && 
+     global_xpos < xpos+width && global_ypos < ypos+height)
+  {
+    // The upper bound excludes the bounding box for the entry
+    for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
+      const int key = keys[kk];
+      if(key == DENSITY_KEY) {
+        rho[ii*nx+jj] = values[kk];
+      }
+      else if(key == ENERGY_KEY) {
+        e[ii*nx+jj] = values[kk];
+      }
+      else if(key == TEMPERATURE_KEY) {
+        x[ii*nx+jj] = values[kk];
+      }
+    }
   }
 }
+
+__global__ void mesh_data_init_dx(
+    const int nx, const int ny, const int global_nx, const int global_ny,
+    const int x_off, const double width, double* edgex, double* edgey, 
+    double* edgedx, double* edgedy, double* celldx, double* celldy)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  if(gid >= (nx+1)) return;
+  edgedx[gid] = width / (global_nx);
+  celldx[gid] = width / (global_nx);
+  edgex[gid] = edgedx[gid] * (x_off+gid-PAD);
+}
+
+__global__ void mesh_data_init_dy(
+    const int nx, const int ny, const int global_nx, const int global_ny,
+    const int y_off, const double height, double* edgex, double* edgey, 
+    double* edgedx, double* edgedy, double* celldx, double* celldy)
+{
+  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
+  if(gid >= (ny+1)) return;
+  edgedy[gid] = height / (global_ny);
+  celldy[gid] = height / (global_ny);
+  edgey[gid] = edgedy[gid] * (y_off+gid-PAD);
+}
+
