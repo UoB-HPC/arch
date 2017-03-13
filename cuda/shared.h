@@ -22,4 +22,6 @@ void finish_min_reduce(
     int nblocks1, double* reduce_array, double* result);
 void finish_sum_reduce(
     int nblocks1, double* reduce_array, double* result);
+void finish_sum_int_reduce(
+    int nblocks1, int* reduce_array, int* result);
 

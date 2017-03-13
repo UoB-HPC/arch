@@ -30,3 +30,17 @@ void finish_sum_reduce(
   copy_buffer(1, &reduce_array, &result, RECV);
 }
 
+void finish_sum_int_reduce(
+    int nblocks1, int* reduce_array, int* result)
+{
+  while(nblocks1 > 1) {
+    int nblocks0 = nblocks1;
+    nblocks1 = max(1, (int)ceil(nblocks1/(double)NTHREADS));
+    sum_reduce<int, NTHREADS><<<nblocks1, NTHREADS>>>(
+        reduce_array, reduce_array, nblocks0);
+  }
+  gpu_check(cudaDeviceSynchronize());
+
+  copy_int_buffer(1, &reduce_array, &result, RECV);
+}
+
