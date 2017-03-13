@@ -95,29 +95,37 @@ void deallocate_host_int_data(double* buf)
 }
 
 // Synchronise data
-void sync_data(const size_t len, double** src, double** dst, int send)
+void sync_data(const size_t len, double* src, double* dst, int send)
 {
   if(send) {
-    gpu_check(
-        cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyHostToDevice));
+    gpu_check(cudaMemcpy(dst, src, sizeof(double)*len, cudaMemcpyHostToDevice));
   }
   else {
-    gpu_check(
-        cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyDeviceToHost));
+    gpu_check(cudaMemcpy(dst, src, sizeof(double)*len, cudaMemcpyDeviceToHost));
   }
 }
 
 // Synchronise data
-void sync_int_data(const size_t len, int** src, int** dst, int send)
+void sync_int_data(const size_t len, int* src, int* dst, int send)
 {
   if(send) {
-    gpu_check(
-        cudaMemcpy(*dst, *src, sizeof(int)*len, cudaMemcpyHostToDevice));
+    gpu_check(cudaMemcpy(dst, src, sizeof(int)*len, cudaMemcpyHostToDevice));
   }
   else {
-    gpu_check(
-        cudaMemcpy(*dst, *src, sizeof(int)*len, cudaMemcpyDeviceToHost));
+    gpu_check(cudaMemcpy(dst, src, sizeof(int)*len, cudaMemcpyDeviceToHost));
   }
+}
+
+// Copy a buffer to/from the device
+void copy_buffer(const size_t len, double** src, double** dst, int send)
+{
+  sync_data(len, *src, *dst, send);
+}
+
+// Copy a buffer to/from the device
+void copy_int_buffer(const size_t len, int** src, int** dst, int send)
+{
+  sync_data(len, *src, *dst, send);
 }
 
 // Initialises mesh data in device specific manner

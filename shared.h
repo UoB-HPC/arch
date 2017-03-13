@@ -48,8 +48,10 @@ extern "C" {
   void deallocate_int_data(int* buf);
   void deallocate_host_data(double* buf);
   void deallocate_host_int_data(int* buf);
-  void sync_data(const size_t len, double** src, double** dst, int send);
-  void sync_int_data(const size_t len, int** src, int** dst, int send);
+  void sync_data(const size_t len, double* src, double* dst, int send);
+  void sync_int_data(const size_t len, int* src, int* dst, int send);
+  void copy_buffer(const size_t len, double** src, double** dst, int send);
+  void copy_int_buffer(const size_t len, int** src, int** dst, int send);
 
   // Write out data for visualisation in visit
   void write_to_visit(

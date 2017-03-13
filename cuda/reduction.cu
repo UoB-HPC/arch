@@ -8,7 +8,7 @@ void finish_min_reduce(
   while(nblocks1 > 1) {
     int nblocks0 = nblocks1;
     nblocks1 = max(1, (int)ceil(nblocks1/(double)NTHREADS));
-    min_reduce<NTHREADS><<<nblocks1, NTHREADS>>>(
+    min_reduce<double, NTHREADS><<<nblocks1, NTHREADS>>>(
         reduce_array, reduce_array, nblocks0);
   }
   gpu_check(cudaDeviceSynchronize());
@@ -22,7 +22,7 @@ void finish_sum_reduce(
   while(nblocks1 > 1) {
     int nblocks0 = nblocks1;
     nblocks1 = max(1, (int)ceil(nblocks1/(double)NTHREADS));
-    sum_reduce<NTHREADS><<<nblocks1, NTHREADS>>>(
+    sum_reduce<double, NTHREADS><<<nblocks1, NTHREADS>>>(
         reduce_array, reduce_array, nblocks0);
   }
   gpu_check(cudaDeviceSynchronize());

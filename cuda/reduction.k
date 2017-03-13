@@ -1,8 +1,8 @@
 #include <float.h>
 
-  template <unsigned int nthreads>
+  template <typename T, unsigned int nthreads>
 __device__ void min_reduce_in_shared(
-    const int tid, double* sdata)
+    const int tid, T* sdata)
 {
   if (nthreads >= 512) { 
     if (tid < 256) { sdata[tid] = min(sdata[tid], sdata[tid + 256]); } 
@@ -33,9 +33,9 @@ __device__ void min_reduce_in_shared(
   }
 }
 
-  template <unsigned int nthreads>
+  template <typename T, unsigned int nthreads>
 __device__ void sum_reduce_in_shared(
-    const int tid, double* sdata)
+    const int tid, T* sdata)
 {
   if (nthreads >= 512) { 
     if (tid < 256) { sdata[tid] += sdata[tid + 256]; } 
@@ -67,32 +67,34 @@ __device__ void sum_reduce_in_shared(
 }
 
 // http://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_website/projects/reduction/doc/reduction.pdf
-  template <unsigned int nthreads>
+  template <typename T, unsigned int nthreads>
 __global__ void min_reduce(
-    double* data, double* result, int nblocks)
+    T* data, T* result, int nblocks)
 {
   const int gid = blockIdx.x*blockDim.x+threadIdx.x;
-  __shared__ double sdata[nthreads];
+  __shared__ T sdata[nthreads];
   sdata[threadIdx.x] = (gid < nblocks) ? data[gid] : DBL_MAX;
   __syncthreads();
 
-  min_reduce_in_shared<nthreads>(threadIdx.x, sdata);
-  if (threadIdx.x == 0) 
+  min_reduce_in_shared<T, nthreads>(threadIdx.x, sdata);
+  if (threadIdx.x == 0) {
     result[blockIdx.x] = sdata[0];
+  }
 }
 
 // http://developer.download.nvidia.com/compute/cuda/1.1-Beta/x86_website/projects/reduction/doc/reduction.pdf
-  template <unsigned int nthreads>
+  template <typename T, unsigned int nthreads>
 __global__ void sum_reduce(
-    double* data, double* result, int nblocks)
+    T* data, T* result, int nblocks)
 {
   const int gid = blockIdx.x*blockDim.x+threadIdx.x;
-  __shared__ double sdata[nthreads];
+  __shared__ T sdata[nthreads];
   sdata[threadIdx.x] = (gid < nblocks) ? data[gid] : 0.0;
   __syncthreads();
 
-  sum_reduce_in_shared<nthreads>(threadIdx.x, sdata);
-  if (threadIdx.x == 0) 
+  sum_reduce_in_shared<T, nthreads>(threadIdx.x, sdata);
+  if (threadIdx.x == 0) {
     result[blockIdx.x] = sdata[0];
+  }
 }
 
