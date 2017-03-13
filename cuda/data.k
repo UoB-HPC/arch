@@ -35,11 +35,9 @@ __global__ void initialise_default_state(
   const int ii = (gid / (nx));
   if(ind0 >= nx*ny) return;
 
-#if 0
   rho[ind0] = 0.125;
   e[ind0] = 2.0;
   x[ind0] = rho[ind0]*0.1;
-#endif // if 0
 }
 
 __global__ void initialise_problem_state(

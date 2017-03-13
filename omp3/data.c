@@ -159,11 +159,9 @@ void set_default_state(
   // Initialise a default state for the energy and density on the mesh
 #pragma omp parallel for
   for(int ii = 0; ii < len; ++ii) {
-#if 0
     rho[ii] = 0.125;
     e[ii] = 2.0;
     x[ii] = rho[ii]*0.1;
-#endif // if 0
   }
 }
 

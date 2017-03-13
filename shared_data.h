@@ -38,7 +38,8 @@ extern "C" {
     double* p;        // HOT: The conjugate vector
     double* v;        // WET: The velocity in the y direction
 
-    double* reduce_array;
+    double* reduce_array0;
+    double* reduce_array1;
 
   } SharedData;
 

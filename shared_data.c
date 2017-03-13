@@ -37,7 +37,8 @@ void initialise_shared_data_2d(
   allocate_data(&shared_data->p, (local_nx+1)*(local_ny+1));
   shared_data->v = shared_data->p;
 
-  allocate_data(&shared_data->reduce_array, (local_nx+1)*(local_ny+1));
+  allocate_data(&shared_data->reduce_array0, (local_nx+1)*(local_ny+1));
+  allocate_data(&shared_data->reduce_array1, (local_nx+1)*(local_ny+1));
 
   set_problem_2d(
       global_nx, global_ny, local_nx, local_ny, x_off, y_off, mesh_width, 
@@ -83,7 +84,8 @@ void initialise_shared_data_3d(
   allocate_data(&shared_data->p, (local_nx+1)*(local_ny+1)*(local_nz+1));
   shared_data->v = shared_data->p;
 
-  allocate_data(&shared_data->reduce_array, (local_nx+1)*(local_ny+1));
+  allocate_data(&shared_data->reduce_array0, (local_nx+1)*(local_ny+1)*(local_nz+1));
+  allocate_data(&shared_data->reduce_array1, (local_nx+1)*(local_ny+1)*(local_nz+1));
 
   set_problem_3d(
       local_nx, local_ny, local_nz, global_nx, global_ny, global_nz, 
