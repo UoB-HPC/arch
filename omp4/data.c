@@ -77,7 +77,7 @@ void deallocate_host_data(double* buf)
 }
 
 // Synchronise data
-void sync_data(const size_t len, double** src, double** dst, int send)
+void copy_buffer(const size_t len, double** src, double** dst, int send)
 {
   double* local_src = *src;
   if(send) {
@@ -235,9 +235,9 @@ void set_problem_2d(
     }
   }
 
-  sync_data(local_nx*local_ny, &rho, &rho, 1);
-  sync_data(local_nx*local_ny, &e, &e, 1);
-  sync_data(local_nx*local_ny, &x, &x, 1);
+  copy_buffer(local_nx*local_ny, &rho, &rho, 1);
+  copy_buffer(local_nx*local_ny, &e, &e, 1);
+  copy_buffer(local_nx*local_ny, &x, &x, 1);
 
   free(keys);
   free(values);

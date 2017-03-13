@@ -31,7 +31,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(PAD*ny, &east_buffer_out, &east_buffer_out, RECV);
+      copy_buffer(PAD*ny, &east_buffer_out, &east_buffer_out, RECV);
       non_block_send(east_buffer_out, (ny-2*PAD)*PAD, neighbours[EAST], 2, nmessages++);
       non_block_recv(east_buffer_in, (ny-2*PAD)*PAD, neighbours[EAST], 3, nmessages++);
     }
@@ -44,7 +44,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(PAD*ny, &west_buffer_out, &west_buffer_out, RECV);
+      copy_buffer(PAD*ny, &west_buffer_out, &west_buffer_out, RECV);
       non_block_send(west_buffer_out, (ny-2*PAD)*PAD, neighbours[WEST], 3, nmessages++);
       non_block_recv(west_buffer_in, (ny-2*PAD)*PAD, neighbours[WEST], 2, nmessages++);
     }
@@ -58,7 +58,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(nx*PAD, &north_buffer_out, &north_buffer_out, RECV);
+      copy_buffer(nx*PAD, &north_buffer_out, &north_buffer_out, RECV);
       non_block_send(north_buffer_out, (nx-2*PAD)*PAD, neighbours[NORTH], 1, nmessages++);
       non_block_recv(north_buffer_in, (nx-2*PAD)*PAD, neighbours[NORTH], 0, nmessages++);
     }
@@ -72,7 +72,7 @@ void handle_boundary(
         }
       }
 
-      sync_data(nx*PAD, &south_buffer_out, &south_buffer_out, RECV);
+      copy_buffer(nx*PAD, &south_buffer_out, &south_buffer_out, RECV);
       non_block_send(south_buffer_out, (nx-2*PAD)*PAD, neighbours[SOUTH], 0, nmessages++);
       non_block_recv(south_buffer_in, (nx-2*PAD)*PAD, neighbours[SOUTH], 1, nmessages++);
     }
@@ -81,7 +81,7 @@ void handle_boundary(
 
     // Unpack east and west
     if(neighbours[WEST] != EDGE) {
-      sync_data(PAD*ny, &west_buffer_in, &west_buffer_in, SEND);
+      copy_buffer(PAD*ny, &west_buffer_in, &west_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int ii = PAD; ii < ny-PAD; ++ii) {
@@ -92,7 +92,7 @@ void handle_boundary(
     }
 
     if(neighbours[EAST] != EDGE) {
-      sync_data(PAD*ny, &east_buffer_in, &east_buffer_in, SEND);
+      copy_buffer(PAD*ny, &east_buffer_in, &east_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int ii = PAD; ii < ny-PAD; ++ii) {
@@ -104,7 +104,7 @@ void handle_boundary(
 
     // Unpack north and south
     if(neighbours[NORTH] != EDGE) {
-      sync_data(nx*PAD, &north_buffer_in, &north_buffer_in, SEND);
+      copy_buffer(nx*PAD, &north_buffer_in, &north_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {
@@ -115,7 +115,7 @@ void handle_boundary(
     }
 
     if(neighbours[SOUTH] != EDGE) {
-      sync_data(nx*PAD, &south_buffer_in, &south_buffer_in, SEND);
+      copy_buffer(nx*PAD, &south_buffer_in, &south_buffer_in, SEND);
 
 #pragma omp target teams distribute parallel for collapse(2)
       for(int dd = 0; dd < PAD; ++dd) {

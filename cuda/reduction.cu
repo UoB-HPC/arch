@@ -13,7 +13,7 @@ void finish_min_reduce(
   }
   gpu_check(cudaDeviceSynchronize());
 
-  sync_data(1, &reduce_array, &result, RECV);
+  copy_buffer(1, &reduce_array, &result, RECV);
 }
 
 void finish_sum_reduce(
@@ -27,6 +27,6 @@ void finish_sum_reduce(
   }
   gpu_check(cudaDeviceSynchronize());
 
-  sync_data(1, &reduce_array, &result, RECV);
+  copy_buffer(1, &reduce_array, &result, RECV);
 }
 

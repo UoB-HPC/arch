@@ -22,7 +22,7 @@ void handle_boundary_2d(
       prepare_east<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->east_buffer_out, arr);
 
-      sync_data(ny*PAD, &mesh->east_buffer_out, &mesh->h_east_buffer_out, RECV);
+      copy_buffer(ny*PAD, &mesh->east_buffer_out, &mesh->h_east_buffer_out, RECV);
       non_block_send(mesh->h_east_buffer_out, ny*PAD, neighbours[EAST], 2, nmessages++);
       non_block_recv(mesh->h_east_buffer_in, ny*PAD, neighbours[EAST], 3, nmessages++);
     }
@@ -32,7 +32,7 @@ void handle_boundary_2d(
       prepare_west<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->west_buffer_out, arr);
 
-      sync_data(ny*PAD, &mesh->west_buffer_out, &mesh->h_west_buffer_out, RECV);
+      copy_buffer(ny*PAD, &mesh->west_buffer_out, &mesh->h_west_buffer_out, RECV);
       non_block_send(mesh->h_west_buffer_out, ny*PAD, neighbours[WEST], 3, nmessages++);
       non_block_recv(mesh->h_west_buffer_in, ny*PAD, neighbours[WEST], 2, nmessages++);
     }
@@ -43,7 +43,7 @@ void handle_boundary_2d(
       prepare_north<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->north_buffer_out, arr);
 
-      sync_data(nx*PAD, &mesh->north_buffer_out, &mesh->h_north_buffer_out, RECV);
+      copy_buffer(nx*PAD, &mesh->north_buffer_out, &mesh->h_north_buffer_out, RECV);
       non_block_send(mesh->h_north_buffer_out, nx*PAD, neighbours[NORTH], 1, nmessages++);
       non_block_recv(mesh->h_north_buffer_in, nx*PAD, neighbours[NORTH], 0, nmessages++);
     }
@@ -53,7 +53,7 @@ void handle_boundary_2d(
       prepare_south<<<nblocks, NTHREADS>>>(
           nx, ny, mesh->south_buffer_out, arr);
 
-      sync_data(nx*PAD, &mesh->south_buffer_out, &mesh->h_south_buffer_out, RECV);
+      copy_buffer(nx*PAD, &mesh->south_buffer_out, &mesh->h_south_buffer_out, RECV);
       non_block_send(mesh->h_south_buffer_out, nx*PAD, neighbours[SOUTH], 0, nmessages++);
       non_block_recv(mesh->h_south_buffer_in, nx*PAD, neighbours[SOUTH], 1, nmessages++);
     }
@@ -62,7 +62,7 @@ void handle_boundary_2d(
 
     // Unprepare east and west
     if(neighbours[WEST] != EDGE) {
-      sync_data(ny*PAD, &mesh->h_west_buffer_in, &mesh->west_buffer_in, SEND);
+      copy_buffer(ny*PAD, &mesh->h_west_buffer_in, &mesh->west_buffer_in, SEND);
 
       int nblocks = ceil(ny*PAD/(double)NTHREADS);
       retrieve_west<<<nblocks, NTHREADS>>>(
@@ -70,7 +70,7 @@ void handle_boundary_2d(
     }
 
     if(neighbours[EAST] != EDGE) {
-      sync_data(ny*PAD, &mesh->h_east_buffer_in, &mesh->east_buffer_in, SEND);
+      copy_buffer(ny*PAD, &mesh->h_east_buffer_in, &mesh->east_buffer_in, SEND);
 
       int nblocks = ceil(ny*PAD/(double)NTHREADS);
       retrieve_east<<<nblocks, NTHREADS>>>(
@@ -79,7 +79,7 @@ void handle_boundary_2d(
 
     // Unprepare north and south
     if(neighbours[NORTH] != EDGE) {
-      sync_data(nx*PAD, &mesh->h_north_buffer_in, &mesh->north_buffer_in, SEND);
+      copy_buffer(nx*PAD, &mesh->h_north_buffer_in, &mesh->north_buffer_in, SEND);
 
       int nblocks = ceil(nx*PAD/(double)NTHREADS);
       retrieve_north<<<nblocks, NTHREADS>>>(
@@ -87,7 +87,7 @@ void handle_boundary_2d(
     }
 
     if(neighbours[SOUTH] != EDGE) {
-      sync_data(nx*PAD, &mesh->h_south_buffer_in, &mesh->south_buffer_in, SEND);
+      copy_buffer(nx*PAD, &mesh->h_south_buffer_in, &mesh->south_buffer_in, SEND);
 
       int nblocks = ceil(nx*PAD/(double)NTHREADS);
       retrieve_south<<<nblocks, NTHREADS>>>(

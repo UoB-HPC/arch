@@ -94,38 +94,26 @@ void deallocate_host_int_data(double* buf)
 #endif
 }
 
-// Synchronise data
-void sync_data(const size_t len, double* src, double* dst, int send)
-{
-  if(send) {
-    gpu_check(cudaMemcpy(dst, src, sizeof(double)*len, cudaMemcpyHostToDevice));
-  }
-  else {
-    gpu_check(cudaMemcpy(dst, src, sizeof(double)*len, cudaMemcpyDeviceToHost));
-  }
-}
-
-// Synchronise data
-void sync_int_data(const size_t len, int* src, int* dst, int send)
-{
-  if(send) {
-    gpu_check(cudaMemcpy(dst, src, sizeof(int)*len, cudaMemcpyHostToDevice));
-  }
-  else {
-    gpu_check(cudaMemcpy(dst, src, sizeof(int)*len, cudaMemcpyDeviceToHost));
-  }
-}
-
 // Copy a buffer to/from the device
 void copy_buffer(const size_t len, double** src, double** dst, int send)
 {
-  sync_data(len, *src, *dst, send);
+  if(send) {
+    gpu_check(cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyHostToDevice));
+  }
+  else {
+    gpu_check(cudaMemcpy(*dst, *src, sizeof(double)*len, cudaMemcpyDeviceToHost));
+  }
 }
 
 // Copy a buffer to/from the device
 void copy_int_buffer(const size_t len, int** src, int** dst, int send)
 {
-  sync_data(len, *src, *dst, send);
+  if(send) {
+    gpu_check(cudaMemcpy(*dst, *src, sizeof(int)*len, cudaMemcpyHostToDevice));
+  }
+  else {
+    gpu_check(cudaMemcpy(*dst, *src, sizeof(int)*len, cudaMemcpyDeviceToHost));
+  }
 }
 
 // Initialises mesh data in device specific manner
@@ -207,8 +195,8 @@ void set_problem_2d(
       }
     }
 
-    sync_int_data(MAX_KEYS, &h_keys, &d_keys, SEND);
-    sync_data(MAX_KEYS, &h_values, &d_values, SEND);
+    copy_int_buffer(MAX_KEYS, &h_keys, &d_keys, SEND);
+    copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
 
     // Introduce a problem
     nblocks = ceil(local_nx*local_ny/(double)NTHREADS);

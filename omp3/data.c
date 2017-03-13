@@ -75,29 +75,12 @@ void deallocate_host_data(double* buf)
   // Not necessary as host-only
 }
 
-// Synchronise data
-void sync_data(const size_t len, double* src, double* dst, int send)
-{
-  for(int ii = 0; ii < len; ++ii) {
-    (*src)[ii] = (*dst)[ii];
-  }
-}
-
-// Synchronise data
-void sync_int_data(const size_t len, int* src, int* dst, int send)
-{
-  // Don't need to move data with shared memory
-  for(int ii = 0; ii < len; ++ii) {
-    (*src)[ii] = (*dst)[ii];
-  }
-}
-
 // Just swaps the buffers on the host
 void copy_buffer(const size_t len, double** src, double** dst, int send)
 {
   double* temp = *src;
   *src = *dst;
-  *dst = *src;
+  *dst = temp;
 }
 
 // Just swaps the buffers on the host
@@ -105,7 +88,7 @@ void copy_int_buffer(const size_t len, int** src, int** dst, int send)
 {
   int* temp = *src;
   *src = *dst;
-  *dst = *src;
+  *dst = temp;
 }
 
 // Initialises mesh data in device specific manner

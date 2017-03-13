@@ -78,7 +78,7 @@ void write_all_ranks_to_visit(
 #endif
 
   double* temp_arr = (double*)malloc(sizeof(double)*local_nx*local_ny);
-  sync_data(local_nx*local_ny, &local_arr, &temp_arr, RECV);
+  copy_buffer(local_nx*local_ny, &local_arr, &temp_arr, RECV);
 
   // If MPI is enabled need to collect the data from all 
 #if defined(MPI) && defined(ENABLE_VISIT_DUMPS)
