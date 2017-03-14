@@ -38,6 +38,9 @@ void allocate_host_data(double** buf, const size_t len)
 #else
   *buf = (double*)malloc(sizeof(double)*len);
 #endif
+  if(!*buf) {
+    TERMINATE("Could not allocate host int data.\n");
+  }
 
 #pragma omp parallel for
   for(size_t ii = 0; ii < len; ++ii) {
@@ -53,6 +56,9 @@ void allocate_host_int_data(int** buf, const size_t len)
 #else
   *buf = (int*)malloc(sizeof(int)*len);
 #endif
+  if(!*buf) {
+    TERMINATE("Could not allocate host int data.\n");
+  }
 
 #pragma omp parallel for
   for(size_t ii = 0; ii < len; ++ii) {
@@ -62,13 +68,6 @@ void allocate_host_int_data(int** buf, const size_t len)
 
 // Allocates a data array
 void deallocate_data(double* buf)
-{
-  gpu_check(
-      cudaFree(buf));
-}
-
-// Allocates a data array
-void deallocate_int_data(double* buf)
 {
   gpu_check(
       cudaFree(buf));
@@ -85,7 +84,14 @@ void deallocate_host_data(double* buf)
 }
 
 // Allocates a data array
-void deallocate_host_int_data(double* buf)
+void deallocate_int_data(int* buf)
+{
+  gpu_check(
+      cudaFree(buf));
+}
+
+// Allocates a data array
+void deallocate_host_int_data(int* buf)
 {
 #ifdef INTEL
   _mm_free(buf);
@@ -93,6 +99,7 @@ void deallocate_host_int_data(double* buf)
   free(buf);
 #endif
 }
+
 
 // Copy a buffer to/from the device
 void copy_buffer(const size_t len, double** src, double** dst, int send)
@@ -206,8 +213,8 @@ void set_problem_2d(
     gpu_check(cudaDeviceSynchronize());
   }
 
-  free(h_keys);
-  free(h_values);
+  deallocate_host_int_data(h_keys);
+  deallocate_host_data(h_values);
 }
 
 void mesh_data_init_3d(

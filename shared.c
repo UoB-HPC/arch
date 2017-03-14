@@ -77,18 +77,16 @@ void write_all_ranks_to_visit(
     printf("writing results to visit file %s\n", name);
 #endif
 
-  double* temp_arr = (double*)malloc(sizeof(double)*local_nx*local_ny);
-  copy_buffer(local_nx*local_ny, &local_arr, &temp_arr, RECV);
-
   // If MPI is enabled need to collect the data from all 
-#if defined(MPI) && defined(ENABLE_VISIT_DUMPS)
+#if defined(ENABLE_VISIT_DUMPS)
+#if defined(MPI)
   double* global_arr;
   double** remote_data;
 
   if(rank == MASTER) {
-    global_arr = (double*)malloc(sizeof(double)*global_nx*global_ny);
+    allocate_host_data(&global_arr, global_nx*global_ny);
     remote_data = (double**)malloc(sizeof(double*)*nranks);
-    remote_data[MASTER] = temp_arr;
+    remote_data[MASTER] = local_arr;
   }
 
   for(int ii = 0; ii < nranks; ++ii) {
@@ -107,7 +105,7 @@ void write_all_ranks_to_visit(
       if(ii > MASTER) {
         printf("receiving from %d\n", ii);
         MPI_Recv(&dims, nparams, MPI_INT, ii, TAG_VISIT0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
-        remote_data[ii] = (double*)malloc(sizeof(double)*dims[0]*dims[1]);
+        allocate_host_data(&remote_data[ii], dims[0]*dims[1]);
         MPI_Recv(
             remote_data[ii], dims[0]*dims[1], MPI_DOUBLE, ii, TAG_VISIT1, 
             MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
@@ -129,22 +127,27 @@ void write_all_ranks_to_visit(
             remote_data[ii][jj*lnx+kk];
         }
       }
+
+      deallocate_host_data(remote_data[ii]);
     }
     else if(ii == rank) {
       printf("%d sending\n", ii);
       MPI_Send(&dims, nparams, MPI_INT, MASTER, TAG_VISIT0, MPI_COMM_WORLD);
-      MPI_Send(temp_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
+      MPI_Send(local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
+      deallocate_host_data(local_arr);
     }
     barrier();
   }
-#else
-  double* global_arr = temp_arr;
-#endif
-
   if(rank == MASTER) {
     write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt, elapsed_sim_time);
+    deallocate_host_data(global_arr);
+    free(remote_data);
   }
-
   barrier();
+#else
+  write_to_visit(global_nx, global_ny, 0, 0, local_arr, name, tt, elapsed_sim_time);
+  deallocate_host_data(local_arr);
+#endif
+#endif
 }
 
