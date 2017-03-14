@@ -75,6 +75,23 @@ void deallocate_host_data(double* buf)
   // Not necessary as host-only
 }
 
+// Allocates a data array
+void deallocate_int_data(int* buf)
+{
+#ifdef INTEL
+  _mm_free(buf);
+#else
+  free(buf);
+#endif
+}
+
+// Allocates a data array
+void deallocate_host_int_data(int* buf)
+{
+  // Not necessary as host-only
+}
+
+
 // Just swaps the buffers on the host
 void copy_buffer(const size_t len, double** src, double** dst, int send)
 {

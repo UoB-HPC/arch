@@ -128,7 +128,9 @@ void write_all_ranks_to_visit(
         }
       }
 
+#if 0
       deallocate_host_data(remote_data[ii]);
+#endif // if 0
     }
     else if(ii == rank) {
       printf("%d sending\n", ii);
@@ -140,8 +142,10 @@ void write_all_ranks_to_visit(
   }
   if(rank == MASTER) {
     write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt, elapsed_sim_time);
+#if 0
     deallocate_host_data(global_arr);
     free(remote_data);
+#endif // if 0
   }
   barrier();
 #else
