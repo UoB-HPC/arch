@@ -50,6 +50,7 @@ extern "C" {
     int rank;       // Rank that owns this mesh object
     int ranks_x;    // The number of ranks in the x dimension
     int ranks_y;    // The number of ranks in the y dimension
+    int ranks_z;    // The number of ranks in the z dimension
     int nranks;     // Total number of ranks that exist
     int neighbours[NNEIGHBOURS]; // List of neighbours
     int ndims;      // The number of dimensions
