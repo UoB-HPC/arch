@@ -4,6 +4,10 @@
 __device__ void min_reduce_in_shared(
     const int tid, T* sdata)
 {
+  if (nthreads >= 1024) { 
+    if (tid < 512) { sdata[tid] = min(sdata[tid], sdata[tid + 512]); } 
+    __syncthreads(); 
+  }
   if (nthreads >= 512) { 
     if (tid < 256) { sdata[tid] = min(sdata[tid], sdata[tid + 256]); } 
     __syncthreads(); 
@@ -37,6 +41,10 @@ __device__ void min_reduce_in_shared(
 __device__ void sum_reduce_in_shared(
     const int tid, T* sdata)
 {
+  if (nthreads >= 1024) { 
+    if (tid < 512) { sdata[tid] = min(sdata[tid], sdata[tid + 512]); } 
+    __syncthreads(); 
+  }
   if (nthreads >= 512) { 
     if (tid < 256) { sdata[tid] += sdata[tid + 256]; } 
     __syncthreads(); 
