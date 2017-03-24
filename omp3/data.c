@@ -170,18 +170,6 @@ void mesh_data_init_3d(
   }
 }
 
-void set_default_state(
-    const int len, double* rho, double* e, double* x)
-{
-  // Initialise a default state for the energy and density on the mesh
-#pragma omp parallel for
-  for(int ii = 0; ii < len; ++ii) {
-    rho[ii] = 0.125;
-    e[ii] = 2.0;
-    x[ii] = rho[ii]*0.1;
-  }
-}
-
 // Initialise state data in device specific manner
 void set_problem_2d(
     const int global_nx, const int global_ny, const int local_nx, 
@@ -190,9 +178,6 @@ void set_problem_2d(
     const int ndims, const char* problem_def_filename, double* rho, 
     double* e, double* x)
 {
-  set_default_state(
-      local_nx*local_ny, rho, e, x);
-
   char* keys = (char*)malloc(sizeof(char)*MAX_KEYS*MAX_STR_LEN);
   double* values = (double*)malloc(sizeof(double)*MAX_KEYS);
 
@@ -219,11 +204,6 @@ void set_problem_2d(
         double global_xpos = edgex[jj+x_off];
         double global_ypos = edgey[ii+y_off];
 
-        // TODO: THIS DOESN'T INITIALISE INSIDE THE HALO REGIONS
-        // IT WOULD BE USEFUL TO CHECK THAT THIS BEHAVIOUR IS CORRECT.
-        // ALSO SHOULD BE GOOD IDEA TO ENFORCE A HALO EXCHANGE IMMEDIATELY TO
-        // FILL THOSE BUFFERS WITH THE CORRECT VALUES.
-        //
         // Check we are in bounds of the problem entry
         if(global_xpos >= xpos && global_ypos >= ypos && 
             global_xpos < xpos+width && global_ypos < ypos+height)
@@ -261,17 +241,7 @@ void set_problem_3d(
     const int x_off, const int y_off, const int z_off,
     double* rho, double* e, double* x)
 {
-  set_default_state(
-      local_nx*local_ny*local_nz, rho, e, x);
-
-  // Introduce a problem
-#pragma omp parallel for 
-  for(int ii = 0; ii < local_nz; ++ii) {
-    for(int jj = 0; jj < local_ny; ++jj) {
-      for(int kk = 0; kk < local_nx; ++kk) {
-      }
-    }
-  }
+  TERMINATE("set_problem_3d not implemented yet.");
 }
 
 
