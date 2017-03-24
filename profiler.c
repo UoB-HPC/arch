@@ -5,8 +5,6 @@
 #include "profiler.h"
 #include "shared.h"
 
-#define strmatch(a, b) (strcmp(a, b) == 0)
-
 // Internally start the profiling timer
 void profiler_start_timer(struct Profile* profile)
 {

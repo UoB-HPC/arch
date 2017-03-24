@@ -51,6 +51,11 @@ extern "C" {
   void copy_buffer(const size_t len, double** src, double** dst, int send);
   void copy_int_buffer(const size_t len, int** src, int** dst, int send);
 
+#if 0
+  // Compares if two strings match
+  int strmatch(const char* str1, const char* str2);
+#endif // if 0
+
   // Write out data for visualisation in visit
   void write_to_visit(
       const int nx, const int ny, const int x_off, const int y_off, 

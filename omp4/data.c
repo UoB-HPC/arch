@@ -3,6 +3,21 @@
 #include "../mesh.h"
 #include "../params.h"
 
+// Checks if two strings match
+#pragma omp declare target
+ // TODO: Get this working as a declare target routine
+int device_strmatch(const char* str1, const char* str2) 
+{
+  int ii = 0;
+  for(ii = 0; str1[ii] != '\0'; ++ii) {
+    if(str1[ii] != str2[ii]) {
+      return 0;
+    }
+  }
+  return str1[ii] == str2[ii];
+}
+#pragma omp end declare target
+
 // Allocates some double precision data
 size_t allocate_data(double** buf, size_t len)
 {
@@ -19,10 +34,9 @@ size_t allocate_data(double** buf, size_t len)
   double* local_buf = *buf;
 #pragma omp target enter data map(to: local_buf[:len])
 
-  // Perform first-touch
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for(size_t ii = 0; ii < len; ++ii) {
-    (*buf)[ii] = 0.0;
+    local_buf[ii] = 0.0;
   }
 
   return sizeof(double)*len;
@@ -44,10 +58,9 @@ size_t allocate_int_data(int** buf, size_t len)
   int* local_buf = *buf;
 #pragma omp target enter data map(to: local_buf[:len])
 
-  // Perform first-touch
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for(size_t ii = 0; ii < len; ++ii) {
-    (*buf)[ii] = 0;
+    local_buf[ii] = 0;
   }
 
   return sizeof(int)*len;
@@ -157,8 +170,12 @@ void set_problem_2d(
     const int ndims, const char* problem_def_filename, double* rho, 
     double* e, double* x)
 {
+  // TODO: make a routine
   char* keys = (char*)malloc(sizeof(char)*MAX_KEYS*MAX_STR_LEN);
-  double* values = (double*)malloc(sizeof(double)*MAX_KEYS);
+#pragma omp target enter data map(keys[:MAX_KEYS*MAX_STR_LEN])
+
+  double* values; 
+  allocate_data(&values, MAX_KEYS);
 
   int nentries = 0;
   while(1) {
@@ -171,13 +188,19 @@ void set_problem_2d(
       break;
     }
 
+    copy_buffer(MAX_KEYS, &values, &values, SEND);
+#pragma omp target update to(keys[:MAX_KEYS*MAX_STR_LEN])
+
     // The last four keys are the bound specification
     double xpos = values[nkeys-4]*mesh_width;
     double ypos = values[nkeys-3]*mesh_height;
     double width = values[nkeys-2]*mesh_width;
     double height = values[nkeys-1]*mesh_height;
 
+    int failed = 0;
+
     // Loop through the mesh and set the problem
+#pragma omp target teams distribute parallel for reduction(max: failed)
     for(int ii = 0; ii < local_ny; ++ii) {
       for(int jj = 0; jj < local_nx; ++jj) {
         double global_xpos = edgex[jj+x_off];
@@ -190,31 +213,30 @@ void set_problem_2d(
           // The upper bound excludes the bounding box for the entry
           for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
             const char* key = &keys[kk*MAX_STR_LEN];
-            if(strmatch(key, "density")) {
+            if(device_strmatch(key, "density")) {
               rho[ii*local_nx+jj] = values[kk];
             }
-            else if(strmatch(key, "energy")) {
-              e[ii*local_nx+jj] = values[ii];
+            else if(device_strmatch(key, "energy")) {
+              e[ii*local_nx+jj] = values[kk];
             }
-            else if(strmatch(key, "temperature")) {
+            else if(device_strmatch(key, "temperature")) {
               x[ii*local_nx+jj] = values[kk];
             }
             else {
-              TERMINATE("Found unrecognised key in %s : %s.\n", 
-                  problem_def_filename, key);
+              failed = 1;
             }
           }
         }
       }
     }
+
+    if(failed) {
+      TERMINATE("Found unrecognised key in %s.\n", problem_def_filename);
+    }
   }
 
-  copy_buffer(local_nx*local_ny, &rho, &rho, 1);
-  copy_buffer(local_nx*local_ny, &e, &e, 1);
-  copy_buffer(local_nx*local_ny, &x, &x, 1);
-
   free(keys);
-  free(values);
+  deallocate_data(values);
 }
 
 // Initialise state data in device specific manner
