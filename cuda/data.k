@@ -55,11 +55,6 @@ __global__ void initialise_problem_state(
   double global_xpos = edgex[jj+x_off];
   double global_ypos = edgey[ii+y_off];
 
-  // TODO: THIS DOESN'T INITIALISE INSIDE THE HALO REGIONS
-  // IT WOULD BE USEFUL TO CHECK THAT THIS BEHAVIOUR IS CORRECT.
-  // ALSO SHOULD BE GOOD IDEA TO ENFORCE A HALO EXCHANGE IMMEDIATELY TO
-  // FILL THOSE BUFFERS WITH THE CORRECT VALUES.
-  //
   // Check we are in bounds of the problem entry
   if(global_xpos >= xpos && global_ypos >= ypos && 
      global_xpos < xpos+width && global_ypos < ypos+height)
