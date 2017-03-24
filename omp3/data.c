@@ -215,7 +215,7 @@ void set_problem_2d(
               rho[ii*local_nx+jj] = values[kk];
             }
             else if(strmatch(key, "energy")) {
-              e[ii*local_nx+jj] = values[ii];
+              e[ii*local_nx+jj] = values[kk];
             }
             else if(strmatch(key, "temperature")) {
               x[ii*local_nx+jj] = values[kk];
