@@ -152,11 +152,6 @@ void set_problem_2d(
     const int ndims, const char* problem_def_filename, double* rho, 
     double* e, double* x)
 {
-  int nblocks = ceil(local_nx*local_ny/(double)NTHREADS);
-  initialise_default_state<<<nblocks, NTHREADS>>>(
-      local_nx, local_ny, rho, e, x);
-  gpu_check(cudaDeviceSynchronize());
-
   int* h_keys;
   int* d_keys;
   allocate_int_data(&d_keys, MAX_KEYS);
@@ -206,7 +201,7 @@ void set_problem_2d(
     copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
 
     // Introduce a problem
-    nblocks = ceil(local_nx*local_ny/(double)NTHREADS);
+    int nblocks = ceil(local_nx*local_ny/(double)NTHREADS);
     initialise_problem_state<<<nblocks, NTHREADS>>>(
         local_nx, local_ny, global_nx, global_ny, x_off, y_off, nkeys, ndims, xpos, 
         ypos, width, height, edgey, edgex, rho, e, x, d_keys, d_values);

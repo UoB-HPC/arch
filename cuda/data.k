@@ -27,19 +27,6 @@ __global__ void zero_int_array(
   array[gid] = 0;
 }
 
-__global__ void initialise_default_state(
-    const int nx, const int ny, double* rho, double* e, double* x)
-{
-  const int gid = threadIdx.x+blockIdx.x*blockDim.x;
-  const int jj = (gid % (nx));
-  const int ii = (gid / (nx));
-  if(ind0 >= nx*ny) return;
-
-  rho[ind0] = 0.125;
-  e[ind0] = 2.0;
-  x[ind0] = rho[ind0]*0.1;
-}
-
 __global__ void initialise_problem_state(
     const int nx, const int ny, const int global_nx, 
     const int global_ny, const int x_off, const int y_off, const int nkeys,
