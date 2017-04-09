@@ -11,16 +11,18 @@ Although the architectural code is not intended to be built independently of the
 
 To build an application, clone the repository into the root of the arch project. E.g.
 
-'''
+```
 git clone git@github.com:uob-hpc/arch
 cd arch
 git clone git@github.com:uob-hpc/neutral
 cd neutral
-'''
+```
 
 An example compilation string for the dependent applications
 
+```
 make -j DEBUG=<yes/no> KERNELS=omp3 COMPILER=INTEL
+```
 
 Please refer to the individual applications in order to determine the specific build and execution steps.
 
