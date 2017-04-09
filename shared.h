@@ -22,6 +22,7 @@
 #define within_tolerance(a, b, eps) \
   (fabs(a-b) <= ((fabs(a) > fabs(b) ? fabs(b) : fabs(a))*eps))
 #define kronecker_delta(a, b) ((a == b) ? 1 : 0)
+#define triangle(a) ((a)*((a)+1)/2)
 
 #define TERMINATE(...) \
   fprintf(stderr, __VA_ARGS__);\
