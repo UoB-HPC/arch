@@ -172,7 +172,7 @@ void set_problem_2d(
 {
   // TODO: make a routine
   char* keys = (char*)malloc(sizeof(char)*MAX_KEYS*MAX_STR_LEN);
-#pragma omp target enter data map(keys[:MAX_KEYS*MAX_STR_LEN])
+#pragma omp target enter data map(to: keys[:MAX_KEYS*MAX_STR_LEN])
 
   double* values; 
   allocate_data(&values, MAX_KEYS);
