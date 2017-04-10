@@ -37,7 +37,7 @@ __global__ void initialise_problem_state(
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   const int jj = (gid % (nx));
   const int ii = (gid / (nx));
-  if(ind0 >= nx*ny) return;
+  if(gid >= nx*ny) return;
 
   double global_xpos = edgex[jj+x_off];
   double global_ypos = edgey[ii+y_off];
