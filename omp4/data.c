@@ -21,15 +21,7 @@ int device_strmatch(const char* str1, const char* str2)
 // Allocates some double precision data
 size_t allocate_data(double** buf, size_t len)
 {
-#ifdef INTEL
-  *buf = (double*)_mm_malloc(sizeof(double)*len, VEC_ALIGN);
-#else
-  *buf = (double*)malloc(sizeof(double)*len);
-#endif
-
-  if(*buf == NULL) {
-    TERMINATE("Failed to allocate a data array.\n");
-  }
+  allocate_host_data(buf, len);
 
   double* local_buf = *buf;
 #pragma omp target enter data map(to: local_buf[:len])
@@ -45,15 +37,7 @@ size_t allocate_data(double** buf, size_t len)
 // Allocates some int precision data
 size_t allocate_int_data(int** buf, size_t len)
 {
-#ifdef INTEL
-  *buf = (int*)_mm_malloc(sizeof(int)*len, VEC_ALIGN);
-#else
-  *buf = (int*)malloc(sizeof(int)*len);
-#endif
-
-  if(*buf == NULL) {
-    TERMINATE("Failed to allocate a data array.\n");
-  }
+  allocate_host_int_data(buf, len);
 
   int* local_buf = *buf;
 #pragma omp target enter data map(to: local_buf[:len])
@@ -69,8 +53,31 @@ size_t allocate_int_data(int** buf, size_t len)
 // Allocates a host copy of some buffer
 void allocate_host_data(double** buf, size_t len)
 {
-  // Don't need pointer duplication with OpenMP 4.0
+#ifdef INTEL
+  *buf = (double*)_mm_malloc(sizeof(double)*len, VEC_ALIGN);
+#else
+  *buf = (double*)malloc(sizeof(double)*len);
+#endif
+
+  if(*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
 }
+
+// Allocates a host copy of some integer buffer
+void allocate_host_int_data(int** buf, size_t len)
+{
+#ifdef INTEL
+  *buf = (int*)_mm_malloc(sizeof(int)*len, VEC_ALIGN);
+#else
+  *buf = (int*)malloc(sizeof(int)*len);
+#endif
+
+  if(*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
+}
+
 
 // Allocates a data array
 void deallocate_data(double* buf)
