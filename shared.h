@@ -13,15 +13,15 @@
 #define MAX_KEYS 10
 
 // Helper macros
-#define strmatch(a, b) (strcmp(a, b) == 0)
+#define strmatch(a, b) (strcmp((a), (b)) == 0)
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
 #define samesign(a, b) ((a*b) > 0.0)
 #define absmin(a, b) ((fabs(a) < fabs(b)) ? (a) : (b))
-#define minmod(a, b) (samesign(a, b) ? (absmin(a, b)) : (0.0))
+#define minmod(a, b) (samesign((a), (b)) ? (absmin((a), (b))) : (0.0))
 #define within_tolerance(a, b, eps) \
   (fabs(a-b) <= ((fabs(a) > fabs(b) ? fabs(b) : fabs(a))*eps))
-#define kronecker_delta(a, b) ((a == b) ? 1 : 0)
+#define kronecker_delta(a, b) (((a) == (b)) ? 1 : 0)
 #define triangle(a) ((a)*((a)+1)/2)
 
 #define TERMINATE(...) \
