@@ -11,6 +11,7 @@
 #define TAG_VISIT1 1001
 #define MAX_STR_LEN 1024
 #define MAX_KEYS 10
+#define GB ((1024.0)*(1024.0)*(1024.0))
 
 // Helper macros
 #define strmatch(a, b) (strcmp((a), (b)) == 0)
