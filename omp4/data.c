@@ -78,7 +78,6 @@ void allocate_host_int_data(int** buf, size_t len)
   }
 }
 
-
 // Allocates a data array
 void deallocate_data(double* buf)
 {

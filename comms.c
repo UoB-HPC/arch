@@ -33,8 +33,6 @@ void initialise_comms(
     mesh->neighbours[ii] = EDGE;
   }
 
-#ifdef MPI
-
 #ifdef APP_3D
   decompose_3d_cartesian(
       mesh->rank, mesh->nranks, mesh->global_nx, mesh->global_ny, mesh->global_nz,
@@ -47,8 +45,6 @@ void initialise_comms(
       mesh->neighbours, &mesh->local_nx, &mesh->local_ny, &mesh->ranks_x, 
       &mesh->ranks_y, &mesh->x_off, &mesh->y_off);
 #endif
-
-#endif 
 
   // Add on the halo padding to the local mesh
   mesh->local_nx += 2*PAD;

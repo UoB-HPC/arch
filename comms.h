@@ -22,7 +22,6 @@ extern "C" {
   void initialise_comms(
       Mesh* mesh);
 
-#ifdef MPI
   // Decomposes the ranks, potentially load balancing and minimising the
   // ratio of perimeter to area
   void decompose_2d_cartesian(
@@ -36,7 +35,6 @@ extern "C" {
       const int global_nz, int* neighbours, int* local_nx, int* local_ny, 
       int* local_nz, int* ranks_x, int* ranks_y, int* ranks_z, int* x_off, 
       int* y_off, int* z_off);
-#endif
 
   // Reduces the value across all ranks and returns the sum
   double reduce_all_sum(
