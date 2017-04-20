@@ -98,12 +98,13 @@ void deallocate_host_data(double* buf)
 void copy_buffer(const size_t len, double** src, double** dst, int send)
 {
   double* local_src = *src;
-  if(send) {
+  if(send == SEND) {
 #pragma omp target update to(local_src[:len])
   }
   else {
 #pragma omp target update from(local_src[:len])
   }
+  *dst = *src;
 }
 
 // Initialises mesh data in device specific manner
