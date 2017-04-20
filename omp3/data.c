@@ -108,6 +108,12 @@ void copy_int_buffer(const size_t len, int** src, int** dst, int send)
   *dst = temp;
 }
 
+// Move a host buffer onto the device
+void move_host_buffer_to_device(const size_t len, double** src, double** dst)
+{
+  copy_buffer(len, src, dst, SEND);
+}
+
 // Initialises mesh data in device specific manner
 void mesh_data_init_2d(
     const int local_nx, const int local_ny, 

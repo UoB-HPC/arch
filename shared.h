@@ -53,6 +53,7 @@ extern "C" {
   void deallocate_host_int_data(int* buf);
   void copy_buffer(const size_t len, double** src, double** dst, int send);
   void copy_int_buffer(const size_t len, int** src, int** dst, int send);
+  void move_host_buffer_to_device(const size_t len, double** src, double** dst);
 
 #if 0
   // Compares if two strings match
