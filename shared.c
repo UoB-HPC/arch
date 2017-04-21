@@ -103,7 +103,6 @@ void write_all_ranks_to_visit(
 
     if(rank == MASTER) {
       if(ii > MASTER) {
-        printf("receiving from %d\n", ii);
         MPI_Recv(&dims, nparams, MPI_INT, ii, TAG_VISIT0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
         allocate_host_data(&remote_data[ii], dims[0]*dims[1]);
         MPI_Recv(
@@ -133,7 +132,6 @@ void write_all_ranks_to_visit(
 #endif // if 0
     }
     else if(ii == rank) {
-      printf("%d sending\n", ii);
       MPI_Send(&dims, nparams, MPI_INT, MASTER, TAG_VISIT0, MPI_COMM_WORLD);
       MPI_Send(local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
       deallocate_host_data(local_arr);
