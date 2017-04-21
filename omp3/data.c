@@ -205,16 +205,15 @@ void set_problem_2d(
     double height = values[nkeys-1]*mesh_height;
 
     // Loop through the mesh and set the problem
-    for(int ii = 0; ii < local_ny; ++ii) {
-      for(int jj = 0; jj < local_nx; ++jj) {
-        double global_xpos = edgex[jj+x_off];
-        double global_ypos = edgey[ii+y_off];
+    for(int ii = PAD; ii < local_ny-PAD; ++ii) {
+      for(int jj = PAD; jj < local_nx-PAD; ++jj) {
+        double global_xpos = edgex[jj];
+        double global_ypos = edgey[ii];
 
         // Check we are in bounds of the problem entry
         if(global_xpos >= xpos && global_ypos >= ypos && 
             global_xpos < xpos+width && global_ypos < ypos+height)
         {
-          // The upper bound excludes the bounding box for the entry
           for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
             const char* key = &keys[kk*MAX_STR_LEN];
             if(strmatch(key, "density")) {
