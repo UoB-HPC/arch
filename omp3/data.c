@@ -179,8 +179,8 @@ void mesh_data_init_3d(
 // Initialise state data in device specific manner
 void set_problem_2d(
     const int global_nx, const int global_ny, const int local_nx, 
-    const int local_ny, const int x_off, const int y_off, const int mesh_width, 
-    const int mesh_height, const double* edgex, const double* edgey, 
+    const int local_ny, const int x_off, const int y_off, const double mesh_width, 
+    const double mesh_height, const double* edgex, const double* edgey, 
     const int ndims, const char* problem_def_filename, double* rho, 
     double* e, double* x)
 {
