@@ -164,6 +164,7 @@ void handle_boundary_3d(
     const int nx, const int ny, const int nz, Mesh* mesh, double* arr, 
     const int invert, const int pack)
 {
+#if 0
   START_PROFILING(&comms_profile);
 
   int* neighbours = mesh->neighbours;
@@ -440,5 +441,6 @@ void handle_boundary_3d(
   }
 
   STOP_PROFILING(&comms_profile, __func__);
+#endif // if 0
 }
 

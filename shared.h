@@ -1,3 +1,6 @@
+#ifndef __SHAREDHDR
+#define __SHAREDHDR
+
 #pragma once
 
 #include <stdio.h>
@@ -81,3 +84,4 @@ extern "C" {
 }
 #endif
 
+#endif

@@ -1,3 +1,6 @@
+#ifndef __COMMSHDR
+#define __COMMSHDR
+
 #pragma once 
 
 #include <complex.h>
@@ -80,5 +83,7 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 

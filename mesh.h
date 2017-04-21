@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __MESHHDR
+#define __MESHHDR
 
 /* Problem-Independent Constants */
 #define PAD 2           // The depth of halo padding, currently for all applications
@@ -116,3 +117,4 @@ extern "C" {
 }
 #endif
 
+#endif
