@@ -1,3 +1,6 @@
+#ifndef __SHAREDDATAHDR
+#define __SHAREDDATAHDR
+
 #pragma once 
 
 #include "mesh.h"
@@ -75,5 +78,7 @@ extern "C" {
 
 #ifdef __cplusplus
 }
+#endif
+
 #endif
 
