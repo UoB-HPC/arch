@@ -1,8 +1,6 @@
 #ifndef __SHAREDDATAHDR
 #define __SHAREDDATAHDR
 
-#pragma once 
-
 #include "mesh.h"
 
 #ifdef __cplusplus
