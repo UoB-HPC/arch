@@ -39,8 +39,8 @@ __global__ void initialise_problem_state(
   const int ii = (gid / (nx));
   if(gid >= nx*ny) return;
 
-  double global_xpos = edgex[jj+x_off];
-  double global_ypos = edgey[ii+y_off];
+  double global_xpos = edgex[jj];
+  double global_ypos = edgey[ii];
 
   // Check we are in bounds of the problem entry
   if(global_xpos >= xpos && global_ypos >= ypos && 
