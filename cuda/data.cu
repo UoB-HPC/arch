@@ -100,7 +100,6 @@ void deallocate_host_int_data(int* buf)
 #endif
 }
 
-
 // Copy a buffer to/from the device
 void copy_buffer(const size_t len, double** src, double** dst, int send)
 {
@@ -210,7 +209,7 @@ void set_problem_2d(
     copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
 
     // Introduce a problem
-    int nblocks = ceil(local_nx*local_ny/(double)NTHREADS);
+    const int nblocks = ceil(local_nx*local_ny/(double)NTHREADS);
     initialise_problem_state<<<nblocks, NTHREADS>>>(
         local_nx, local_ny, global_nx, global_ny, x_off, y_off, nkeys, ndims, xpos, 
         ypos, width, height, edgey, edgex, rho, e, x, d_keys, d_values);

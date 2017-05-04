@@ -216,10 +216,10 @@ void set_problem_2d(
 
     // Loop through the mesh and set the problem
 #pragma omp target teams distribute parallel for reduction(+: failed)
-    for(int ii = 0; ii < local_ny; ++ii) {
-      for(int jj = 0; jj < local_nx; ++jj) {
-        double global_xpos = edgex[jj+x_off];
-        double global_ypos = edgey[ii+y_off];
+    for(int ii = PAD; ii < local_ny-PAD; ++ii) {
+      for(int jj = PAD; jj < local_nx-PAD; ++jj) {
+        double global_xpos = edgex[jj];
+        double global_ypos = edgey[ii];
 
         // Check we are in bounds of the problem entry
         if(global_xpos >= xpos && global_ypos >= ypos && 
