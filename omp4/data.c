@@ -215,7 +215,7 @@ void set_problem_2d(
     int failed = 0;
 
     // Loop through the mesh and set the problem
-#pragma omp target teams distribute parallel for reduction(+: failed)
+#pragma omp target teams distribute parallel for map(tofrom: failed) reduction(+: failed)
     for(int ii = PAD; ii < local_ny-PAD; ++ii) {
       for(int jj = PAD; jj < local_nx-PAD; ++jj) {
         double global_xpos = edgex[jj];

@@ -1,4 +1,3 @@
-#pragma once 
 #ifndef __PROFILERH
 #define __PROFILERH
 
@@ -15,7 +14,7 @@
  */
 
 #define PROFILER_MAX_NAME 128
-#define PROFILER_MAX_ENTRIES 2048
+#define PROFILER_MAX_ENTRIES 1024
 
 #ifdef __cplusplus
 extern "C" {
