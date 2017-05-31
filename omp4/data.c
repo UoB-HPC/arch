@@ -5,7 +5,6 @@
 
 // Checks if two strings match
 #pragma omp declare target
- // TODO: Get this working as a declare target routine
 int device_strmatch(const char* str1, const char* str2) 
 {
   int ii = 0;
@@ -185,7 +184,6 @@ void set_problem_2d(
     const int ndims, const char* problem_def_filename, double* rho, 
     double* e, double* x)
 {
-  // TODO: make a routine
   char* keys = (char*)malloc(sizeof(char)*MAX_KEYS*MAX_STR_LEN);
 #pragma omp target enter data map(to: keys[:MAX_KEYS*MAX_STR_LEN])
 

@@ -214,6 +214,7 @@ void set_problem_2d(
         if(global_xpos >= xpos && global_ypos >= ypos && 
             global_xpos < xpos+width && global_ypos < ypos+height)
         {
+          // The upper bound excludes the bounding box for the entry
           for(int kk = 0; kk < nkeys-(2*ndims); ++kk) {
             const char* key = &keys[kk*MAX_STR_LEN];
             if(strmatch(key, "density")) {

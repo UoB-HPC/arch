@@ -59,6 +59,7 @@ int get_key_value_parameter(
   for(size_t cc = 0; cc < param_len; ++cc) {
     if(param_line[cc] == '=') {
       // We are finished adding the key, time to get value
+      keys[((*nkeys)*MAX_STR_LEN)+key_index] = '\0';
       parse_value = 1;
       key_index = 0;
     }
