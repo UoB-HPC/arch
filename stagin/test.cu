@@ -32,7 +32,7 @@ int main()
   size_t free_gpu_mem, total_gpu_mem;
   cudaMemGetInfo(&free_gpu_mem, &total_gpu_mem);
   printf("GPU Memory Capacity Available. Free = %llu\n", free_gpu_mem, total_gpu_mem);
-  const size_t dblock_bytes = free_gpu_mem/(NVARIABLES*NDBLOCKS);
+  const size_t dblock_bytes = (free_gpu_mem*0.8)/(NVARIABLES*NDBLOCKS);
   const size_t max_dblock_len = dblock_bytes/sizeof(int);
   const size_t nblocks = ceil(max_dblock_len/(double)NTHREADS);
 
@@ -76,7 +76,7 @@ int main()
     if(ii == 0) {
       for(int vv = 0; vv < NVARIABLES; ++vv) {
         cudaMemcpyAsync(
-            &dblocks[vv][on_id], &(ablock[vv][0]),
+            dblocks[vv][on_id], &(ablock[vv][0]),
             max_dblock_len, cudaMemcpyHostToDevice, in_stream);
       }
 
@@ -88,7 +88,7 @@ int main()
     if(ii < ndblocks_reqd-1) {
       for(int vv = 0; vv < NVARIABLES; ++vv) {
         cudaMemcpyAsync(
-            &dblocks[vv][in_id],
+            dblocks[vv][in_id],
             &(ablock[vv][ii*max_dblock_len]),
             dblock_len, cudaMemcpyHostToDevice, in_stream);
       }
@@ -104,7 +104,7 @@ int main()
       for(int vv = 0; vv < NVARIABLES; ++vv) {
         cudaMemcpyAsync(
             &(ablock[vv][(ii-1)*max_dblock_len]),
-            &dblocks[vv][out_id],
+            dblocks[vv][out_id],
             max_dblock_len, cudaMemcpyDeviceToHost, out_stream);
       }
     }
@@ -116,7 +116,7 @@ int main()
       for(int vv = 0; vv < NVARIABLES; ++vv) {
         cudaMemcpyAsync(
             &(ablock[vv][ii*max_dblock_len]),
-            &dblocks[vv][on_id],
+            dblocks[vv][on_id],
             dblock_len, cudaMemcpyDeviceToHost, out_stream);
       }
     }

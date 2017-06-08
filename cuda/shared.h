@@ -8,8 +8,7 @@
 #define gpu_check(ans) { gpu_assert((ans), __FILE__, __LINE__); }
 inline void gpu_assert(cudaError_t code, const char *file, int line, bool abort=true)
 {
-  if (code != cudaSuccess) 
-  {
+  if (code != cudaSuccess) {
     fprintf(stderr,"GPU Error Returned: %s %s %d\n", cudaGetErrorString(code), file, line);
     if (abort) exit(code);
   }
