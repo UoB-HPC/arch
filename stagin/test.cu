@@ -13,16 +13,18 @@ __global__ void validate(const int n, int* x, int* y);
 
 int main()
 {
-  // Calculate the blocks locally
+  // Calculate the space on host
   const size_t pages = sysconf(_SC_PHYS_PAGES);
   const size_t page_size = sysconf(_SC_PAGE_SIZE);
   size_t free_dram_memory = pages*page_size;
+  printf("DRAM Memory Capacity Available. Free = %llu\n", free_dram_memory);
 
   // Fudging a value in for testing
   const size_t ablock_bytes = free_dram_memory*0.8;
   const size_t ablock_space_len = ablock_bytes/sizeof(int);
   int* ablock_space = (int*)malloc(ablock_bytes);
-  printf("DRAM Memory Capacity Available. Free = %llu\n", free_dram_memory);
+  gpu_check(cudaHostRegister(ablock_space, ablock_bytes, 0));
+
   int* ablock[NVARIABLES];
   const size_t ablock_len = ablock_space_len/NVARIABLES;
   for(int vv = 0; vv < NVARIABLES; ++vv) {
@@ -56,9 +58,11 @@ int main()
 
   // Create streams for asynchronous copies
   cudaStream_t in_stream;
+  cudaStream_t work_stream;
   cudaStream_t out_stream;
-  gpu_check(cudaStreamCreate(&in_stream));
-  gpu_check(cudaStreamCreate(&out_stream));
+  gpu_check(cudaStreamCreateWithFlags(&in_stream,cudaStreamNonBlocking));
+  gpu_check(cudaStreamCreateWithFlags(&work_stream,cudaStreamNonBlocking));
+  gpu_check(cudaStreamCreateWithFlags(&out_stream,cudaStreamNonBlocking));
 
   /* BEGIN STAGIN ROUTINE */
   const size_t ndblocks_reqd = ceil(ablock_len/(double)max_dblock_len);
@@ -101,7 +105,8 @@ int main()
 
     // Perform the operation
     const size_t nblocks = ceil(dblock_len/(double)NTHREADS);
-    init<<<nblocks, NTHREADS>>>(dblock_len, dblocks[0][on_id], dblocks[1][on_id]);
+    init<<<nblocks, NTHREADS, 0, work_stream>>>(
+        dblock_len, dblocks[0][on_id], dblocks[1][on_id]);
 
     // After first iteration, begin copying blocks back
     if(ii > 0) {
@@ -122,10 +127,10 @@ int main()
             dblock_len*sizeof(int), cudaMemcpyDeviceToHost, out_stream);
       }
     }
-
     gpu_check(cudaDeviceSynchronize());
   }
 
+#if 0
   for(int ii = 0; ii < ndblocks_reqd; ++ii) {
     const size_t in_id =  (ii+2)%NDBLOCKS;
     const size_t on_id =  (ii+1)%NDBLOCKS;
@@ -148,6 +153,7 @@ int main()
       // Have to sync here to prepare initial data
       gpu_check(cudaStreamSynchronize(in_stream));
     }
+    gpu_check(cudaDeviceSynchronize());
 
     // If not last iteration, asynchronously stage new blocks
     if(ii < ndblocks_reqd-1) {
@@ -160,11 +166,13 @@ int main()
             next_dblock_len*sizeof(int), cudaMemcpyHostToDevice, in_stream);
       }
     }
+    gpu_check(cudaDeviceSynchronize());
 
     // Perform the operation
     const size_t nblocks = ceil(dblock_len/(double)NTHREADS);
     compute<<<nblocks, NTHREADS>>>(
         dblock_len, dblocks[0][on_id], dblocks[1][on_id]);
+    gpu_check(cudaDeviceSynchronize());
 
     // After first iteration, begin copying blocks back
     if(ii > 0) {
@@ -175,6 +183,7 @@ int main()
             max_dblock_len*sizeof(int), cudaMemcpyDeviceToHost, out_stream);
       }
     }
+    gpu_check(cudaDeviceSynchronize());
 
     // Copy back the last computed block
     if(ii == ndblocks_reqd-1) {
@@ -185,21 +194,22 @@ int main()
             dblock_len*sizeof(int), cudaMemcpyDeviceToHost, out_stream);
       }
     }
-
     gpu_check(cudaDeviceSynchronize());
   }
+#endif // if 0
 
+#if 0
   for(size_t ii = 0; ii < ablock_len; ++ii) {
     if(ablock[0][ii] != 3) {
       printf("0 %llu unsuccessful initialisation %d\n", ii, ablock[0][ii]);
     }
-#if 0
     else {
       printf("%d successful initialisation %d\n", ii, ablock[0][ii]);
     }
-#endif // if 0
   }
+#endif // if 0
 
+  cudaHostUnregister(ablock);
   gpu_check(cudaStreamDestroy(in_stream));
   gpu_check(cudaStreamDestroy(out_stream));
 }
