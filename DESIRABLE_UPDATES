@@ -1,0 +1,5 @@
+  o   improved validation routines for all applications
+  o   moving unstructured mesh routines into arch
+  o   improvement of data privatisation - particularly with flow
+  o   print threads and ranks consistently for all applications
+  o   add script that will download all of the arch projects
