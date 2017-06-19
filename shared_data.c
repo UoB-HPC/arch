@@ -5,8 +5,9 @@
 // Initialises the shared_data variables
 void initialise_shared_data_2d(
     const int global_nx, const int global_ny, const int local_nx, 
-    const int local_ny, const int x_off, const int y_off, const double mesh_width, 
-    const double mesh_height, const char* problem_def_filename, const double* edgex, 
+    const int local_ny, const int pad, const int x_off, const int y_off, 
+    const double mesh_width, const double mesh_height, 
+    const char* problem_def_filename, const double* edgex, 
     const double* edgey, SharedData* shared_data) 
 {
   const int ndims = 2;
@@ -41,7 +42,7 @@ void initialise_shared_data_2d(
   allocate_data(&shared_data->reduce_array1, (local_nx+1)*(local_ny+1));
 
   set_problem_2d(
-      global_nx, global_ny, local_nx, local_ny, x_off, y_off, mesh_width, 
+      global_nx, global_ny, local_nx, local_ny, pad, x_off, y_off, mesh_width, 
       mesh_height, edgex, edgey, ndims, problem_def_filename, shared_data->rho, 
       shared_data->e, shared_data->x);
 }
@@ -50,7 +51,7 @@ void initialise_shared_data_2d(
 void initialise_shared_data_3d(
     const int global_nx, const int global_ny, const int global_nz, 
     const int local_nx, const int local_ny, const int local_nz,
-    const int x_off, const int y_off, int z_off, SharedData* shared_data) 
+    const int pad, const int x_off, const int y_off, int z_off, SharedData* shared_data) 
 {
   // Shared shared_data
   allocate_data(&shared_data->rho, local_nx*local_ny*local_nz);

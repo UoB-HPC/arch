@@ -47,9 +47,9 @@ void initialise_comms(
 #endif
 
   // Add on the halo padding to the local mesh
-  mesh->local_nx += 2*PAD;
-  mesh->local_ny += 2*PAD;
-  mesh->local_nz += 2*PAD;
+  mesh->local_nx += 2*mesh->pad;
+  mesh->local_ny += 2*mesh->pad;
+  mesh->local_nz += 2*mesh->pad;
 
   if(mesh->rank == MASTER) {
 #ifdef APP_3D

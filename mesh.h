@@ -24,6 +24,8 @@ extern "C" {
     double height;     // Height of the problem domain
     double depth;      // Depth of the problem domain
 
+    int pad;
+
     // Mesh differentials
     double* edgex;
     double* edgey;
@@ -92,7 +94,7 @@ extern "C" {
   void mesh_data_init_2d(
       const int local_nx, const int local_ny, 
       const int global_nx, const int global_ny,
-      const int x_off, const int y_off,
+      const int pad, const int x_off, const int y_off,
       const double width, const double height,
       double* edgex, double* edgey, 
       double* edgedx, double* edgedy, 
@@ -103,7 +105,7 @@ extern "C" {
   void mesh_data_init_3d(
       const int local_nx, const int local_ny, const int local_nz, 
       const int global_nx, const int global_ny, const int global_nz,
-      const int x_off, const int y_off, const int z_off,
+      const int pad, const int x_off, const int y_off, const int z_off,
       const double width, const double height, const double depth,
       double* edgex, double* edgey, double* edgez, 
       double* edgedx, double* edgedy, double* edgedz, 

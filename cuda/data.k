@@ -64,25 +64,25 @@ __global__ void initialise_problem_state(
 
 __global__ void mesh_data_init_dx(
     const int nx, const int ny, const int global_nx, const int global_ny,
-    const int x_off, const double width, double* edgex, double* edgey, 
+    const int pad, const int x_off, const double width, double* edgex, double* edgey, 
     double* edgedx, double* edgedy, double* celldx, double* celldy)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   if(gid >= (nx+1)) return;
   edgedx[gid] = width / (global_nx);
   celldx[gid] = width / (global_nx);
-  edgex[gid] = edgedx[gid] * (x_off+gid-PAD);
+  edgex[gid] = edgedx[gid] * (x_off+gid-pad);
 }
 
 __global__ void mesh_data_init_dy(
     const int nx, const int ny, const int global_nx, const int global_ny,
-    const int y_off, const double height, double* edgex, double* edgey, 
+    const int pad, const int y_off, const double height, double* edgex, double* edgey, 
     double* edgedx, double* edgedy, double* celldx, double* celldy)
 {
   const int gid = threadIdx.x+blockIdx.x*blockDim.x;
   if(gid >= (ny+1)) return;
   edgedy[gid] = height / (global_ny);
   celldy[gid] = height / (global_ny);
-  edgey[gid] = edgedy[gid] * (y_off+gid-PAD);
+  edgey[gid] = edgedy[gid] * (y_off+gid-pad);
 }
 

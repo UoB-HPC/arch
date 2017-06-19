@@ -47,23 +47,26 @@ extern "C" {
   // Initialises the shared_data variables
   void initialise_shared_data_2d(
       const int global_nx, const int global_ny, const int local_nx, 
-      const int local_ny, const int x_off, const int y_off, const double mesh_width, 
-      const double mesh_height, const char* problem_def_filename, const double* edgex, 
+      const int local_ny, const int pad, const int x_off, const int y_off, 
+      const double mesh_width, const double mesh_height, 
+      const char* problem_def_filename, const double* edgex, 
       const double* edgey, SharedData* shared_data);
 
   // Initialise state data in device specific manner
   void set_problem_2d(
       const int global_nx, const int global_ny, const int local_nx, 
-      const int local_ny, const int x_off, const int y_off, const double mesh_width, 
-      const double mesh_height, const double* edgex, const double* edgey, 
+      const int local_ny, const int pad, const int x_off, const int y_off, 
+      const double mesh_width, const double mesh_height, 
+      const double* edgex, const double* edgey, 
       const int ndims, const char* problem_def_filename, double* rho, 
       double* e, double* x);
 
-  // Initialiases the shared_data variables for three dimensional applications
+  // Initialises the shared_data variables
   void initialise_shared_data_3d(
       const int global_nx, const int global_ny, const int global_nz, 
       const int local_nx, const int local_ny, const int local_nz,
-      const int x_off, const int y_off, const int z_off, SharedData* shared_data);
+      const int pad, const int x_off, const int y_off, int z_off, SharedData* shared_data);
+
   void set_problem_3d(
       const int local_nx, const int local_ny, const int local_nz, 
       const int global_nx, const int global_ny, const int global_nz,

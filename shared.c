@@ -68,8 +68,8 @@ void write_to_visit_3d(
 // all of the ranks, this is over the top
 void write_all_ranks_to_visit(
     const int global_nx, const int global_ny, const int local_nx, 
-    const int local_ny, const int x_off, const int y_off, const int rank, 
-    const int nranks, int* neighbours, double* local_arr, 
+    const int local_ny, const int pad, const int x_off, const int y_off, 
+    const int rank, const int nranks, int* neighbours, double* local_arr, 
     const char* name, const int tt, const double elapsed_sim_time)
 {
 #ifdef DEBUG
@@ -96,10 +96,10 @@ void write_all_ranks_to_visit(
     dims[1] = local_ny;
     dims[2] = x_off;
     dims[3] = y_off;
-    dims[4] = (neighbours[NORTH] == EDGE) ? 0 : PAD;
-    dims[5] = (neighbours[EAST] == EDGE) ? 0 : PAD;
-    dims[6] = (neighbours[SOUTH] == EDGE) ? 0 : PAD;
-    dims[7] = (neighbours[WEST] == EDGE) ? 0 : PAD;
+    dims[4] = (neighbours[NORTH] == EDGE) ? 0 : pad;
+    dims[5] = (neighbours[EAST] == EDGE) ? 0 : pad;
+    dims[6] = (neighbours[SOUTH] == EDGE) ? 0 : pad;
+    dims[7] = (neighbours[WEST] == EDGE) ? 0 : pad;
 
     if(rank == MASTER) {
       if(ii > MASTER) {

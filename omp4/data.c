@@ -118,7 +118,7 @@ void move_host_buffer_to_device(const size_t len, double** src, double** dst)
 void mesh_data_init_2d(
     const int local_nx, const int local_ny, 
     const int global_nx, const int global_ny,
-    const int x_off, const int y_off,
+    const int pad, const int x_off, const int y_off,
     const double width, const double height,
     double* edgex, double* edgey, 
     double* edgedx, double* edgedy, 
@@ -130,7 +130,7 @@ void mesh_data_init_2d(
     edgedx[ii] = width / (global_nx);
 
     // Note: correcting for padding
-    edgex[ii] = edgedx[ii]*(x_off+ii-PAD);
+    edgex[ii] = edgedx[ii]*(x_off+ii-pad);
   }
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_nx; ++ii) {
@@ -141,7 +141,7 @@ void mesh_data_init_2d(
     edgedy[ii] = height / (global_ny);
 
     // Note: correcting for padding
-    edgey[ii] = edgedy[ii]*(y_off+ii-PAD);
+    edgey[ii] = edgedy[ii]*(y_off+ii-pad);
   }
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_ny; ++ii) {
@@ -153,7 +153,7 @@ void mesh_data_init_2d(
 void mesh_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
-    const int x_off, const int y_off, const int z_off,
+    const int pad, const int x_off, const int y_off, const int z_off,
     const double width, const double height, const double depth,
     double* edgex, double* edgey, double* edgez, 
     double* edgedx, double* edgedy, double* edgedz, 
@@ -168,7 +168,7 @@ void mesh_data_init_3d(
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_nz+1; ++ii) {
     edgedz[ii] = depth / (global_nz);
-    edgez[ii] = edgedz[ii]*(z_off+ii-PAD);
+    edgez[ii] = edgedz[ii]*(z_off+ii-pad);
   }
 #pragma omp target teams distribute parallel for
   for(int ii = 0; ii < local_nz; ++ii) {
@@ -179,8 +179,9 @@ void mesh_data_init_3d(
 // Initialise state data in device specific manner
 void set_problem_2d(
     const int global_nx, const int global_ny, const int local_nx, 
-    const int local_ny, const int x_off, const int y_off, const double mesh_width, 
-    const double mesh_height, const double* edgex, const double* edgey, 
+    const int local_ny, const int pad, const int x_off, const int y_off, 
+    const double mesh_width, const double mesh_height, 
+    const double* edgex, const double* edgey, 
     const int ndims, const char* problem_def_filename, double* rho, 
     double* e, double* x)
 {
@@ -214,8 +215,8 @@ void set_problem_2d(
 
     // Loop through the mesh and set the problem
 #pragma omp target teams distribute parallel for map(tofrom: failed) reduction(+: failed)
-    for(int ii = PAD; ii < local_ny-PAD; ++ii) {
-      for(int jj = PAD; jj < local_nx-PAD; ++jj) {
+    for(int ii = pad; ii < local_ny-pad; ++ii) {
+      for(int jj = pad; jj < local_nx-pad; ++jj) {
         double global_xpos = edgex[jj];
         double global_ypos = edgey[ii];
 

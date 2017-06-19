@@ -30,7 +30,7 @@
 
 #define TERMINATE(...) \
   fprintf(stderr, __VA_ARGS__);\
-  exit(EXIT_FAILURE);
+exit(EXIT_FAILURE);
 
 enum { RECV=0, SEND=1 }; // Whether data is sent to/received from device
 
@@ -76,8 +76,8 @@ extern "C" {
   // visit
   void write_all_ranks_to_visit(
       const int global_nx, const int global_ny, const int local_nx, 
-      const int local_ny, const int x_off, const int y_off, const int rank, 
-      const int nranks, int* neighbours, double* local_arr, 
+      const int local_ny, const int pad, const int x_off, const int y_off, 
+      const int rank, const int nranks, int* neighbours, double* local_arr, 
       const char* name, const int tt, const double elapsed_sim_time);
 
 #ifdef __cplusplus
