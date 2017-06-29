@@ -8,6 +8,31 @@
 int get_parameter_line(
     const char* param_name, const char* filename, char** param_line);
 
+// Fetches a string parameter from the file
+char* get_parameter(const char* param_name, const char* filename)
+{
+  char* parameter = (char*)malloc(sizeof(char)*MAX_STR_LEN);
+  if(!parameter) {
+    TERMINATE("Could not allocate space for parameter.");
+  }
+
+  if(!get_parameter_line(param_name, filename, &parameter)) {
+    TERMINATE("Could not find the parameter %s in file %s.\n", 
+        param_name, filename);
+  }
+
+  skip_whitespace(&parameter);
+  size_t str_len = strlen(parameter);
+  for(size_t ii = 0; ii < str_len; ++ii) {
+    // Strip newline or trailing whitespace
+    if(parameter[ii] == '\n' || parameter[ii] == '\r' || parameter[ii] == ' ') {
+      parameter[ii] = '\0';
+    }
+  }
+
+  return parameter;
+}
+
 // Returns a parameter from the parameter file of type integer
 int get_int_parameter(const char* param_name, const char* filename) 
 { 
@@ -121,5 +146,16 @@ void skip_whitespace(char** param_line)
       return;
     }
   }
+}
+
+// Reads a token from the string
+void read_token(
+    char** line, const char* format, void* var)
+{
+  char temp[MAX_STR_LEN];
+  skip_whitespace(line);
+  sscanf(*line, "%s", temp);
+  sscanf(*line, format, var);
+  *line += strlen(temp);
 }
 
