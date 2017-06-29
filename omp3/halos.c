@@ -445,3 +445,32 @@ void handle_boundary_3d(
 #endif // if 0
 }
 
+// Reflect the node centered velocities on the boundary
+void handle_unstructured_reflect(
+    const int nnodes, const int* boundary_index, const int* boundary_type,
+    const double* boundary_normal_x, const double* boundary_normal_y, 
+    double* velocity_x, double* velocity_y)
+{
+#pragma omp parallel for
+  for(int nn = 0; nn < nnodes; ++nn) {
+    const int index = boundary_index[(nn)];
+    if(index == IS_INTERIOR_NODE) {
+      continue;
+    }
+
+    if(boundary_type[(index)] == IS_BOUNDARY) {
+      // Project the velocity onto the face direction
+      const double boundary_parallel_x = boundary_normal_y[(index)];
+      const double boundary_parallel_y = -boundary_normal_x[(index)];
+      const double vel_dot_parallel =
+        (velocity_x[(nn)]*boundary_parallel_x+velocity_y[(nn)]*boundary_parallel_y);
+      velocity_x[(nn)] = boundary_parallel_x*vel_dot_parallel;
+      velocity_y[(nn)] = boundary_parallel_y*vel_dot_parallel;
+    }
+    else if(boundary_type[(index)] == IS_FIXED) {
+      velocity_x[(nn)] = 0.0; 
+      velocity_y[(nn)] = 0.0;
+    }
+  }
+}
+
