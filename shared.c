@@ -78,7 +78,6 @@ void write_all_ranks_to_visit(
 #endif
 
   // If MPI is enabled need to collect the data from all 
-#if defined(ENABLE_VISIT_DUMPS)
 #if defined(MPI)
   double* global_arr;
   double** remote_data;
@@ -126,30 +125,21 @@ void write_all_ranks_to_visit(
             remote_data[ii][jj*lnx+kk];
         }
       }
-
-#if 0
-      deallocate_host_data(remote_data[ii]);
-#endif // if 0
     }
     else if(ii == rank) {
       MPI_Send(&dims, nparams, MPI_INT, MASTER, TAG_VISIT0, MPI_COMM_WORLD);
       MPI_Send(local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
-      deallocate_host_data(local_arr);
     }
     barrier();
   }
   if(rank == MASTER) {
     write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt, elapsed_sim_time);
-#if 0
-    deallocate_host_data(global_arr);
-    free(remote_data);
-#endif // if 0
   }
   barrier();
+  deallocate_host_data(global_arr);
+  free(remote_data);
 #else
   write_to_visit(global_nx, global_ny, 0, 0, local_arr, name, tt, elapsed_sim_time);
-  deallocate_host_data(local_arr);
-#endif
 #endif
 }
 

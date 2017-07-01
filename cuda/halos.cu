@@ -105,25 +105,25 @@ void handle_boundary_2d(
   if(neighbours[NORTH] == EDGE) {
     int nblocks = ceil(nx*pad/(double)NTHREADS);
     north_boundary<<<nblocks, NTHREADS>>>(
-        nx, ny, y_inversion_coeff, arr);
+        nx, ny, pad, y_inversion_coeff, arr);
   }
   // reflect at the south
   if(neighbours[SOUTH] == EDGE) {
     int nblocks = ceil(nx*pad/(double)NTHREADS);
     south_boundary<<<nblocks, NTHREADS>>>(
-        nx, ny, y_inversion_coeff, arr);
+        nx, ny, pad, y_inversion_coeff, arr);
   }
   // reflect at the east
   if(neighbours[EAST] == EDGE) {
     int nblocks = ceil(ny*pad/(double)NTHREADS);
     east_boundary<<<nblocks, NTHREADS>>>(
-        nx, ny, x_inversion_coeff, arr);
+        nx, ny, pad, x_inversion_coeff, arr);
   }
   // reflect at the west
   if(neighbours[WEST] == EDGE) {
     int nblocks = ceil(ny*pad/(double)NTHREADS);
     west_boundary<<<nblocks, NTHREADS>>>(
-        nx, ny, x_inversion_coeff, arr);
+        nx, ny, pad, x_inversion_coeff, arr);
   }
   STOP_PROFILING(&comms_profile, __func__);
 

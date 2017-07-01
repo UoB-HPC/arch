@@ -161,7 +161,7 @@ void mesh_data_init_3d(
 {
   // Initialise as in the 2d case
   mesh_data_init_2d(
-      local_nx, local_ny, global_nx, global_ny, x_off, y_off, width, height,
+      local_nx, local_ny, global_nx, global_ny, pad, x_off, y_off, width, height,
       edgex, edgey, edgedx, edgedy, celldx, celldy);
 
   // Simple uniform rectilinear initialisation

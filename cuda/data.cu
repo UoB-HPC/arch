@@ -134,20 +134,20 @@ void move_host_buffer_to_device(const size_t len, double** src, double** dst)
 // Initialises mesh data in device specific manner
 void mesh_data_init_2d(
     const int local_nx, const int local_ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off, const double width, const double height, 
-    double* edgex, double* edgey, double* edgedx, double* edgedy, 
+    const int pad, const int x_off, const int y_off, const double width, 
+    const double height, double* edgex, double* edgey, double* edgedx, double* edgedy, 
     double* celldx, double* celldy)
 {
   // Simple uniform rectilinear initialisation
   int nblocks = ceil((local_nx+1)/(double)NTHREADS);
   mesh_data_init_dx<<<nblocks, NTHREADS>>>(
-      local_nx, local_ny, global_nx, global_ny, x_off, width, edgex, edgey,
+      local_nx, local_ny, global_nx, global_ny, pad, x_off, width, edgex, edgey,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
 
   nblocks = ceil((local_ny+1)/(double)NTHREADS);
   mesh_data_init_dy<<<nblocks, NTHREADS>>>(
-      local_nx, local_ny, global_nx, global_ny, y_off, height, edgex, edgey,
+      local_nx, local_ny, global_nx, global_ny, pad, y_off, height, edgex, edgey,
       edgedx, edgedy, celldx, celldy);
   gpu_check(cudaDeviceSynchronize());
 }
@@ -155,10 +155,10 @@ void mesh_data_init_2d(
 // Initialise state data in device specific manner
 void set_problem_2d(
     const int global_nx, const int global_ny, const int local_nx, 
-    const int local_ny, const int x_off, const int y_off, const double mesh_width, 
-    const double mesh_height, const double* edgex, const double* edgey, 
-    const int ndims, const char* problem_def_filename, double* rho, 
-    double* e, double* x)
+    const int local_ny, const int pad, const int x_off, const int y_off, 
+    const double mesh_width, const double mesh_height, const double* edgex, 
+    const double* edgey, const int ndims, const char* problem_def_filename, 
+    double* rho, double* e, double* x)
 {
   int* h_keys;
   int* d_keys;
@@ -223,7 +223,7 @@ void set_problem_2d(
 void mesh_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
-    const int x_off, const int y_off, const int z_off,
+    const int pad, const int x_off, const int y_off, const int z_off,
     const double width, const double height, const double depth,
     double* edgex, double* edgey, double* edgez, 
     double* edgedx, double* edgedy, double* edgedz, 
@@ -235,7 +235,7 @@ void mesh_data_init_3d(
 void state_data_init_3d(
     const int local_nx, const int local_ny, const int local_nz, 
     const int global_nx, const int global_ny, const int global_nz,
-    const int x_off, const int y_off, const int z_off,
+    const int pad, const int x_off, const int y_off, const int z_off,
     double* rho, double* e, double* rho_old, double* P, 
     double* Qxx, double* Qyy, double* Qzz, double* x, double* p, 
     double* rho_u, double* rho_v, double* rho_w, double* F_x, double* F_y, double* F_z,

@@ -9,6 +9,7 @@ void initialise_devices(int rank)
       cudaGetDeviceCount(&count));
 
   int device_num = rank % count;
+
 #ifdef DEBUG
   printf("rank %d selects device %d\n", rank, device_num);
 #endif
