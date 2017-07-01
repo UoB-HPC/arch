@@ -2,9 +2,11 @@
 #define __MESHHDR
 
 /* Problem-Independent Constants */
-#define PAD 2           // The depth of halo padding, currently for all applications
-#define LOAD_BALANCE 0  // Whether decomposition should attempt to load balance
-#define NNEIGHBOURS 6   // This is max size required - for 3d
+#define LOAD_BALANCE 0        // Whether decomposition should attempt to load balance
+#define NNEIGHBOURS 6         // This is max size required - for 3d
+#define IS_INTERIOR_NODE -1
+#define IS_FIXED -1
+#define IS_BOUNDARY -2
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,6 +90,35 @@ extern "C" {
     double* h_back_buffer_in;
   } Mesh;
 
+  // Stores unstructured mesh
+  typedef struct {
+    int ncells;
+    int nnodes;
+    int nnodes_by_cell;
+    int ncells_by_node;
+    int nregional_variables;
+    int nboundary_cells;
+
+    int* cells_to_nodes; 
+    int* cells_to_nodes_off; 
+    int* boundary_index;
+    int* boundary_type;
+
+    double* nodes_x0; 
+    double* nodes_y0; 
+    double* nodes_x1; 
+    double* nodes_y1;
+    double* cell_centroids_x;
+    double* cell_centroids_y;
+    double* boundary_normal_x;
+    double* boundary_normal_y;
+    double* sub_cell_volume;
+
+    char* node_filename;
+    char* ele_filename;
+
+  } UnstructuredMesh;
+
   // Initialises the mesh
   void initialise_mesh_2d(
       Mesh* mesh);
@@ -110,6 +141,14 @@ extern "C" {
       double* edgex, double* edgey, double* edgez, 
       double* edgedx, double* edgedy, double* edgedz, 
       double* celldx, double* celldy, double* celldz);
+
+  // Initialise the unstructured mesh sizes
+  void read_unstructured_mesh_sizes(
+      UnstructuredMesh* umesh);
+
+  // Finds the normals for all boundary cells
+  void find_boundary_normals(
+      UnstructuredMesh* umesh, int* boundary_edge_list);
 
   // Finalises the mesh
   void finalise_mesh(

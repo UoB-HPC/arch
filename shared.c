@@ -51,8 +51,7 @@ void write_to_visit_3d(
   fprintf(bovfp, "BRICK_ORIGIN: 0. 0. 0.\n");
 #endif
 
-  fprintf(bovfp, "BRICK_SIZE: %d %d %d\n", nx, ny, nz);
-  fclose(bovfp);
+  fprintf(bovfp, "BRICK_SIZE: %d %d %d\n", nx, ny, nz); fclose(bovfp);
 
   FILE* datfp = fopen(datname, "wb");
   if(!datfp) {

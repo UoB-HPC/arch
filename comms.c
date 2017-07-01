@@ -107,6 +107,16 @@ double reduce_to_master(
   return global_val;
 }
 
+// Performs an all to all communication
+void all_to_all(
+    const int len, double* a, double* b)
+{
+#ifdef MPI
+  MPI_Alltoall(
+      b, len, MPI_DOUBLE, a, len, MPI_DOUBLE, MPI_COMM_WORLD);
+#endif
+}
+
 // Performs an all to all communication of complex data
 void all_to_all_complex(
     const int len, double complex* a, double complex* b)

@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include <math.h>
 #include "../shared.h"
 #include "../mesh.h"
 #include "../params.h"
@@ -250,4 +251,48 @@ void set_problem_3d(
   TERMINATE("set_problem_3d not implemented yet.");
 }
 
+// Finds the normals for all boundary cells
+void find_boundary_normals(
+    UnstructuredMesh* umesh, int* boundary_edge_list)
+{
+  // Loop through all of the boundary cells and find their normals
+#pragma omp parallel for
+  for(int nn = 0; nn < umesh->nnodes; ++nn) {
+    const int boundary_index = umesh->boundary_index[(nn)];
+    if(boundary_index == IS_INTERIOR_NODE) {
+      continue;
+    }
+
+    double normal_x = 0.0;
+    double normal_y = 0.0;
+
+    for(int bb1 = 0; bb1 < umesh->nboundary_cells; ++bb1) {
+      const int node0 = boundary_edge_list[bb1*2];
+      const int node1 = boundary_edge_list[bb1*2+1];
+
+      if(node0 == nn || node1 == nn) {
+        const double node0_x = umesh->nodes_x0[(node0)];
+        const double node0_y = umesh->nodes_y0[(node0)];
+        const double node1_x = umesh->nodes_x0[(node1)];
+        const double node1_y = umesh->nodes_y0[(node1)];
+
+        normal_x += node0_y-node1_y;
+        normal_y += -(node0_x-node1_x);
+      }
+    }
+
+    // We are fixed if we are one of the four corners
+    if((umesh->nodes_x0[(nn)] == 0.0 || umesh->nodes_x0[(nn)] == 1.0) &&
+        (umesh->nodes_y0[(nn)] == 0.0 || umesh->nodes_y0[(nn)] == 1.0)) {
+      umesh->boundary_type[(boundary_index)] = IS_FIXED;
+    }
+    else {
+      umesh->boundary_type[(boundary_index)] = IS_BOUNDARY;
+    }
+
+    const double normal_mag = sqrt(normal_x*normal_x+normal_y*normal_y);
+    umesh->boundary_normal_x[(boundary_index)] = normal_x/normal_mag;
+    umesh->boundary_normal_y[(boundary_index)] = normal_y/normal_mag;
+  }
+}
 

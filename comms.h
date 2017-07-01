@@ -51,6 +51,10 @@ extern "C" {
   double reduce_to_master(
       double local_val);
 
+  // Performs an all to all communication
+  void all_to_all(
+      const int len, double* a, double* b);
+
   // Performs an all to all communication of complex data
   void all_to_all_complex(
       const int len, double complex* a, double complex* b);
@@ -77,6 +81,12 @@ extern "C" {
   void handle_boundary_3d(
       const int nx, const int ny, const int nz, Mesh* mesh, double* arr, 
       const int invert, const int pack);
+
+  // Reflect the node centered velocities on the boundary
+  void handle_unstructured_reflect(
+      const int nnodes, const int* boundary_index, const int* boundary_type,
+      const double* boundary_normal_x, const double* boundary_normal_y, 
+      double* velocity_x, double* velocity_y);
 
   // Finalise the communications
   void finalise_comms();
