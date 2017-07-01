@@ -51,6 +51,10 @@ extern "C" {
   double reduce_to_master(
       double local_val);
 
+  // Performs an all to all communication
+  void all_to_all(
+      const int len, double* a, double* b);
+
   // Performs an all to all communication of complex data
   void all_to_all_complex(
       const int len, double complex* a, double complex* b);
