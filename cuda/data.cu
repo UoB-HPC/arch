@@ -254,3 +254,10 @@ void set_problem_3d(
   TERMINATE("CUDA 3d INCOMPLETE");
 }
 
+// Finds the normals for all boundary cells
+void find_boundary_normals(
+    UnstructuredMesh* umesh, int* boundary_edge_list)
+{
+  TERMINATE("find_boundary_normals needs implementing.");
+}
+

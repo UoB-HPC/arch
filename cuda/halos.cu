@@ -130,3 +130,13 @@ void handle_boundary_2d(
   gpu_check(cudaDeviceSynchronize());
 }
 
+// Reflect the node centered velocities on the boundary
+void handle_unstructured_reflect(
+    const int nnodes, const int* boundary_index, const int* boundary_type,
+    const double* boundary_normal_x, const double* boundary_normal_y, 
+    double* velocity_x, double* velocity_y)
+{
+  TERMINATE("handle_unstructured_reflect needs implementing.");
+}
+
+
