@@ -95,11 +95,12 @@ extern "C" {
     int ncells;
     int nnodes;
     int nnodes_by_cell;
-    int ncells_by_node;
     int nregional_variables;
     int nboundary_cells;
 
+    int* nodes_to_cells;
     int* cells_to_nodes; 
+    int* nodes_to_cells_off;
     int* cells_to_nodes_off; 
     int* boundary_index;
     int* boundary_type;

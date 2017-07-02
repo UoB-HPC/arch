@@ -116,7 +116,6 @@ void read_unstructured_mesh_sizes(
   fgets(line, MAX_STR_LEN, ele_fp);
   skip_whitespace(&line);
   sscanf(line, "%d%d%d", &umesh->ncells, &umesh->nnodes_by_cell, &umesh->nregional_variables);
-  umesh->ncells_by_node = umesh->nnodes_by_cell;
 
   fclose(ele_fp);
   fclose(node_fp);
@@ -131,12 +130,13 @@ size_t read_unstructured_mesh(
   allocated += allocate_data(&umesh->nodes_y0, umesh->nnodes);
   allocated += allocate_data(&umesh->nodes_x1, umesh->nnodes);
   allocated += allocate_data(&umesh->nodes_y1, umesh->nnodes);
-  allocated += allocate_int_data(&umesh->cells_to_nodes, 
-      umesh->ncells*umesh->nnodes_by_cell);
-  allocated += allocate_int_data(&umesh->cells_to_nodes_off, umesh->ncells+1);
   allocated += allocate_data(&umesh->cell_centroids_x, umesh->ncells);
   allocated += allocate_data(&umesh->cell_centroids_y, umesh->ncells);
   allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
+  allocated += allocate_int_data(&umesh->nodes_to_cells_off, umesh->nnodes+1);
+  allocated += allocate_int_data(&umesh->cells_to_nodes_off, umesh->ncells+1);
+  allocated += allocate_int_data(&umesh->cells_to_nodes, umesh->ncells*umesh->nnodes_by_cell);
+  allocated += allocate_int_data(&umesh->nodes_to_cells, umesh->ncells*umesh->nnodes_by_cell);
 
   // Open the files
   FILE* node_fp = fopen(umesh->node_filename, "r");
@@ -202,7 +202,8 @@ size_t read_unstructured_mesh(
     // Store cells to nodes and check if we are at a boundary edge cell
     int nboundary_nodes = 0;
     for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
-      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+nn] = node[nn];
+      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+nn] = node[(nn)];
+      umesh->nodes_to_cells_off[(node[(nn)])+1]++;
       nboundary_nodes += (umesh->boundary_index[(node[nn])] != IS_INTERIOR_NODE);
     }
 
@@ -228,6 +229,33 @@ size_t read_unstructured_mesh(
         (umesh->nodes_y0[node[ii2]]-umesh->nodes_y0[node[ii]]);
     }
     assert(A > 0.0 && "Nodes are not stored in counter-clockwise order.\n");
+  }
+
+  // Turning count container into an offset container
+  for(int nn = 0; nn < umesh->nnodes; ++nn) {
+    umesh->nodes_to_cells_off[(nn+1)] += umesh->nodes_to_cells_off[(nn)];
+  }
+  
+  // Fill all nodes with undetermined values
+  for(int ii = 0; ii < umesh->ncells*umesh->nnodes_by_cell; ++ii) {
+    umesh->nodes_to_cells[(ii)] = -1;
+  }
+
+  // Fill in the list of cells surrounding nodes
+  for(int cc = 0; cc < umesh->ncells; ++cc) {
+    for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
+      const int node = umesh->cells_to_nodes[(cc*umesh->nnodes_by_cell)+(nn)];
+      const int off = umesh->nodes_to_cells_off[(node)];
+      const int len = umesh->nodes_to_cells_off[(node+1)]-off;
+
+      // Using a discovery loop, is there any better way?
+      for(int ii = 0; ii < len; ++ii) {
+        if(umesh->nodes_to_cells[(off+ii)] == -1) {
+          umesh->nodes_to_cells[(off+ii)] = cc;
+          break;
+        }
+      }
+    }
   }
 
   find_boundary_normals(umesh, boundary_edge_list);
