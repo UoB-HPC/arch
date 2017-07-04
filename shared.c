@@ -78,13 +78,16 @@ void write_all_ranks_to_visit(
 
   // If MPI is enabled need to collect the data from all 
 #if defined(MPI)
-  double* global_arr;
-  double** remote_data;
+  double* global_arr = NULL;
+  double* remote_data = NULL;
+  double* h_local_arr = NULL;
+
+  allocate_host_data(&h_local_arr, local_nx*local_ny);
+  copy_buffer(local_nx*local_ny, &local_arr, &h_local_arr, RECV);
 
   if(rank == MASTER) {
     allocate_host_data(&global_arr, global_nx*global_ny);
-    remote_data = (double**)malloc(sizeof(double*)*nranks);
-    remote_data[MASTER] = local_arr;
+    remote_data = h_local_arr;
   }
 
   for(int ii = 0; ii < nranks; ++ii) {
@@ -102,9 +105,9 @@ void write_all_ranks_to_visit(
     if(rank == MASTER) {
       if(ii > MASTER) {
         MPI_Recv(&dims, nparams, MPI_INT, ii, TAG_VISIT0, MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
-        allocate_host_data(&remote_data[ii], dims[0]*dims[1]);
+        allocate_host_data(&remote_data, dims[0]*dims[1]);
         MPI_Recv(
-            remote_data[ii], dims[0]*dims[1], MPI_DOUBLE, ii, TAG_VISIT1, 
+            remote_data, dims[0]*dims[1], MPI_DOUBLE, ii, TAG_VISIT1, 
             MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
       }
 
@@ -120,14 +123,17 @@ void write_all_ranks_to_visit(
       // TODO: fix or remove this horrible piece
       for(int jj = south; jj < lny-north; ++jj) {
         for(int kk = west; kk < lnx-east; ++kk) {
-          global_arr[(jj-south+ly_off+south)*global_nx+(kk-west+lx_off+west)] =
-            remote_data[ii][jj*lnx+kk];
+          global_arr[(jj-south+ly_off+south)*global_nx+(kk-west+lx_off+west)] = remote_data[jj*lnx+kk];
         }
+      }
+
+      if(ii > MASTER) {
+        deallocate_host_data(remote_data);
       }
     }
     else if(ii == rank) {
       MPI_Send(&dims, nparams, MPI_INT, MASTER, TAG_VISIT0, MPI_COMM_WORLD);
-      MPI_Send(local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
+      MPI_Send(h_local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
     }
     barrier();
   }
@@ -136,7 +142,7 @@ void write_all_ranks_to_visit(
   }
   barrier();
   deallocate_host_data(global_arr);
-  free(remote_data);
+  deallocate_host_data(h_local_arr);
 #else
   write_to_visit(global_nx, global_ny, 0, 0, local_arr, name, tt, elapsed_sim_time);
 #endif

@@ -21,7 +21,7 @@ void handle_boundary_2d(
     if(neighbours[EAST] != EDGE) {
       int nblocks = ceil(ny*pad/(double)NTHREADS);
       prepare_east<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->east_buffer_out, arr);
+          nx, ny, pad, mesh->east_buffer_out, arr);
 
       copy_buffer(ny*pad, &mesh->east_buffer_out, &mesh->h_east_buffer_out, RECV);
       non_block_send(mesh->h_east_buffer_out, ny*pad, neighbours[EAST], 2, nmessages++);
@@ -31,7 +31,7 @@ void handle_boundary_2d(
     if(neighbours[WEST] != EDGE) {
       int nblocks = ceil(ny*pad/(double)NTHREADS);
       prepare_west<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->west_buffer_out, arr);
+          nx, ny, pad, mesh->west_buffer_out, arr);
 
       copy_buffer(ny*pad, &mesh->west_buffer_out, &mesh->h_west_buffer_out, RECV);
       non_block_send(mesh->h_west_buffer_out, ny*pad, neighbours[WEST], 3, nmessages++);
@@ -42,7 +42,7 @@ void handle_boundary_2d(
     if(neighbours[NORTH] != EDGE) {
       int nblocks = ceil(nx*pad/(double)NTHREADS);
       prepare_north<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->north_buffer_out, arr);
+          nx, ny, pad, mesh->north_buffer_out, arr);
 
       copy_buffer(nx*pad, &mesh->north_buffer_out, &mesh->h_north_buffer_out, RECV);
       non_block_send(mesh->h_north_buffer_out, nx*pad, neighbours[NORTH], 1, nmessages++);
@@ -52,7 +52,7 @@ void handle_boundary_2d(
     if(neighbours[SOUTH] != EDGE) {
       int nblocks = ceil(nx*pad/(double)NTHREADS);
       prepare_south<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->south_buffer_out, arr);
+          nx, ny, pad, mesh->south_buffer_out, arr);
 
       copy_buffer(nx*pad, &mesh->south_buffer_out, &mesh->h_south_buffer_out, RECV);
       non_block_send(mesh->h_south_buffer_out, nx*pad, neighbours[SOUTH], 0, nmessages++);
@@ -67,7 +67,7 @@ void handle_boundary_2d(
 
       int nblocks = ceil(ny*pad/(double)NTHREADS);
       retrieve_west<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->west_buffer_in, arr);
+          nx, ny, pad, mesh->west_buffer_in, arr);
     }
 
     if(neighbours[EAST] != EDGE) {
@@ -75,7 +75,7 @@ void handle_boundary_2d(
 
       int nblocks = ceil(ny*pad/(double)NTHREADS);
       retrieve_east<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->east_buffer_in, arr);
+          nx, ny, pad, mesh->east_buffer_in, arr);
     }
 
     // Unprepare north and south
@@ -84,7 +84,7 @@ void handle_boundary_2d(
 
       int nblocks = ceil(nx*pad/(double)NTHREADS);
       retrieve_north<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->north_buffer_in, arr);
+          nx, ny, pad, mesh->north_buffer_in, arr);
     }
 
     if(neighbours[SOUTH] != EDGE) {
@@ -92,7 +92,7 @@ void handle_boundary_2d(
 
       int nblocks = ceil(nx*pad/(double)NTHREADS);
       retrieve_south<<<nblocks, NTHREADS>>>(
-          nx, ny, mesh->south_buffer_in, arr);
+          nx, ny, pad, mesh->south_buffer_in, arr);
     }
   }
 #endif
