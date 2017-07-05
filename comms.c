@@ -342,6 +342,48 @@ void decompose_3d_cartesian(
   printf("rank %d dims %d %d %d\n", rank, *local_nx, *local_ny, *local_nz);
 }
 
+#if 0
+// Decompose the unstructured space
+void decompose_unstructured_mesh(
+    const int rank, const int nranks, const int ncells, const int nnodes, 
+    double* cell_centroids_x, double* cell_centroids_y, int* node_neighbours) 
+{
+  const int carry = ncells%nranks;
+
+  // Account for uneven decomposition 
+  int ncells_per_rank = ncells/nranks;
+  if(rank < carry) {
+    ncells_per_rank++;
+  }
+
+  // As with structured algorithm, perform the partitioning for every rank
+  for(int rr = 0; rr < nranks; ++rr) {
+    // This is essentially our chance to make sure that the memory accesses
+    // are correct irrespective of the ordering of the mesh in mesh file
+    for(int cc = 0; cc < ncells; ++cc) {
+      const int nodes_off = cells_to_nodes_off[(cc)];
+      const int nnodes_around_cell = cells_to_nodes_off[(cc+1)]-nodes_off;
+      const double inv_Np = 1.0/(double)nnodes_around_cell;
+
+      double cx = 0.0;
+      double cy = 0.0;
+      for(int nn = 0; nn < nnodes_around_cell; ++nn) {
+        const int node_index = cells_to_nodes[(nodes_off)+(nn)];
+        cx += nodes_x0[(node_index)]*inv_Np;
+        cy += nodes_y0[(node_index)]*inv_Np;
+      }
+      cell_centroids_x[(cc)] = cx;
+      cell_centroids_y[(cc)] = cy;
+    }
+
+    // Only complete up until our rank
+    if(rank == rr) {
+      break;
+    }
+  }
+}
+#endif // if 0
+
 // Finalise the communications
 void finalise_comms()
 {
