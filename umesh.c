@@ -195,14 +195,12 @@ size_t convert_mesh_to_umesh(
   // Loop through the node file, storing all of the nodes in our data structure
   umesh->nboundary_cells = 0;
   umesh->nnodes_by_cell = 4; // Initialising as rectilinear mesh
-  umesh->ncells_by_node = 4;
   umesh->nnodes = (mesh->local_nx+1)*(mesh->local_ny+1);
-  umesh->nboundary_nodes = (2*mesh->local_nx+2*mesh->local_ny);
 
   // Store the boundary index value for all cells
   for(int ii = 0; ii < mesh->local_ny; ++ii) {
     for(int jj = 0; jj < mesh->local_nx; ++jj) {
-      const int index = (ii*nx)+(jj);
+      const int index = (ii*mesh->local_nx)+(jj);
 
       if(ii == 0 || jj == 0 || ii == (mesh->local_ny-1) || jj == (mesh->local_nx-1)) {
         umesh->boundary_index[(index)] = umesh->nboundary_cells++;
@@ -228,10 +226,10 @@ size_t convert_mesh_to_umesh(
         umesh->cells_to_nodes_off[(index+1)] + umesh->nnodes_by_cell;
 
       // Simple closed form calculation for the nodes surrounding a cell
-      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+0] = (ii*nx)+(jj);
-      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+1] = (ii*nx)+(jj+1);
-      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+2] = ((ii+1)*nx)+(jj);
-      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+3] = ((ii+1)*nx)+(jj+1);
+      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+0] = (ii*mesh->local_nx)+(jj);
+      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+1] = (ii*mesh->local_nx)+(jj+1);
+      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+2] = ((ii+1)*mesh->local_nx)+(jj);
+      umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+3] = ((ii+1)*mesh->local_nx)+(jj+1);
     }
   }
 
@@ -239,6 +237,10 @@ size_t convert_mesh_to_umesh(
   for(int ii = 0; ii < (mesh->local_ny+1); ++ii) {
     for(int jj = 0; jj < (mesh->local_nx+1); ++jj) {
       const int node_index = (ii*(mesh->local_nx+1))+(jj);
+
+      umesh->nodes_y0[(node_index)] = mesh->edgey[(ii)];
+      umesh->nodes_x0[(node_index)] = mesh->edgex[(jj)];
+
       int off = umesh->nodes_to_cells_off[(node_index)];
       if(ii == 0) {
         if(jj == 0) {
@@ -291,8 +293,8 @@ size_t convert_mesh_to_umesh(
   for(int ii = 0; ii < mesh->local_ny; ++ii) {
     for(int jj = 0; jj < mesh->local_nx; ++jj) {
       const int cell_index = (ii*mesh->local_nx)+(jj);
-      const int cell_offset = cells_to_nodes_off[(cell_index)];
-      const int* nodes = umesh->cells_to_nodes[(cell_offset)];
+      const int cell_offset = umesh->cells_to_nodes_off[(cell_index)];
+      const int* nodes = &umesh->cells_to_nodes[(cell_offset)];
       for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
         const int next_node_index = (nn+1 == umesh->nnodes_by_cell ? 0 : nn+1);
         if(umesh->boundary_index[(nodes[(nn)])] != IS_INTERIOR_NODE && 
