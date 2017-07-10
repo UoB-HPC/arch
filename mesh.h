@@ -114,6 +114,9 @@ extern "C" {
       double* edgedx, double* edgedy, double* edgedz, 
       double* celldx, double* celldy, double* celldz);
 
+  // Deallocate all of the mesh memory
+  void finalise_mesh(Mesh* mesh);
+
 #ifdef __cplusplus
 }
 #endif

@@ -51,17 +51,20 @@ extern "C" {
   size_t initialise_unstructured_mesh(
       UnstructuredMesh* umesh);
 
-  // Initialise the unstructured mesh sizes
+  // We need this data to be able to initialise any data arrays etc
   void read_unstructured_mesh_sizes(
       UnstructuredMesh* umesh);
 
-  // Finds the normals for all boundary cells
+  // Reads an unstructured mesh from an input file
+  size_t read_unstructured_mesh(
+      UnstructuredMesh* umesh, double** variables);
+
+  // Reads an unstructured mesh from an input file
+  size_t convert_mesh_to_umesh(
+      UnstructuredMesh* umesh, Mesh* mesh);
+
   void find_boundary_normals(
       UnstructuredMesh* umesh, int* boundary_edge_list);
-
-  // Finalises the mesh
-  void finalise_mesh(
-      Mesh* mesh);
 
 #ifdef __cplusplus
 }
