@@ -20,11 +20,12 @@ size_t initialise_unstructured_mesh(
   allocated += allocate_int_data(&umesh->cells_to_nodes_off, umesh->ncells+1);
   allocated += allocate_int_data(&umesh->cells_to_nodes, umesh->ncells*umesh->nnodes_by_cell);
   allocated += allocate_int_data(&umesh->nodes_to_cells, umesh->ncells*umesh->nnodes_by_cell);
+  allocated += allocate_int_data(&umesh->node_neighbours, umesh->nnodes);
   return allocated;
 }
 
-// We need this data to be able to initialise any data arrays etc
-void read_unstructured_mesh_sizes(
+// Reads the nodes data from the unstructured mesh definition
+void read_nodes_data(
     UnstructuredMesh* umesh)
 {
   // Open the files
@@ -53,27 +54,6 @@ void read_unstructured_mesh_sizes(
 
   fclose(ele_fp);
   fclose(node_fp);
-}
-
-// Reads an unstructured mesh from an input file
-size_t read_unstructured_mesh(
-    UnstructuredMesh* umesh, double** variables)
-{
-  size_t allocated = initialise_unstructured_mesh(umesh);
-
-  // Open the files
-  FILE* node_fp = fopen(umesh->node_filename, "r");
-  FILE* ele_fp = fopen(umesh->ele_filename, "r");
-  if(!node_fp) {
-    TERMINATE("Could not open the parameter file: %s.\n", umesh->node_filename);
-  }
-  if(!ele_fp) {
-    TERMINATE("Could not open the parameter file: %s.\n", umesh->ele_filename);
-  }
-
-  // Fetch the first line of the nodes file
-  char buf[MAX_STR_LEN];
-  char* line = buf;
 
   // Skip first line of both files
   fgets(line, MAX_STR_LEN, node_fp);
@@ -93,12 +73,29 @@ size_t read_unstructured_mesh(
       ? umesh->nboundary_cells++ : IS_INTERIOR_NODE;
   }
 
-  int* boundary_edge_list;
-  int boundary_edge_index = 0;
-  allocated += allocate_int_data(&boundary_edge_list, umesh->nboundary_cells*2);
   allocated += allocate_data(&umesh->boundary_normal_x, umesh->nboundary_cells);
   allocated += allocate_data(&umesh->boundary_normal_y, umesh->nboundary_cells);
   allocated += allocate_int_data(&umesh->boundary_type, umesh->nboundary_cells);
+}
+
+// Reads the element data from the unstructured mesh definition
+size_t read_element_data(
+    UnstructuredMesh* umesh, double** variables)
+{
+  size_t allocated = initialise_unstructured_mesh(umesh);
+
+  // Open the files
+  FILE* ele_fp = fopen(umesh->ele_filename, "r");
+  if(!ele_fp) {
+    TERMINATE("Could not open the parameter file: %s.\n", umesh->ele_filename);
+  }
+
+  char buf[MAX_STR_LEN];
+  char* line = buf;
+
+  int boundary_edge_index = 0;
+  int* boundary_edge_list;
+  allocated += allocate_int_data(&boundary_edge_list, umesh->nboundary_cells*2);
 
   // Loop through the element file and flatten into data structure
   while(fgets(line, MAX_STR_LEN, ele_fp)) {

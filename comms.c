@@ -342,8 +342,8 @@ void decompose_3d_cartesian(
   printf("rank %d dims %d %d %d\n", rank, *local_nx, *local_ny, *local_nz);
 }
 
-#if 0
 // Decompose the unstructured space
+#if 0
 void decompose_unstructured_mesh(
     const int rank, const int nranks, const int ncells, const int nnodes, 
     double* cell_centroids_x, double* cell_centroids_y, int* node_neighbours) 

@@ -31,6 +31,7 @@ extern "C" {
     int* cells_to_nodes_off; 
     int* boundary_index;
     int* boundary_type;
+    int* node_neighbours;
 
     double* nodes_x0; 
     double* nodes_y0; 
@@ -51,9 +52,13 @@ extern "C" {
   size_t initialise_unstructured_mesh(
       UnstructuredMesh* umesh);
 
-  // Initialise the unstructured mesh sizes
-  void read_unstructured_mesh_sizes(
+  // Reads the nodes data from the unstructured mesh definition
+  void read_nodes_data(
       UnstructuredMesh* umesh);
+
+  // Reads the element data from the unstructured mesh definition
+  size_t read_element_data(
+      UnstructuredMesh* umesh, double** variables);
 
   // Finds the normals for all boundary cells
   void find_boundary_normals(
