@@ -2,6 +2,7 @@
 #include <math.h>
 #include "../shared.h"
 #include "../mesh.h"
+#include "../umesh.h"
 #include "../params.h"
 
 // Allocates some double precision data

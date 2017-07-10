@@ -1,5 +1,6 @@
 #include "../comms.h"
 #include "../mesh.h"
+#include "../umesh.h"
 
 // Enforce reflective boundary conditions on the problem state
 void handle_boundary_2d(

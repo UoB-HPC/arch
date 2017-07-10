@@ -5,6 +5,7 @@
 
 #include <complex.h>
 #include "mesh.h"
+#include "umesh.h"
 #include "shared.h"
 
 #define MASTER 0             // The master rank for MPI

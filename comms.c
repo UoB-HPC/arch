@@ -376,6 +376,11 @@ void decompose_unstructured_mesh(
       cell_centroids_y[(cc)] = cy;
     }
 
+    // Loop over all of the cell centroids to determine the closest
+    for(int cc = 0; cc < ncells; ++cc) {
+
+    }
+
     // Only complete up until our rank
     if(rank == rr) {
       break;
