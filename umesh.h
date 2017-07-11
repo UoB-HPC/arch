@@ -25,13 +25,15 @@ extern "C" {
     int nregional_variables;
     int nboundary_cells;
 
-    int* nodes_to_cells;
-    int* cells_to_nodes; 
-    int* nodes_to_cells_off;
-    int* cells_to_nodes_off; 
     int* boundary_index;
     int* boundary_type;
-    int* node_neighbours;
+
+    int* nodes_to_cells;
+    int* cells_to_nodes; 
+    int* nodes_to_nodes;
+    int* cells_to_cells;
+    int* nodes_offsets;
+    int* cells_offsets; 
 
     double* nodes_x0; 
     double* nodes_y0; 
@@ -53,7 +55,7 @@ extern "C" {
       UnstructuredMesh* umesh);
 
   // Reads the nodes data from the unstructured mesh definition
-  void read_nodes_data(
+  size_t read_nodes_data(
       UnstructuredMesh* umesh);
 
   // Reads the element data from the unstructured mesh definition

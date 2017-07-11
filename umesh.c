@@ -16,16 +16,17 @@ size_t initialise_unstructured_mesh(
   allocated += allocate_data(&umesh->cell_centroids_x, umesh->ncells);
   allocated += allocate_data(&umesh->cell_centroids_y, umesh->ncells);
   allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
-  allocated += allocate_int_data(&umesh->nodes_to_cells_off, umesh->nnodes+1);
-  allocated += allocate_int_data(&umesh->cells_to_nodes_off, umesh->ncells+1);
+  allocated += allocate_int_data(&umesh->nodes_offsets, umesh->nnodes+1);
+  allocated += allocate_int_data(&umesh->cells_offsets, umesh->ncells+1);
   allocated += allocate_int_data(&umesh->cells_to_nodes, umesh->ncells*umesh->nnodes_by_cell);
   allocated += allocate_int_data(&umesh->nodes_to_cells, umesh->ncells*umesh->nnodes_by_cell);
-  allocated += allocate_int_data(&umesh->node_neighbours, umesh->nnodes);
+  allocated += allocate_int_data(&umesh->nodes_to_nodes, umesh->ncells*umesh->nnodes_by_cell);
+  allocated += allocate_int_data(&umesh->cells_to_cells, umesh->ncells*umesh->nnodes_by_cell);
   return allocated;
 }
 
 // Reads the nodes data from the unstructured mesh definition
-void read_nodes_data(
+size_t read_nodes_data(
     UnstructuredMesh* umesh)
 {
   // Open the files
@@ -73,9 +74,10 @@ void read_nodes_data(
       ? umesh->nboundary_cells++ : IS_INTERIOR_NODE;
   }
 
-  allocated += allocate_data(&umesh->boundary_normal_x, umesh->nboundary_cells);
+  size_t allocated = allocate_data(&umesh->boundary_normal_x, umesh->nboundary_cells);
   allocated += allocate_data(&umesh->boundary_normal_y, umesh->nboundary_cells);
   allocated += allocate_int_data(&umesh->boundary_type, umesh->nboundary_cells);
+  return allocated;
 }
 
 // Reads the element data from the unstructured mesh definition
@@ -116,14 +118,14 @@ size_t read_element_data(
     }
 
     // Store the cell offsets in case of future mixed cell geometry
-    umesh->cells_to_nodes_off[(index+1)] = 
-      umesh->cells_to_nodes_off[(index)] + umesh->nnodes_by_cell;
+    umesh->cells_offsets[(index+1)] = 
+      umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
 
     // Store cells to nodes and check if we are at a boundary edge cell
     int nboundary_nodes = 0;
     for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
       umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+nn] = node[(nn)];
-      umesh->nodes_to_cells_off[(node[(nn)])+1]++;
+      umesh->nodes_offsets[(node[(nn)])+1]++;
       nboundary_nodes += (umesh->boundary_index[(node[nn])] != IS_INTERIOR_NODE);
     }
 
@@ -153,7 +155,7 @@ size_t read_element_data(
 
   // Turning count container into an offset container
   for(int nn = 0; nn < umesh->nnodes; ++nn) {
-    umesh->nodes_to_cells_off[(nn+1)] += umesh->nodes_to_cells_off[(nn)];
+    umesh->nodes_offsets[(nn+1)] += umesh->nodes_offsets[(nn)];
   }
 
   // Fill all nodes with undetermined values
@@ -165,8 +167,8 @@ size_t read_element_data(
   for(int cc = 0; cc < umesh->ncells; ++cc) {
     for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
       const int node = umesh->cells_to_nodes[(cc*umesh->nnodes_by_cell)+(nn)];
-      const int off = umesh->nodes_to_cells_off[(node)];
-      const int len = umesh->nodes_to_cells_off[(node+1)]-off;
+      const int off = umesh->nodes_offsets[(node)];
+      const int len = umesh->nodes_offsets[(node+1)]-off;
 
       // Using a discovery loop, is there any better way?
       for(int ii = 0; ii < len; ++ii) {
@@ -179,6 +181,54 @@ size_t read_element_data(
   }
 
   find_boundary_normals(umesh, boundary_edge_list);
+
+  // Determine the cells that neighbour other cells
+  for(int cc = 0; cc < umesh->ncells; ++cc) {
+    const int cells_off = umesh->cells_offsets[(cc)];
+    const int nnodes_around_cell = umesh->cells_offsets[(cc+1)]-cells_off;
+
+    // Store the complete list of nodes that surround the cell
+    int nodes[nnodes_around_cell];
+    for(int nn = 0; nn < nnodes_around_cell; ++nn) {
+      nodes[(nn)] = umesh->cells_to_nodes[(cells_off+nn)];
+    }
+
+    int neighbour = -1;
+    // Look at every node and determine the shared cells
+    for(int nn = 0; nn < nnodes_around_cell; ++nn) {
+      const int node_index = umesh->cells_to_nodes[(cells_off+nn)];
+      const int node_offset = umesh->nodes_offsets[(nn)];
+      const int ncells_by_node = umesh->nodes_offsets[(nn+1)]-node_offset;
+
+      // Look at the cells around the node
+      for(int cc2 = 0; cc2 < ncells_by_node; ++cc2) {
+        const int neighbour_candidate_index = umesh->nodes_to_cells[(node_offset+cc2)];
+        const int candidate_nodes_off = umesh->cells_offsets[(neighbour_candidate_index)];
+
+        // Search through the list of nodes around the cell
+        for(int nn2 = 0; nn2 < nnodes_around_cell; ++nn) {
+          for(int nn3 = 0; nn3 < nnodes_around_cell; ++nn3) {
+            if(nodes[(nn2)] != node_index && 
+               nodes[(nn2)] == umesh->cells_to_nodes[(candidate_nodes_off+nn3)]) {
+              neighbour = neighbour_candidate_index;
+              break;
+            }
+          }
+          if(neighbour != -1) break;
+        }
+        if(neighbour != -1) break;
+      }
+
+      if(neighbour != -1) {
+        umesh->cells_to_cells[(cells_off+nn)] = neighbour;
+        break;
+      }
+    }
+  }
+
+  // Determine the nodes that surround other nodes
+  for(int nn = 0; nn < umesh->nnodes; ++nn) {
+  }
 
   return allocated;
 }
@@ -219,8 +269,8 @@ size_t convert_mesh_to_umesh(
   for(int ii = 0; ii < mesh->local_ny; ++ii) {
     for(int jj = 0; jj < mesh->local_nx; ++jj) {
       const int index = (ii*mesh->local_nx)+(jj);
-      umesh->cells_to_nodes_off[(index+1)] = 
-        umesh->cells_to_nodes_off[(index+1)] + umesh->nnodes_by_cell;
+      umesh->cells_offsets[(index+1)] = 
+        umesh->cells_offsets[(index+1)] + umesh->nnodes_by_cell;
 
       // Simple closed form calculation for the nodes surrounding a cell
       umesh->cells_to_nodes[(index*umesh->nnodes_by_cell)+0] = (ii*mesh->local_nx)+(jj);
@@ -238,7 +288,7 @@ size_t convert_mesh_to_umesh(
       umesh->nodes_y0[(node_index)] = mesh->edgey[(ii)];
       umesh->nodes_x0[(node_index)] = mesh->edgex[(jj)];
 
-      int off = umesh->nodes_to_cells_off[(node_index)];
+      int off = umesh->nodes_offsets[(node_index)];
       if(ii == 0) {
         if(jj == 0) {
           umesh->nodes_to_cells[(off++)] = (ii*mesh->local_nx)+(jj);
@@ -282,7 +332,7 @@ size_t convert_mesh_to_umesh(
       }
 
       // Store the calculated offset
-      umesh->nodes_to_cells_off[(node_index)] = off;
+      umesh->nodes_offsets[(node_index)] = off;
     }
   }
 
@@ -290,7 +340,7 @@ size_t convert_mesh_to_umesh(
   for(int ii = 0; ii < mesh->local_ny; ++ii) {
     for(int jj = 0; jj < mesh->local_nx; ++jj) {
       const int cell_index = (ii*mesh->local_nx)+(jj);
-      const int cell_offset = umesh->cells_to_nodes_off[(cell_index)];
+      const int cell_offset = umesh->cells_offsets[(cell_index)];
       const int* nodes = &umesh->cells_to_nodes[(cell_offset)];
       for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
         const int next_node_index = (nn+1 == umesh->nnodes_by_cell ? 0 : nn+1);
