@@ -259,20 +259,20 @@ void fill_cells_to_cells(UnstructuredMesh* umesh)
 void fill_nodes_to_nodes(UnstructuredMesh* umesh)
 {
   for(int nn = 0; nn < umesh->nnodes; ++nn) {
-    const int node_offset = umesh->nodes_offsets[(nn)];
+    const int nodes_off = umesh->nodes_offsets[(nn)];
     for(int cc = 0; cc < umesh->ncells; ++cc) {
-      const int cell_index = umesh->nodes_to_cells[(node_offset+cc)];
-      const int cell_offset = umesh->cells_offsets[(cell_index)];
-      const int nnodes_by_cell = umesh->cells_offsets[(cell_index+1)]-cell_offset;
+      const int cell_index = umesh->nodes_to_cells[(nodes_off+cc)];
+      const int cells_off = umesh->cells_offsets[(cell_index)];
+      const int nnodes_by_cell = umesh->cells_offsets[(cell_index+1)]-cells_off;
 
       // Look at the nodes surrounding the cell and pick the one that is 
       // clockwise from the current node
       for(int nn2 = 0; nn2 < nnodes_by_cell; ++nn2) {
-        const int node_index = umesh->cells_to_nodes[(cell_offset+nn2)];
+        const int node_index = umesh->cells_to_nodes[(cells_off+nn2)];
         if(node_index == nn) {
-          umesh->nodes_to_nodes[(node_offset+cc)] = (nn2 > 0) 
-            ? umesh->cells_to_nodes[(cell_offset+(nn2-1))] 
-            : umesh->cells_to_nodes[(cell_offset+(nnodes_by_cell-1))];
+          umesh->nodes_to_nodes[(nodes_off+cc)] = (nn2 > 0) 
+            ? umesh->cells_to_nodes[(cells_off+(nn2-1))] 
+            : umesh->cells_to_nodes[(cells_off+(nnodes_by_cell-1))];
           break;
         }
       }
@@ -392,8 +392,8 @@ size_t convert_mesh_to_umesh(
   for(int ii = 0; ii < mesh->local_ny; ++ii) {
     for(int jj = 0; jj < mesh->local_nx; ++jj) {
       const int cell_index = (ii*mesh->local_nx)+(jj);
-      const int cell_offset = umesh->cells_offsets[(cell_index)];
-      const int* nodes = &umesh->cells_to_nodes[(cell_offset)];
+      const int cells_off = umesh->cells_offsets[(cell_index)];
+      const int* nodes = &umesh->cells_to_nodes[(cells_off)];
       for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
         const int next_node_index = (nn+1 == umesh->nnodes_by_cell ? 0 : nn+1);
         if(umesh->boundary_index[(nodes[(nn)])] != IS_INTERIOR_NODE && 
