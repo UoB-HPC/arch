@@ -9,19 +9,15 @@ size_t initialise_unstructured_mesh(
     UnstructuredMesh* umesh)
 {
   // Allocate the data structures that we now know the sizes of
-  size_t allocated = allocate_data(&umesh->nodes_x0, umesh->nnodes);
-  allocated += allocate_data(&umesh->nodes_y0, umesh->nnodes);
-  allocated += allocate_data(&umesh->nodes_x1, umesh->nnodes);
-  allocated += allocate_data(&umesh->nodes_y1, umesh->nnodes);
-  allocated += allocate_data(&umesh->cell_centroids_x, umesh->ncells);
+  size_t allocated = allocate_data(&umesh->cell_centroids_x, umesh->ncells);
   allocated += allocate_data(&umesh->cell_centroids_y, umesh->ncells);
-  allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
   allocated += allocate_int_data(&umesh->nodes_offsets, umesh->nnodes+1);
   allocated += allocate_int_data(&umesh->cells_offsets, umesh->ncells+1);
   allocated += allocate_int_data(&umesh->cells_to_nodes, umesh->ncells*umesh->nnodes_by_cell);
   allocated += allocate_int_data(&umesh->nodes_to_cells, umesh->ncells*umesh->nnodes_by_cell);
   allocated += allocate_int_data(&umesh->nodes_to_nodes, umesh->ncells*umesh->nnodes_by_cell);
   allocated += allocate_int_data(&umesh->cells_to_cells, umesh->ncells*umesh->nnodes_by_cell);
+  allocated += allocate_data(&umesh->sub_cell_volume, umesh->ncells*umesh->nnodes_by_cell);
   return allocated;
 }
 
@@ -31,12 +27,8 @@ size_t read_nodes_data(
 {
   // Open the files
   FILE* node_fp = fopen(umesh->node_filename, "r");
-  FILE* ele_fp = fopen(umesh->ele_filename, "r");
   if(!node_fp) {
     TERMINATE("Could not open the parameter file: %s.\n", umesh->node_filename);
-  }
-  if(!ele_fp) {
-    TERMINATE("Could not open the parameter file: %s.\n", umesh->ele_filename);
   }
 
   // Fetch the first line of the nodes file
@@ -48,17 +40,11 @@ size_t read_nodes_data(
   skip_whitespace(&line);
   sscanf(line, "%d", &umesh->nnodes);
 
-  // Read meta data from the element file
-  fgets(line, MAX_STR_LEN, ele_fp);
-  skip_whitespace(&line);
-  sscanf(line, "%d%d%d", &umesh->ncells, &umesh->nnodes_by_cell, &umesh->nregional_variables);
-
-  fclose(ele_fp);
-  fclose(node_fp);
-
-  // Skip first line of both files
-  fgets(line, MAX_STR_LEN, node_fp);
-  fgets(line, MAX_STR_LEN, ele_fp);
+  size_t allocated = allocate_data(&umesh->nodes_x0, umesh->nnodes);
+  allocated += allocate_data(&umesh->nodes_y0, umesh->nnodes);
+  allocated += allocate_data(&umesh->nodes_x1, umesh->nnodes);
+  allocated += allocate_data(&umesh->nodes_y1, umesh->nnodes);
+  allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
 
   // Loop through the node file, storing all of the nodes in our data structure
   umesh->nboundary_cells = 0;
@@ -74,7 +60,9 @@ size_t read_nodes_data(
       ? umesh->nboundary_cells++ : IS_INTERIOR_NODE;
   }
 
-  size_t allocated = allocate_data(&umesh->boundary_normal_x, umesh->nboundary_cells);
+  fclose(node_fp);
+
+  allocated += allocate_data(&umesh->boundary_normal_x, umesh->nboundary_cells);
   allocated += allocate_data(&umesh->boundary_normal_y, umesh->nboundary_cells);
   allocated += allocate_int_data(&umesh->boundary_type, umesh->nboundary_cells);
   return allocated;
@@ -84,8 +72,6 @@ size_t read_nodes_data(
 size_t read_element_data(
     UnstructuredMesh* umesh, double** variables)
 {
-  size_t allocated = initialise_unstructured_mesh(umesh);
-
   // Open the files
   FILE* ele_fp = fopen(umesh->ele_filename, "r");
   if(!ele_fp) {
@@ -95,8 +81,15 @@ size_t read_element_data(
   char buf[MAX_STR_LEN];
   char* line = buf;
 
+  // Read meta data from the element file
+  fgets(line, MAX_STR_LEN, ele_fp);
+  skip_whitespace(&line);
+  sscanf(line, "%d%d%d", &umesh->ncells, &umesh->nnodes_by_cell, &umesh->nregional_variables);
+
   int boundary_edge_index = 0;
   int* boundary_edge_list;
+
+  size_t allocated = initialise_unstructured_mesh(umesh);
   allocated += allocate_int_data(&boundary_edge_list, umesh->nboundary_cells*2);
 
   // Loop through the element file and flatten into data structure
@@ -111,6 +104,15 @@ size_t read_element_data(
     for(int ii = 0; ii < umesh->nnodes_by_cell; ++ii) {
       read_token(&line_temp, "%d", &node[ii]);
     }
+
+    // Check that we are storing the nodes in the correct order
+    double A = 0.0;
+    for(int ii = 0; ii < umesh->nnodes_by_cell; ++ii) {
+      const int ii2 = (ii+1) % umesh->nnodes_by_cell; 
+      A += (umesh->nodes_x0[node[ii]]+umesh->nodes_x0[node[ii2]])*
+        (umesh->nodes_y0[node[ii2]]-umesh->nodes_y0[node[ii]]);
+    }
+    assert(A > 0.0 && "Nodes are not stored in counter-clockwise order.\n");
 
     // Read in each of the regional variables
     for(int ii = 0; ii < umesh->nregional_variables; ++ii) {
@@ -142,15 +144,6 @@ size_t read_element_data(
         }
       }
     }
-
-    // Check that we are storing the nodes in the correct order
-    double A = 0.0;
-    for(int ii = 0; ii < umesh->nnodes_by_cell; ++ii) {
-      const int ii2 = (ii+1) % umesh->nnodes_by_cell; 
-      A += (umesh->nodes_x0[node[ii]]+umesh->nodes_x0[node[ii2]])*
-        (umesh->nodes_y0[node[ii2]]-umesh->nodes_y0[node[ii]]);
-    }
-    assert(A > 0.0 && "Nodes are not stored in counter-clockwise order.\n");
   }
 
   // Turning count container into an offset container
@@ -182,6 +175,7 @@ size_t read_element_data(
 
   find_boundary_normals(umesh, boundary_edge_list);
 
+#if 0
   // Determine the cells that neighbour other cells
   for(int cc = 0; cc < umesh->ncells; ++cc) {
     const int cells_off = umesh->cells_offsets[(cc)];
@@ -225,10 +219,14 @@ size_t read_element_data(
       }
     }
   }
+#endif // if 0
 
+#if 0
   // Determine the nodes that surround other nodes
   for(int nn = 0; nn < umesh->nnodes; ++nn) {
   }
+#endif // if 0
+  fclose(ele_fp);
 
   return allocated;
 }
@@ -238,6 +236,11 @@ size_t convert_mesh_to_umesh(
     UnstructuredMesh* umesh, Mesh* mesh)
 {
   size_t allocated = initialise_unstructured_mesh(umesh);
+  allocated += allocate_data(&umesh->nodes_x0, umesh->nnodes);
+  allocated += allocate_data(&umesh->nodes_y0, umesh->nnodes);
+  allocated += allocate_data(&umesh->nodes_x1, umesh->nnodes);
+  allocated += allocate_data(&umesh->nodes_y1, umesh->nnodes);
+  allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
 
   // Loop through the node file, storing all of the nodes in our data structure
   umesh->nboundary_cells = 0;
