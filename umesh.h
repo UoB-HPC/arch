@@ -54,13 +54,9 @@ extern "C" {
   size_t initialise_unstructured_mesh(
       UnstructuredMesh* umesh);
 
-  // Reads the nodes data from the unstructured mesh definition
-  size_t read_nodes_data(
-      UnstructuredMesh* umesh);
-
   // Reads the element data from the unstructured mesh definition
-  size_t read_element_data(
-      UnstructuredMesh* umesh, double** variables);
+  size_t read_unstructured_mesh(
+      UnstructuredMesh* umesh, double** variables, int nvars);
 
   // Finds the normals for all boundary cells
   void find_boundary_normals(

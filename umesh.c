@@ -4,6 +4,18 @@
 #include "umesh.h"
 #include "params.h"
 
+// Converts the lists of cell counts to a list of offsets
+void convert_cell_counts_to_offsets(UnstructuredMesh* umesh);
+
+// Fill in the list of cells surrounding nodes
+void fill_nodes_to_cells(UnstructuredMesh* umesh);
+
+// Determine the cells that neighbour other cells
+void fill_cells_to_cells(UnstructuredMesh* umesh);
+
+// Determine the nodes that surround other nodes
+void fill_nodes_to_nodes(UnstructuredMesh* umesh);
+
 // Initialises the unstructured mesh variables
 size_t initialise_unstructured_mesh(
     UnstructuredMesh* umesh)
@@ -22,8 +34,8 @@ size_t initialise_unstructured_mesh(
 }
 
 // Reads the nodes data from the unstructured mesh definition
-size_t read_nodes_data(
-    UnstructuredMesh* umesh)
+size_t read_unstructured_mesh(
+    UnstructuredMesh* umesh, double** cell_variables, int nvars)
 {
   // Open the files
   FILE* node_fp = fopen(umesh->node_filename, "r");
@@ -53,33 +65,24 @@ size_t read_nodes_data(
     int is_boundary;
     int discard;
     sscanf(line, "%d", &index); 
-    sscanf(line, "%d%lf%lf%d", &discard, &umesh->nodes_x0[(index)], 
-        &umesh->nodes_y0[(index)], &is_boundary);
+    sscanf(line, "%d%lf%lf%d", 
+        &discard, &umesh->nodes_x0[(index)], &umesh->nodes_y0[(index)], &is_boundary);
 
     umesh->boundary_index[(index)] = (is_boundary) 
       ? umesh->nboundary_cells++ : IS_INTERIOR_NODE;
   }
 
-  fclose(node_fp);
-
   allocated += allocate_data(&umesh->boundary_normal_x, umesh->nboundary_cells);
   allocated += allocate_data(&umesh->boundary_normal_y, umesh->nboundary_cells);
   allocated += allocate_int_data(&umesh->boundary_type, umesh->nboundary_cells);
-  return allocated;
-}
 
-// Reads the element data from the unstructured mesh definition
-size_t read_element_data(
-    UnstructuredMesh* umesh, double** variables)
-{
+  fclose(node_fp);
+
   // Open the files
   FILE* ele_fp = fopen(umesh->ele_filename, "r");
   if(!ele_fp) {
     TERMINATE("Could not open the parameter file: %s.\n", umesh->ele_filename);
   }
-
-  char buf[MAX_STR_LEN];
-  char* line = buf;
 
   // Read meta data from the element file
   fgets(line, MAX_STR_LEN, ele_fp);
@@ -89,8 +92,16 @@ size_t read_element_data(
   int boundary_edge_index = 0;
   int* boundary_edge_list;
 
-  size_t allocated = initialise_unstructured_mesh(umesh);
-  allocated += allocate_int_data(&boundary_edge_list, umesh->nboundary_cells*2);
+  assert(nvars == umesh->nregional_variables &&
+      "The number of variables passed to read_element_data \
+      doesn't match the input file.");
+
+  allocated += initialise_unstructured_mesh(umesh);
+  for(int ii = 0; ii < umesh->nregional_variables; ++ii) {
+    allocated += allocate_data(&cell_variables[ii], umesh->ncells);
+  }
+
+  allocate_int_data(&boundary_edge_list, umesh->nboundary_cells*2);
 
   // Loop through the element file and flatten into data structure
   while(fgets(line, MAX_STR_LEN, ele_fp)) {
@@ -116,7 +127,7 @@ size_t read_element_data(
 
     // Read in each of the regional variables
     for(int ii = 0; ii < umesh->nregional_variables; ++ii) {
-      read_token(&line_temp, "%lf", &variables[ii][index]);
+      read_token(&line_temp, "%lf", &cell_variables[ii][index]);
     }
 
     // Store the cell offsets in case of future mixed cell geometry
@@ -146,18 +157,34 @@ size_t read_element_data(
     }
   }
 
-  // Turning count container into an offset container
+  convert_cell_counts_to_offsets(umesh);
+  fill_nodes_to_cells(umesh);
+  fill_cells_to_cells(umesh);
+  find_boundary_normals(umesh, boundary_edge_list);
+  deallocate_int_data(boundary_edge_list);
+
+  fclose(ele_fp);
+  return allocated;
+}
+
+// Converts the lists of cell counts to a list of offsets
+void convert_cell_counts_to_offsets(UnstructuredMesh* umesh)
+{
   for(int nn = 0; nn < umesh->nnodes; ++nn) {
     umesh->nodes_offsets[(nn+1)] += umesh->nodes_offsets[(nn)];
   }
+}
 
-  // Fill all nodes with undetermined values
-  for(int ii = 0; ii < umesh->ncells*umesh->nnodes_by_cell; ++ii) {
-    umesh->nodes_to_cells[(ii)] = -1;
-  }
-
-  // Fill in the list of cells surrounding nodes
+// Fill in the list of cells surrounding nodes
+void fill_nodes_to_cells(UnstructuredMesh* umesh)
+{
   for(int cc = 0; cc < umesh->ncells; ++cc) {
+    // Fill all nodes with undetermined values
+    for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
+      umesh->nodes_to_cells[(nn)] = -1;
+    }
+
+    // Fill the next slot
     for(int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
       const int node = umesh->cells_to_nodes[(cc*umesh->nnodes_by_cell)+(nn)];
       const int off = umesh->nodes_offsets[(node)];
@@ -172,15 +199,24 @@ size_t read_element_data(
       }
     }
   }
+}
 
-  find_boundary_normals(umesh, boundary_edge_list);
-
-#if 0
-  // Determine the cells that neighbour other cells
+// Determine the cells that neighbour other cells
+// TODO: This is so damn ugly... do we need to change the 
+// data structures completely?
+void fill_cells_to_cells(UnstructuredMesh* umesh)
+{
   for(int cc = 0; cc < umesh->ncells; ++cc) {
     const int cells_off = umesh->cells_offsets[(cc)];
     const int nnodes_around_cell = umesh->cells_offsets[(cc+1)]-cells_off;
 
+    for(int nn = 0; nn < nnodes_around_cell; ++nn) {
+      const int node_index = umesh->cells_to_nodes[(cells_off+nn)];
+      const int node_offset = umesh->nodes_offsets[(nn)];
+
+
+
+#if 0
     // Store the complete list of nodes that surround the cell
     int nodes[nnodes_around_cell];
     for(int nn = 0; nn < nnodes_around_cell; ++nn) {
@@ -203,7 +239,7 @@ size_t read_element_data(
         for(int nn2 = 0; nn2 < nnodes_around_cell; ++nn) {
           for(int nn3 = 0; nn3 < nnodes_around_cell; ++nn3) {
             if(nodes[(nn2)] != node_index && 
-               nodes[(nn2)] == umesh->cells_to_nodes[(candidate_nodes_off+nn3)]) {
+                nodes[(nn2)] == umesh->cells_to_nodes[(candidate_nodes_off+nn3)]) {
               neighbour = neighbour_candidate_index;
               break;
             }
@@ -217,18 +253,35 @@ size_t read_element_data(
         umesh->cells_to_cells[(cells_off+nn)] = neighbour;
         break;
       }
+#endif // if 0
     }
   }
-#endif // if 0
+}
 
-#if 0
-  // Determine the nodes that surround other nodes
+// Determine the nodes that surround other nodes
+void fill_nodes_to_nodes(UnstructuredMesh* umesh)
+{
   for(int nn = 0; nn < umesh->nnodes; ++nn) {
-  }
-#endif // if 0
-  fclose(ele_fp);
+    const int node_offset = umesh->nodes_offsets[(nn)];
+    const int ncells_by_node = umesh->nodes_offsets[(nn+1)]-node_offset;
+    for(int cc = 0; cc < umesh->ncells; ++cc) {
+      const int cell_index = umesh->nodes_to_cells[(node_offset+cc)];
+      const int cell_offset = umesh->cells_offsets[(cell_index)];
+      const int nnodes_by_cell = umesh->cells_offsets[(cell_index+1)]-cell_offset;
 
-  return allocated;
+      // Look at the nodes surrounding the cell and pick the one that is 
+      // clockwise from the current node
+      for(int nn2 = 0; nn2 < nnodes_by_cell; ++nn2) {
+        const int node_index = umesh->cells_to_nodes[(cell_offset+nn2)];
+        if(node_index == nn) {
+          umesh->nodes_to_nodes[(node_offset+cc)] = (nn2 > 0) 
+            ? umesh->cells_to_nodes[(cell_offset+(nn2-1))] 
+            : umesh->cells_to_nodes[(cell_offset+(nnodes_by_cell-1))];
+          break;
+        }
+      }
+    }
+  }
 }
 
 // Reads an unstructured mesh from an input file
