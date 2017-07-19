@@ -1,7 +1,5 @@
 #include "../shared.h"
 
-void initialise_devices(int rank)
-{
+void initialise_devices(int rank) {
   // Not required
 }
-

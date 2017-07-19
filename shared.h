@@ -48,17 +48,17 @@ extern "C" {
 void initialise_devices(int rank);
 
 // Wrappers for data (de)allocation
-size_t allocate_data(double **buf, size_t len);
-size_t allocate_int_data(int **buf, size_t len);
-void allocate_host_data(double **buf, size_t len);
-void allocate_host_int_data(int **buf, size_t len);
-void deallocate_data(double *buf);
-void deallocate_host_data(double *buf);
-void deallocate_int_data(int *buf);
-void deallocate_host_int_data(int *buf);
-void copy_buffer(const size_t len, double **src, double **dst, int send);
-void copy_int_buffer(const size_t len, int **src, int **dst, int send);
-void move_host_buffer_to_device(const size_t len, double **src, double **dst);
+size_t allocate_data(double** buf, size_t len);
+size_t allocate_int_data(int** buf, size_t len);
+void allocate_host_data(double** buf, size_t len);
+void allocate_host_int_data(int** buf, size_t len);
+void deallocate_data(double* buf);
+void deallocate_host_data(double* buf);
+void deallocate_int_data(int* buf);
+void deallocate_host_int_data(int* buf);
+void copy_buffer(const size_t len, double** src, double** dst, int send);
+void copy_int_buffer(const size_t len, int** src, int** dst, int send);
+void move_host_buffer_to_device(const size_t len, double** src, double** dst);
 
 #if 0
   // Compares if two strings match
@@ -67,11 +67,11 @@ void move_host_buffer_to_device(const size_t len, double **src, double **dst);
 
 // Write out data for visualisation in visit
 void write_to_visit(const int nx, const int ny, const int x_off,
-                    const int y_off, const double *data, const char *name,
+                    const int y_off, const double* data, const char* name,
                     const int step, const double time);
 void write_to_visit_3d(const int nx, const int ny, const int nz,
                        const int x_off, const int y_off, const int z_off,
-                       const double *data, const char *name, const int step,
+                       const double* data, const char* name, const int step,
                        const double time);
 
 // Collects all of the mesh data from the fleet of ranks and then writes to
@@ -79,8 +79,8 @@ void write_to_visit_3d(const int nx, const int ny, const int nz,
 void write_all_ranks_to_visit(const int global_nx, const int global_ny,
                               const int local_nx, const int local_ny,
                               const int pad, const int x_off, const int y_off,
-                              const int rank, const int nranks, int *neighbours,
-                              double *local_arr, const char *name, const int tt,
+                              const int rank, const int nranks, int* neighbours,
+                              double* local_arr, const char* name, const int tt,
                               const double elapsed_sim_time);
 
 #ifdef __cplusplus

@@ -1,9 +1,9 @@
+#include "shared.h"
+#include "comms.h"
+#include "mesh.h"
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include <math.h>
-#include "shared.h"
-#include "mesh.h"
-#include "comms.h"
 
 #ifdef MPI
 #include "mpi.h"
@@ -13,19 +13,17 @@ struct Profile compute_profile = {{0}};
 struct Profile comms_profile = {{0}};
 
 // Write out data for visualisation in visit
-void write_to_visit(
-    const int nx, const int ny, const int x_off, const int y_off, 
-    const double* data, const char* name, const int step, const double time)
-{
-  write_to_visit_3d(
-      nx, ny, 1, x_off, y_off, 0, data, name, step, time);
+void write_to_visit(const int nx, const int ny, const int x_off,
+                    const int y_off, const double* data, const char* name,
+                    const int step, const double time) {
+  write_to_visit_3d(nx, ny, 1, x_off, y_off, 0, data, name, step, time);
 }
 
 // Write out data for visualisation in visit
-void write_to_visit_3d(
-    const int nx, const int ny, const int nz, const int x_off, const int y_off, 
-    const int z_off, const double* data, const char* name, const int step, const double time)
-{
+void write_to_visit_3d(const int nx, const int ny, const int nz,
+                       const int x_off, const int y_off, const int z_off,
+                       const double* data, const char* name, const int step,
+                       const double time) {
 #ifdef ENABLE_VISIT_DUMPS
   char bovname[256];
   char datname[256];
@@ -33,7 +31,7 @@ void write_to_visit_3d(
   sprintf(datname, "%s%d.dat", name, step);
 
   FILE* bovfp = fopen(bovname, "w");
-  if(!bovfp) {
+  if (!bovfp) {
     TERMINATE("Could not open file %s\n", bovname);
   }
 
@@ -46,54 +44,56 @@ void write_to_visit_3d(
   fprintf(bovfp, "CENTERING: zone\n");
 
 #ifdef MPI
-  fprintf(bovfp, "BRICK_ORIGIN: %f %f %f.\n", (float)x_off, (float)y_off, (float)z_off);
+  fprintf(bovfp, "BRICK_ORIGIN: %f %f %f.\n", (float)x_off, (float)y_off,
+          (float)z_off);
 #else
   fprintf(bovfp, "BRICK_ORIGIN: 0. 0. 0.\n");
 #endif
 
-  fprintf(bovfp, "BRICK_SIZE: %d %d %d\n", nx, ny, nz); fclose(bovfp);
+  fprintf(bovfp, "BRICK_SIZE: %d %d %d\n", nx, ny, nz);
+  fclose(bovfp);
 
   FILE* datfp = fopen(datname, "wb");
-  if(!datfp) {
+  if (!datfp) {
     TERMINATE("Could not open file %s\n", datname);
   }
 
-  fwrite(data, sizeof(double), nx*ny*nz, datfp);
+  fwrite(data, sizeof(double), nx * ny * nz, datfp);
   fclose(datfp);
 #endif
 }
 
 // TODO: Fix this method - shouldn't be necessary to bring the data back from
 // all of the ranks, this is over the top
-// This is a leaky nasty function, that really doesn't suit any of the style of 
+// This is a leaky nasty function, that really doesn't suit any of the style of
 // the rest of the project, so needs immediate revisiting.
-void write_all_ranks_to_visit(
-    const int global_nx, const int global_ny, const int local_nx, 
-    const int local_ny, const int pad, const int x_off, const int y_off, 
-    const int rank, const int nranks, int* neighbours, double* local_arr, 
-    const char* name, const int tt, const double elapsed_sim_time)
-{
+void write_all_ranks_to_visit(const int global_nx, const int global_ny,
+                              const int local_nx, const int local_ny,
+                              const int pad, const int x_off, const int y_off,
+                              const int rank, const int nranks, int* neighbours,
+                              double* local_arr, const char* name, const int tt,
+                              const double elapsed_sim_time) {
 #ifdef DEBUG
-  if(rank == MASTER)
+  if (rank == MASTER)
     printf("writing results to visit file %s\n", name);
 #endif
 
-  // If MPI is enabled need to collect the data from all 
+// If MPI is enabled need to collect the data from all
 #if defined(MPI)
   double* global_arr = NULL;
   double* remote_data = NULL;
   double* h_local_arr_space = NULL;
-  allocate_host_data(&h_local_arr_space, local_nx*local_ny);
+  allocate_host_data(&h_local_arr_space, local_nx * local_ny);
 
   double* h_local_arr = h_local_arr_space;
-  copy_buffer(local_nx*local_ny, &local_arr, &h_local_arr, RECV);
+  copy_buffer(local_nx * local_ny, &local_arr, &h_local_arr, RECV);
 
-  if(rank == MASTER) {
-    allocate_host_data(&global_arr, global_nx*global_ny);
+  if (rank == MASTER) {
+    allocate_host_data(&global_arr, global_nx * global_ny);
     remote_data = h_local_arr;
   }
 
-  for(int ii = 0; ii < nranks; ++ii) {
+  for (int ii = 0; ii < nranks; ++ii) {
     int nparams = 8;
     int dims[nparams];
     dims[0] = local_nx;
@@ -105,15 +105,13 @@ void write_all_ranks_to_visit(
     dims[6] = (neighbours[SOUTH] == EDGE) ? 0 : pad;
     dims[7] = (neighbours[WEST] == EDGE) ? 0 : pad;
 
-    if(rank == MASTER) {
-      if(ii > MASTER) {
-        MPI_Recv(
-            &dims, nparams, MPI_INT, ii, TAG_VISIT0, 
-            MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
-        allocate_host_data(&remote_data, dims[0]*dims[1]);
-        MPI_Recv(
-            remote_data, dims[0]*dims[1], MPI_DOUBLE, ii, TAG_VISIT1, 
-            MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
+    if (rank == MASTER) {
+      if (ii > MASTER) {
+        MPI_Recv(&dims, nparams, MPI_INT, ii, TAG_VISIT0, MPI_COMM_WORLD,
+                 MPI_STATUSES_IGNORE);
+        allocate_host_data(&remote_data, dims[0] * dims[1]);
+        MPI_Recv(remote_data, dims[0] * dims[1], MPI_DOUBLE, ii, TAG_VISIT1,
+                 MPI_COMM_WORLD, MPI_STATUSES_IGNORE);
       }
 
       int lnx = dims[0];
@@ -126,31 +124,32 @@ void write_all_ranks_to_visit(
       int west = dims[7];
 
       // TODO: fix or remove this horrible piece
-      for(int jj = south; jj < lny-north; ++jj) {
-        for(int kk = west; kk < lnx-east; ++kk) {
-          global_arr[(jj-south+ly_off+south)*global_nx+(kk-west+lx_off+west)] =
-            remote_data[jj*lnx+kk];
+      for (int jj = south; jj < lny - north; ++jj) {
+        for (int kk = west; kk < lnx - east; ++kk) {
+          global_arr[(jj - south + ly_off + south) * global_nx +
+                     (kk - west + lx_off + west)] = remote_data[jj * lnx + kk];
         }
       }
 
-      if(ii > MASTER) {
+      if (ii > MASTER) {
         deallocate_data(remote_data);
       }
-    }
-    else if(ii == rank) {
+    } else if (ii == rank) {
       MPI_Send(&dims, nparams, MPI_INT, MASTER, TAG_VISIT0, MPI_COMM_WORLD);
-      MPI_Send(h_local_arr, dims[0]*dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1, MPI_COMM_WORLD);
+      MPI_Send(h_local_arr, dims[0] * dims[1], MPI_DOUBLE, MASTER, TAG_VISIT1,
+               MPI_COMM_WORLD);
     }
     barrier();
   }
-  if(rank == MASTER) {
-    write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt, elapsed_sim_time);
+  if (rank == MASTER) {
+    write_to_visit(global_nx, global_ny, 0, 0, global_arr, name, tt,
+                   elapsed_sim_time);
   }
   barrier();
 
   deallocate_data(h_local_arr_space);
 #else
-  write_to_visit(global_nx, global_ny, 0, 0, local_arr, name, tt, elapsed_sim_time);
+  write_to_visit(global_nx, global_ny, 0, 0, local_arr, name, tt,
+                 elapsed_sim_time);
 #endif
 }
-

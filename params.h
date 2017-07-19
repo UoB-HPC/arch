@@ -15,19 +15,16 @@ double get_double_parameter(const char* param_name, const char* filename);
 void skip_whitespace(char** line);
 
 // Reads a token from an input string
-void read_token(
-    char** line, const char* format, void* var);
+void read_token(char** line, const char* format, void* var);
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // Fetches all of the problem parameters
-int get_key_value_parameter(
-    const char* specifier, const char* filename, 
-    char* keys, double* values, int* nkeys);
+int get_key_value_parameter(const char* specifier, const char* filename,
+                            char* keys, double* values, int* nkeys);
 
 #ifdef __cplusplus
 }
 #endif
-

@@ -1,12 +1,10 @@
-#include "shared.h"
 #include "../shared.h"
+#include "shared.h"
 
 // Selects a GPU
-void initialise_devices(int rank)
-{
+void initialise_devices(int rank) {
   int count = 0;
-  gpu_check(
-      cudaGetDeviceCount(&count));
+  gpu_check(cudaGetDeviceCount(&count));
 
   int device_num = rank % count;
 
@@ -15,7 +13,5 @@ void initialise_devices(int rank)
 #endif
 
   // Assume uniform distribution of devices on nodes
-  gpu_check(
-      cudaSetDevice(device_num));
+  gpu_check(cudaSetDevice(device_num));
 }
-

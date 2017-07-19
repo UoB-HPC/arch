@@ -4,4 +4,3 @@
 #define NTHREADS 128
 
 #endif
-
