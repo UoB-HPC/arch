@@ -570,6 +570,72 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
     }
   }
 
+  // Set the connectivity between cells and their neighbours
+  for (int ii = 0; ii < mesh->local_nz; ++ii) {
+    for (int jj = 0; jj < mesh->local_ny; ++jj) {
+      for (int kk = 0; kk < mesh->local_nx; ++kk) {
+        const int cell_index = (ii * mesh->local_nz * mesh->local_ny) +
+                               (jj * mesh->local_nx) + (kk);
+        const int cells_off = umesh->cells_offsets[(cell_index)];
+        const int nnodes_by_cell =
+            umesh->cells_offsets[(cell_index + 1)] - cells_off;
+
+        umesh->cells_to_cells[(cells_off + 0)] =
+            (kk > 0) ? cell_index - 1 : IS_BOUNDARY;
+        umesh->cells_to_cells[(cells_off + 1)] =
+            (kk < mesh->local_nx - 1) ? cell_index + 1 : IS_BOUNDARY;
+        umesh->cells_to_cells[(cells_off + 2)] =
+            (jj > 0) ? cell_index - mesh->local_nx : IS_BOUNDARY;
+        umesh->cells_to_cells[(cells_off + 3)] =
+            (jj > mesh->local_ny - 1) ? cell_index + mesh->local_nx
+                                      : IS_BOUNDARY;
+        umesh->cells_to_cells[(cells_off + 4)] =
+            (ii > 0) ? cell_index - mesh->local_nx * mesh->local_ny
+                     : IS_BOUNDARY;
+        umesh->cells_to_cells[(cells_off + 5)] =
+            (ii < mesh->local_nz - 1)
+                ? cell_index + mesh->local_nx * mesh->local_ny
+                : IS_BOUNDARY;
+      }
+    }
+  }
+
+  // Set the connectivity between nodes
+  for (int ii = 0; ii < (mesh->local_nz + 1); ++ii) {
+    for (int jj = 0; jj < (mesh->local_ny + 1); ++jj) {
+      for (int kk = 0; kk < (mesh->local_nx + 1); ++kk) {
+        const int node_index =
+            (ii * (mesh->local_nx + 1) * (mesh->local_ny + 1)) +
+            (jj * (mesh->local_nx + 1)) + (kk);
+        const int nodes_off = umesh->nodes_offsets[(node_index)];
+
+        int off = 0;
+        if (kk > 0) {
+          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index - 1;
+        }
+        if (kk < mesh->local_nx) {
+          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index + 1;
+        }
+        if (jj > 0) {
+          umesh->nodes_to_nodes[(nodes_off + off++)] =
+              node_index - mesh->local_nx;
+        }
+        if (jj < mesh->local_ny) {
+          umesh->nodes_to_nodes[(nodes_off + off++)] =
+              node_index + mesh->local_nx;
+        }
+        if (ii > 0) {
+          umesh->nodes_to_nodes[(nodes_off + off++)] =
+              node_index - mesh->local_nx * mesh->local_ny;
+        }
+        if (ii < mesh->local_nz) {
+          umesh->nodes_to_nodes[(nodes_off + off++)] =
+              node_index + mesh->local_nx * mesh->local_ny;
+        }
+      }
+    }
+  }
+
   /// TODO: Should this become the boundary face list?
 
   // Initialise the boundary edge list
