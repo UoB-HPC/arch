@@ -263,7 +263,7 @@ void set_problem_3d(const int global_nx, const int global_ny,
 
           // Check we are in bounds of the problem entry
           if (global_xpos >= xpos && global_ypos >= ypos &&
-              global_z_pos >= zpos && global_xpos < xpos + width &&
+              global_zpos >= zpos && global_xpos < xpos + width &&
               global_ypos < ypos + height && global_zpos < zpos + depth) {
             // The upper bound excludes the bounding box for the entry
             for (int ee = 0; ee < nkeys - (2 * ndims); ++ee) {

@@ -333,7 +333,7 @@ size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh) {
     for (int jj = 0; jj < mesh->local_nx; ++jj) {
       const int index = (ii * mesh->local_nx) + (jj);
       umesh->cells_offsets[(index + 1)] =
-          umesh->cells_offsets[(index + 1)] + umesh->nnodes_by_cell;
+          umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
 
       // Simple closed form calculation for the nodes surrounding a cell
       umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
@@ -426,6 +426,13 @@ size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh) {
 
 // Converts an ordinary structured mesh into an unstructured equivalent
 size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
+  umesh->nboundary_cells = 0;
+  umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
+  umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
+  umesh->nnodes =
+      (mesh->local_nx + 1) * (mesh->local_ny + 1) * (mesh->local_nz + 1);
+  umesh->ncells = (mesh->local_nx * mesh->local_ny * mesh->local_nz);
+
   size_t allocated = initialise_unstructured_mesh(umesh);
   allocated += allocate_data(&umesh->nodes_x0, umesh->nnodes);
   allocated += allocate_data(&umesh->nodes_y0, umesh->nnodes);
@@ -434,12 +441,6 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   allocated += allocate_data(&umesh->nodes_y1, umesh->nnodes);
   allocated += allocate_data(&umesh->nodes_z1, umesh->nnodes);
   allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
-
-  // Loop through the node file, storing all of the nodes in our data structure
-  umesh->nboundary_cells = 0;
-  umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
-  umesh->nnodes =
-      (mesh->local_nx + 1) * (mesh->local_ny + 1) * (mesh->local_nz + 1);
 
   // Store the boundary index value for all cells
   for (int ii = 0; ii < mesh->local_nz; ++ii) {
@@ -474,7 +475,7 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
         const int index = (ii * mesh->local_nx * mesh->local_ny) +
                           (jj * mesh->local_nx) + (kk);
         umesh->cells_offsets[(index + 1)] =
-            umesh->cells_offsets[(index + 1)] + umesh->nnodes_by_cell;
+            umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
 
         // Simple closed form calculation for the nodes surrounding a cell
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
@@ -489,36 +490,21 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 3] =
             (ii * mesh->local_nx * mesh->local_ny) +
             ((jj + 1) * mesh->local_nx) + (kk + 1);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 4] =
             ((ii + 1) * mesh->local_nx * mesh->local_ny) +
             (jj * mesh->local_nx) + (kk);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 1] =
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 5] =
             ((ii + 1) * mesh->local_nx * mesh->local_ny) +
             (jj * mesh->local_nx) + (kk + 1);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 2] =
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 6] =
             ((ii + 1) * mesh->local_nx * mesh->local_ny) +
             ((jj + 1) * mesh->local_nx) + (kk);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 3] =
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 7] =
             ((ii + 1) * mesh->local_nx * mesh->local_ny) +
             ((jj + 1) * mesh->local_nx) + (kk + 1);
       }
     }
   }
-
-  for (int ii = 0; ii < mesh->local_nz; ++ii) {
-    for (int jj = 0; jj < mesh->local_ny; ++jj) {
-      for (int kk = 0; kk < mesh->local_nx; ++kk) {
-        const int index = (ii * mesh->local_nx * mesh->local_ny) +
-                          (jj * mesh->local_nx) + (kk);
-        printf("nodes surrounding cell %d\n", index);
-        for (int nn = 0; nn < 8; ++nn) {
-          printf("%d ", umesh->cells_to_nodes[(index * 8) + nn]);
-        }
-        printf("\n");
-      }
-    }
-  }
-  TERMINATE("");
 
   // Initialise the offsets and list of nodes to cells, counter-clockwise order
   for (int ii = 0; ii < (mesh->local_nz + 1); ++ii) {
@@ -535,49 +521,51 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
         int off = umesh->nodes_offsets[(node_index)];
 
         // Fill in all of the cells that surround a node
+        // NOTE: The order of the statements is important for data layout
         if (ii > 0 && jj > 0 && kk > 0) {
+          umesh->nodes_to_cells[(off++)] =
+              ((ii - 1) * mesh->local_nx * mesh->local_ny) +
+              ((jj - 1) * mesh->local_nx) + (kk - 1);
+        }
+        if (ii > 0 && jj > 0 && kk < mesh->local_nx) {
+          umesh->nodes_to_cells[(off++)] =
+              ((ii - 1) * mesh->local_nx * mesh->local_ny) +
+              ((jj - 1) * mesh->local_nx) + (kk);
+        }
+        if (ii > 0 && jj < mesh->local_ny && kk > 0) {
+          umesh->nodes_to_cells[(off++)] =
+              ((ii - 1) * mesh->local_nx * mesh->local_ny) +
+              (jj * mesh->local_nx) + (kk - 1);
+        }
+        if (ii > 0 && jj < mesh->local_ny && kk < mesh->local_nx) {
+          umesh->nodes_to_cells[(off++)] =
+              ((ii - 1) * mesh->local_nx * mesh->local_ny) +
+              (jj * mesh->local_nx) + (kk);
+        }
+        if (ii < mesh->local_nz && jj > 0 && kk > 0) {
+          umesh->nodes_to_cells[(off++)] =
+              (ii * mesh->local_nx * mesh->local_ny) +
+              ((jj - 1) * mesh->local_nx) + (kk - 1);
+        }
+        if (ii < mesh->local_nz && jj > 0 && kk < mesh->local_nx) {
+          umesh->nodes_to_cells[(off++)] =
+              (ii * mesh->local_nx * mesh->local_ny) +
+              ((jj - 1) * mesh->local_nx) + (kk);
+        }
+        if (ii < mesh->local_nz && jj < mesh->local_ny && kk > 0) {
+          umesh->nodes_to_cells[(off++)] =
+              (ii * mesh->local_nx * mesh->local_ny) + (jj * mesh->local_nx) +
+              (kk - 1);
+        }
+        if (ii < mesh->local_nz && jj < mesh->local_ny && kk < mesh->local_nx) {
           umesh->nodes_to_cells[(off++)] =
               (ii * mesh->local_nx * mesh->local_ny) + (jj * mesh->local_nx) +
               (kk);
         }
-        if (ii < mesh->local_nz && jj < mesh->local_ny && kk < mesh->local_nx) {
-          umesh->nodes_to_cells[(off++)] =
-              ((ii + 1) * mesh->local_nx * mesh->local_ny) +
-              ((jj + 1) * mesh->local_nx) + (kk + 1);
-        }
-        if (ii > 0 && jj < mesh->local_ny && kk < mesh->local_nx) {
-          umesh->nodes_to_cells[(off++)] =
-              (ii * mesh->local_nx * mesh->local_ny) +
-              ((jj + 1) * mesh->local_nx) + (kk + 1);
-        }
-        if (ii > 0 && jj > 0 && kk < mesh->local_nx) {
-          umesh->nodes_to_cells[(off++)] =
-              (ii * mesh->local_nx * mesh->local_ny) + (jj * mesh->local_nx) +
-              (kk + 1);
-        }
-        if (ii < mesh->local_nz && jj > 0 && kk < mesh->local_nx) {
-          umesh->nodes_to_cells[(off++)] =
-              ((ii + 1) * mesh->local_nx * mesh->local_ny) +
-              (jj * mesh->local_nx) + (kk + 1);
-        }
-        if (ii < mesh->local_nz && jj > 0 && kk > 0) {
-          umesh->nodes_to_cells[(off++)] =
-              ((ii + 1) * mesh->local_nx * mesh->local_ny) +
-              (jj * mesh->local_nx) + (kk);
-        }
-        if (ii > 0 && jj < mesh->local_ny && kk > 0) {
-          umesh->nodes_to_cells[(off++)] =
-              (ii * mesh->local_nx * mesh->local_ny) +
-              ((jj + 1) * mesh->local_nx) + (kk);
-        }
-        if (ii < mesh->local_nz && jj < mesh->local_ny && kk > 0) {
-          umesh->nodes_to_cells[(off++)] =
-              ((ii + 1) * mesh->local_nx * mesh->local_ny) +
-              ((jj + 1) * mesh->local_nx) + (kk);
-        }
+        printf("off: %d\n", off);
 
         // Store the calculated offset
-        umesh->nodes_offsets[(node_index)] = off;
+        umesh->nodes_offsets[(node_index + 1)] = off;
       }
     }
   }
