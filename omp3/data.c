@@ -222,11 +222,73 @@ void set_problem_2d(const int global_nx, const int global_ny,
 }
 
 // Initialise state data in device specific manner
-void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
-                    const int global_nx, const int global_ny,
-                    const int global_nz, const int x_off, const int y_off,
-                    const int z_off, double* rho, double* e, double* x) {
-  TERMINATE("set_problem_3d not implemented yet.");
+void set_problem_3d(const int global_nx, const int global_ny,
+                    const int global_nz, const int local_nx, const int local_ny,
+                    const int local_nz, const int pad, const int x_off,
+                    const int y_off, const int z_off, const double mesh_width,
+                    const double mesh_height, const double mesh_depth,
+                    const double* edgex, const double* edgey,
+                    const double* edgez, const int ndims,
+                    const char* problem_def_filename, double* rho, double* e,
+                    double* x) {
+  char* keys = (char*)malloc(sizeof(char) * MAX_KEYS * MAX_STR_LEN);
+  double* values = (double*)malloc(sizeof(double) * MAX_KEYS);
+
+  int nentries = 0;
+  while (1) {
+    char specifier[MAX_STR_LEN];
+    sprintf(specifier, "problem_%d", nentries++);
+
+    int nkeys = 0;
+    if (!get_key_value_parameter(specifier, problem_def_filename, keys, values,
+                                 &nkeys)) {
+      break;
+    }
+
+    // The last four keys are the bound specification
+    double xpos = values[nkeys - 6] * mesh_width;
+    double ypos = values[nkeys - 5] * mesh_height;
+    double zpos = values[nkeys - 4] * mesh_depth;
+    double width = values[nkeys - 3] * mesh_width;
+    double height = values[nkeys - 2] * mesh_height;
+    double depth = values[nkeys - 1] * mesh_depth;
+
+    // Loop through the mesh and set the problem
+    for (int ii = pad; ii < local_nz - pad; ++ii) {
+      for (int jj = pad; jj < local_ny - pad; ++jj) {
+        for (int kk = pad; kk < local_nx - pad; ++kk) {
+          double global_xpos = edgex[kk];
+          double global_ypos = edgey[jj];
+          double global_zpos = edgez[ii];
+
+          // Check we are in bounds of the problem entry
+          if (global_xpos >= xpos && global_ypos >= ypos &&
+              global_z_pos >= zpos && global_xpos < xpos + width &&
+              global_ypos < ypos + height && global_zpos < zpos + depth) {
+            // The upper bound excludes the bounding box for the entry
+            for (int ee = 0; ee < nkeys - (2 * ndims); ++ee) {
+              const int index =
+                  (ii * local_nx * local_ny) + (jj * local_nx) + (kk);
+              const char* key = &keys[ee * MAX_STR_LEN];
+              if (strmatch(key, "density")) {
+                rho[(index)] = values[ee];
+              } else if (strmatch(key, "energy")) {
+                e[(index)] = values[ee];
+              } else if (strmatch(key, "temperature")) {
+                x[(index)] = values[ee];
+              } else {
+                TERMINATE("Found unrecognised key in %s : %s.\n",
+                          problem_def_filename, key);
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  free(keys);
+  free(values);
 }
 
 // Finds the normals for all boundary cells
@@ -269,4 +331,52 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
     umesh->boundary_normal_x[(boundary_index)] = normal_x / normal_mag;
     umesh->boundary_normal_y[(boundary_index)] = normal_y / normal_mag;
   }
+}
+
+// Finds the normals for all boundary cells
+void find_boundary_normals_3d(UnstructuredMesh* umesh,
+                              int* boundary_edge_list) {
+
+  TERMINATE("Needs to be implemented.");
+
+#if 0
+// Loop through all of the boundary cells and find their normals
+#pragma omp parallel for
+  for (int nn = 0; nn < umesh->nnodes; ++nn) {
+    const int boundary_index = umesh->boundary_index[(nn)];
+    if (boundary_index == IS_INTERIOR_NODE) {
+      continue;
+    }
+
+    double normal_x = 0.0;
+    double normal_y = 0.0;
+
+    for (int bb1 = 0; bb1 < umesh->nboundary_cells; ++bb1) {
+      const int node0 = boundary_edge_list[bb1 * 2];
+      const int node1 = boundary_edge_list[bb1 * 2 + 1];
+
+      if (node0 == nn || node1 == nn) {
+        const double node0_x = umesh->nodes_x0[(node0)];
+        const double node0_y = umesh->nodes_y0[(node0)];
+        const double node1_x = umesh->nodes_x0[(node1)];
+        const double node1_y = umesh->nodes_y0[(node1)];
+
+        normal_x += node0_y - node1_y;
+        normal_y += -(node0_x - node1_x);
+      }
+    }
+
+    // We are fixed if we are one of the four corners
+    if ((umesh->nodes_x0[(nn)] == 0.0 || umesh->nodes_x0[(nn)] == 1.0) &&
+        (umesh->nodes_y0[(nn)] == 0.0 || umesh->nodes_y0[(nn)] == 1.0)) {
+      umesh->boundary_type[(boundary_index)] = IS_FIXED;
+    } else {
+      umesh->boundary_type[(boundary_index)] = IS_BOUNDARY;
+    }
+
+    const double normal_mag = sqrt(normal_x * normal_x + normal_y * normal_y);
+    umesh->boundary_normal_x[(boundary_index)] = normal_x / normal_mag;
+    umesh->boundary_normal_y[(boundary_index)] = normal_y / normal_mag;
+  }
+#endif // if 0
 }

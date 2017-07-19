@@ -69,10 +69,15 @@ void initialise_shared_data_3d(const int global_nx, const int global_ny,
                                const int pad, const int x_off, const int y_off,
                                int z_off, SharedData* shared_data);
 
-void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
-                    const int global_nx, const int global_ny,
-                    const int global_nz, const int x_off, const int y_off,
-                    const int z_off, double* rho, double* e, double* x);
+void set_problem_3d(const int global_nx, const int global_ny,
+                    const int global_nz, const int local_nx, const int local_ny,
+                    const int local_nz, const int pad, const int x_off,
+                    const int y_off, const int z_off, const double mesh_width,
+                    const double mesh_height, const double mesh_depth,
+                    const double* edgex, const double* edgey,
+                    const double* edgez, const int ndims,
+                    const char* problem_def_filename, double* rho, double* e,
+                    double* x);
 
 // Deallocate all of the shared_data memory
 void finalise_shared_data(SharedData* shared_data);
