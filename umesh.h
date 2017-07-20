@@ -25,6 +25,7 @@ typedef struct {
   int nsub_cell_edges;
   int nregional_variables;
   int nboundary_cells;
+  int nfaces;
 
   int* boundary_index;
   int* boundary_type;
@@ -35,6 +36,10 @@ typedef struct {
   int* cells_to_cells;
   int* nodes_offsets;
   int* cells_offsets;
+  int* cells_to_faces;
+  int* faces_to_nodes;
+  int* faces_to_nodes_offsets;
+  int* cells_to_faces_offsets;
 
   double* nodes_x0;
   double* nodes_y0;

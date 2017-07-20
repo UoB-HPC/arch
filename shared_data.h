@@ -63,11 +63,13 @@ void set_problem_2d(const int global_nx, const int global_ny,
                     double* x);
 
 // Initialises the shared_data variables
-void initialise_shared_data_3d(const int global_nx, const int global_ny,
-                               const int global_nz, const int local_nx,
-                               const int local_ny, const int local_nz,
-                               const int pad, const int x_off, const int y_off,
-                               int z_off, SharedData* shared_data);
+void initialise_shared_data_3d(
+    const int global_nx, const int global_ny, const int global_nz,
+    const int local_nx, const int local_ny, const int local_nz, const int pad,
+    const int x_off, const int y_off, const int z_off, const double mesh_width,
+    const double mesh_height, const double mesh_depth,
+    const char* problem_def_filename, const double* edgex, const double* edgey,
+    const double* edgez, SharedData* shared_data);
 
 void set_problem_3d(const int global_nx, const int global_ny,
                     const int global_nz, const int local_nx, const int local_ny,

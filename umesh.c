@@ -533,155 +533,111 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
     }
   }
 
-  // Here we will list all of the edges
+  // Just known by construction
+  umesh->nfaces = nx * ny * (nz + 1) + (nx * (ny + 1) + (nx + 1) * ny) * nz;
+  const int nnodes_by_face = 4;
+  allocate_int_data(&umesh->faces_to_nodes_offsets, umesh->nfaces + 1);
+  allocate_int_data(&umesh->faces_to_nodes, umesh->nfaces * nnodes_by_face);
+  allocate_int_data(&umesh->cells_to_faces_offsets, umesh->ncells);
+  allocate_int_data(&umesh->cells_to_faces, umesh->nfaces * umesh->ncells);
+
+  for (int ff = 0; ff < umesh->nfaces + 1; ++ff) {
+    umesh->faces_to_nodes_offsets[(ff)] = ff * nnodes_by_face;
+  }
+
+  // Connectivity of faces to nodes, the nodes are stored in a counter-clockwise
+  // ordering around the face
+  const int nfaces = 6;
   for (int ii = 0; ii < nz + 1; ++ii) {
-    const int ioff = (ii * (3 * nx * ny + 2 * nx + 2 * ny + 1));
-    for (int jj = 0; jj < ny + 1; ++jj) {
-      // n horizontal edges
-      for (int kk = 0; kk < nx; ++kk) {
-        const int edge_index = ioff + (jj * 2 * nx + 1) + (kk);
-
-        edges0[(edge_index)] =
-            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
-        edges1[(edge_index)] =
-            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
-        boundary_edge[(edge_index)] =
-            (ii == 0 || ii == nz || jj == 0 || jj == ny);
-      }
-
-      // Don't fill a final slot for the vertical edges
-      if (jj >= ny) {
-        continue;
-      }
-
-      // n+1 vertical edges
-      for (int kk = 0; kk < nx + 1; ++kk) {
-        const int edge_index = ioff + (jj * 2 * nx + 1) + (kk);
-
-        edges0[(edge_index)] =
-            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
-        edges1[(edge_index)] =
-            (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
-        boundary_edge[(edge_index)] =
-            (ii == 0 || ii == nz || kk == 0 || kk == nx);
-      }
-    }
-
-    // Don't fill a final slot for the depthwise edges
-    if (ii >= nz) {
-      continue;
-    }
-
-    // (n by n+1) edges depthwise
+    // Add the front faces
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
-        const int edge_index = ioff + (jj * 2 * nx + 1) + (kk);
+        const int face_index =
+            (ii * (3 * nx * ny + nx + ny)) + (jj * nx) + (kk);
+        const int face_to_node_off =
+            umesh->faces_to_nodes_offsets[(face_index)];
 
-        edges0[(edge_index)] =
+        const int node_index =
             (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
-        edges1[(edge_index)] =
-            ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
-        boundary_edge[(edge_index)] =
-            (jj == 0 || jj == ny || kk == 0 || kk == nx);
-      }
-    }
-  }
-
-  // Connectivity of faces to edges
-  const int nfaces = 6;
-  for (int ii = 0; ii < nz; ++ii) {
-    // Add the front/back faces
-    for (int jj = 0; jj < ny; ++jj) {
-      for (int kk = 0; kk < nx; ++kk) {
-        const int face_index = (ii * 2 * nx * ny) + (jj * nx) + (kk);
-        const int face_to_edge_off = faces_to_edges_offsets[(face_index)];
-
-        int off = 0;
-
-        const int edge_index =
-            (ii * (3 * nx + 1) * (nx + 1)) + (jj * 2 * nx + 1) + (kk);
 
         // On the front face
-        faces_to_edges[(face_to_edge_off + off++)] = edge_index;
-        faces_to_edges[(face_to_edge_off + off++)] = edge_index + nx;
-        faces_to_edges[(face_to_edge_off + off++)] = edge_index + nx + 1;
-        faces_to_edges[(face_to_edge_off + off++)] = edge_index + 2 * nx;
-
-        faces_to_edges_offsets[(face_index + 1)] = face_to_edge_off + off;
+        umesh->faces_to_nodes[(face_to_node_off + 0)] = node_index;
+        umesh->faces_to_nodes[(face_to_node_off + 1)] = node_index + 1;
+        umesh->faces_to_nodes[(face_to_node_off + 2)] =
+            node_index + (nx + 1) + 1;
+        umesh->faces_to_nodes[(face_to_node_off + 3)] = node_index + (nx + 1);
       }
     }
-    // Add the bottom/top faces
-    for (int jj = 0; jj < ny; ++jj) {
-      for (int kk = 0; kk < nx; ++kk) {
-        const int edge_index =
-            (ii * (3 * nx + 1) * (nx + 1)) + (jj * 2 * nx + 1) + (kk);
 
-        const int face_index = (;
-        const int face_to_edge_off = faces_to_edges_offsets[(face_index)];
+    if (ii < nz) {
+      for (int jj = 0; jj < ny + 1; ++jj) {
+        for (int kk = 0; kk < nx + 1; ++kk) {
+          const int node_index =
+              (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-        int off = 0;
-        faces_to_edges[(face_to_edge_off + off++)] =
-        faces_to_edges[(face_to_edge_off + off++)] =
-        faces_to_edges[(face_to_edge_off + off++)] =
-        faces_to_edges[(face_to_edge_off + off++)] =
+          if (jj < ny) {
+            // On the left face
+            const int face_index = (ii * (3 * nx * ny + nx + ny)) + (nx * ny) +
+                                   (jj * (2 * nx + 1)) + (2 * kk);
+            const int face_to_node_off =
+                umesh->faces_to_nodes_offsets[(face_index)];
 
-        faces_to_edges_offsets[(face_index+1)] = face_to_edge_off+off;
+            umesh->faces_to_nodes[(face_to_node_off + 0)] = node_index;
+            umesh->faces_to_nodes[(face_to_node_off + 1)] =
+                node_index + (nx + 1) * (ny + 1);
+            umesh->faces_to_nodes[(face_to_node_off + 2)] =
+                node_index + (nx + 1) * (ny + 1) + (nx + 1);
+            umesh->faces_to_nodes[(face_to_node_off + 3)] =
+                node_index + (nx + 1);
+          }
+
+          if (kk < nx) {
+            // On the bottom face
+            const int face_index =
+                (jj < ny)
+                    ? (ii * (3 * nx * ny + nx + ny)) + (nx * ny) +
+                          (jj * (2 * nx + 1)) + (2 * kk + 1)
+                    : (ii * (3 * nx * ny + nx + ny)) + (nx * ny) +
+                          (jj * (2 * nx + 1)) + (kk);
+            const int face_to_node_off =
+                umesh->faces_to_nodes_offsets[(face_index)];
+
+            int off = 0;
+            umesh->faces_to_nodes[(face_to_node_off + 0)] = node_index;
+            umesh->faces_to_nodes[(face_to_node_off + 1)] = node_index + 1;
+            umesh->faces_to_nodes[(face_to_node_off + 2)] =
+                node_index + (nx + 1) * (ny + 1) + 1;
+            umesh->faces_to_nodes[(face_to_node_off + 3)] =
+                node_index + (nx + 1) * (ny + 1);
+          }
+        }
       }
     }
   }
 
-  const int nfaces = 6;
+  // Determine the connectivity between cells and their faces
   for (int ii = 0; ii < nz; ++ii) {
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
         const int cell_index = (ii * nx * ny) + (jj * nx) + (kk);
-        const int cell_to_face_off = cells_to_faces_offsets[(cell_index)];
+        const int cell_to_faces_off =
+            umesh->cells_to_faces_offsets[(cell_index)];
+
+        const int face_index =
+            (ii * (3 * nx * ny + nx + ny)) + (jj * nx) + (kk);
 
         int off = 0;
-        cells_to_faces[(cells_to_faces_off + off++)] =
-            (ii * 2 * nx * ny) + (jj * nx) + (kk);
-        cells_to_faces[(cells_to_faces_off + off++)] =
-            (ii * 2 * nx * ny) + (jj * nx) + (kk);
-      }
-    }
-  }
-
-  // Here we will list all of the edges that each of the cells connects to
-  for (int ii = 0; ii < nz; ++ii) {
-    for (int jj = 0; jj < ny; ++jj) {
-      for (int kk = 0; kk < nx; ++kk) {
-        const int cell_index = (ii * nx * ny) + (jj * nx) + (kk);
-
-        const int cell_to_edges_off = cells_to_edges_offsets[(cell_index)];
-
-        // Store all of the edges surrounding the polyhedra
-        int off = 0;
-        const int edge_index =
-            (ii * (3 * nx + 1) * (nx + 1)) + (jj * 2 * nx + 1) + (kk);
-
-        // On the front face
-        cells_to_edges[(cells_to_edges_off + off++)] = edge_index;
-        cells_to_edges[(cells_to_edges_off + off++)] = edge_index + nx;
-        cells_to_edges[(cells_to_edges_off + off++)] = edge_index + nx + 1;
-        cells_to_edges[(cells_to_edges_off + off++)] = edge_index + 2 * nx;
-
-        // Connecting the two faces
-        const int depth1_off = (edge_index + 2 * nx * ny + nx + ny);
-        cells_to_edges[(cells_to_edges_off + off++)] = depth1_off;
-        cells_to_edges[(cells_to_edges_off + off++)] = depth1_off + 1;
-        cells_to_edges[(cells_to_edges_off + off++)] = depth1_off + (nx + 1);
-        cells_to_edges[(cells_to_edges_off + off++)] =
-            depth1_off + (nx + 1) + 1;
-
-        // On the back face
-        const int depth2_off = (depth1_off + (nx + 1) * (ny + 1));
-        cells_to_edges[(cells_to_edges_off + off++)] = depth2_off;
-        cells_to_edges[(cells_to_edges_off + off++)] = depth2_off + nx;
-        cells_to_edges[(cells_to_edges_off + off++)] = depth2_off + nx + 1;
-        cells_to_edges[(cells_to_edges_off + off++)] = depth2_off + 2 * nx;
-
-        // Add the contribution to the offset indirection
-        cells_to_edges_offsets[(cell_index + 1)] = cell_to_edges_off + off;
+        umesh->cells_to_faces[(cell_to_faces_off + off++)] = face_index;
+        umesh->cells_to_faces[(cell_to_faces_off + off++)] =
+            face_index + nx * ny;
+        umesh->cells_to_faces[(cell_to_faces_off + off++)] =
+            face_index + nx * ny + 1;
+        umesh->cells_to_faces[(cell_to_faces_off + off++)] =
+            face_index + nx * ny + 2;
+        umesh->cells_to_faces[(cell_to_faces_off + off++)] =
+            face_index + nx * ny + 2 * nx + 1;
+        umesh->cells_to_faces[(cell_to_faces_off + off++)] =
+            face_index + ((ii + 1) * (3 * nx * ny + nx + ny));
       }
     }
   }
@@ -692,82 +648,194 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
 }
 
 #if 0
-  // NOTE: THIS SHOULDNT BE NECESSARY ANYMORE AS WE ARE STORING EDGES
-  // Calculate the cells to nodes offsets and values
-  for (int ii = 0; ii < nz; ++ii) {
-    for (int jj = 0; jj < ny; ++jj) {
-      for (int kk = 0; kk < nx; ++kk) {
-        const int index = (ii * nx * ny) + (jj * nx) + (kk);
-        umesh->cells_offsets[(index + 1)] =
-            umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
+// NOTE: THIS SHOULDNT BE NECESSARY ANYMORE AS WE ARE STORING EDGES
+// Calculate the cells to nodes offsets and values
+for (int ii = 0; ii < nz; ++ii) {
+  for (int jj = 0; jj < ny; ++jj) {
+    for (int kk = 0; kk < nx; ++kk) {
+      const int index = (ii * nx * ny) + (jj * nx) + (kk);
+      umesh->cells_offsets[(index + 1)] =
+        umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
 
-        // Simple closed form calculation for the nodes surrounding a cell
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
-            (ii * nx * ny) + (jj * nx) + (kk);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 1] =
-            (ii * nx * ny) + (jj * nx) + (kk + 1);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 2] =
-            (ii * nx * ny) + ((jj + 1) * nx) + (kk);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 3] =
-            (ii * nx * ny) + ((jj + 1) * nx) + (kk + 1);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 4] =
-            ((ii + 1) * nx * ny) + (jj * nx) + (kk);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 5] =
-            ((ii + 1) * nx * ny) + (jj * nx) + (kk + 1);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 6] =
-            ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk);
-        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 7] =
-            ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk + 1);
-      }
+      // Simple closed form calculation for the nodes surrounding a cell
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
+        (ii * nx * ny) + (jj * nx) + (kk);
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 1] =
+        (ii * nx * ny) + (jj * nx) + (kk + 1);
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 2] =
+        (ii * nx * ny) + ((jj + 1) * nx) + (kk);
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 3] =
+        (ii * nx * ny) + ((jj + 1) * nx) + (kk + 1);
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 4] =
+        ((ii + 1) * nx * ny) + (jj * nx) + (kk);
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 5] =
+        ((ii + 1) * nx * ny) + (jj * nx) + (kk + 1);
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 6] =
+        ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk);
+      umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 7] =
+        ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk + 1);
     }
   }
+}
 #if 0
-  // Set the connectivity between nodes
-  for (int ii = 0; ii < (nz + 1); ++ii) {
-    for (int jj = 0; jj < (ny + 1); ++jj) {
-      for (int kk = 0; kk < (nx + 1); ++kk) {
-        const int node_index =
-            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
-        const int nodes_off = umesh->nodes_offsets[(node_index)];
+// Set the connectivity between nodes
+for (int ii = 0; ii < (nz + 1); ++ii) {
+  for (int jj = 0; jj < (ny + 1); ++jj) {
+    for (int kk = 0; kk < (nx + 1); ++kk) {
+      const int node_index =
+        (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+      const int nodes_off = umesh->nodes_offsets[(node_index)];
 
-        int off = 0;
-        if (kk > 0) {
-          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index - 1;
-        }
-        if (kk < nx) {
-          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index + 1;
-        }
-        if (jj > 0) {
-          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index - nx;
-        }
-        if (jj < ny) {
-          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index + nx;
-        }
-        if (ii > 0) {
-          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index - nx * ny;
-        }
-        if (ii < nz) {
-          umesh->nodes_to_nodes[(nodes_off + off++)] = node_index + nx * ny;
-        }
+      int off = 0;
+      if (kk > 0) {
+        umesh->nodes_to_nodes[(nodes_off + off++)] = node_index - 1;
+      }
+      if (kk < nx) {
+        umesh->nodes_to_nodes[(nodes_off + off++)] = node_index + 1;
+      }
+      if (jj > 0) {
+        umesh->nodes_to_nodes[(nodes_off + off++)] = node_index - nx;
+      }
+      if (jj < ny) {
+        umesh->nodes_to_nodes[(nodes_off + off++)] = node_index + nx;
+      }
+      if (ii > 0) {
+        umesh->nodes_to_nodes[(nodes_off + off++)] = node_index - nx * ny;
+      }
+      if (ii < nz) {
+        umesh->nodes_to_nodes[(nodes_off + off++)] = node_index + nx * ny;
       }
     }
   }
+}
 
 
-  // Store the boundary index value for all cells
-  for (int ii = 0; ii < nz; ++ii) {
-    for (int jj = 0; jj < ny; ++jj) {
-      for (int kk = 0; kk < nx; ++kk) {
-        const int index = (ii * nx * ny) + (jj * nx) + (kk);
+// Store the boundary index value for all cells
+for (int ii = 0; ii < nz; ++ii) {
+  for (int jj = 0; jj < ny; ++jj) {
+    for (int kk = 0; kk < nx; ++kk) {
+      const int index = (ii * nx * ny) + (jj * nx) + (kk);
 
-        if (ii == 0 || jj == 0 || kk == 0 || ii == (nz - 1) || jj == (ny - 1) ||
-            kk == (nx - 1)) {
-          umesh->boundary_index[(index)] = umesh->nboundary_cells++;
-        } else {
-          umesh->boundary_index[(index)] = IS_INTERIOR_NODE;
-        }
+      if (ii == 0 || jj == 0 || kk == 0 || ii == (nz - 1) || jj == (ny - 1) ||
+          kk == (nx - 1)) {
+        umesh->boundary_index[(index)] = umesh->nboundary_cells++;
+      } else {
+        umesh->boundary_index[(index)] = IS_INTERIOR_NODE;
       }
     }
   }
+}
+#endif // if 0
+
+const int nfaces = 6;
+for (int ii = 0; ii < nz; ++ii) {
+  for (int jj = 0; jj < ny; ++jj) {
+    for (int kk = 0; kk < nx; ++kk) {
+      const int cell_index = (ii * nx * ny) + (jj * nx) + (kk);
+      const int cell_to_face_off = cells_to_faces_offsets[(cell_index)];
+
+      int off = 0;
+      cells_to_faces[(cells_to_faces_off + off++)] =
+        (ii * 2 * nx * ny) + (jj * nx) + (kk);
+      cells_to_faces[(cells_to_faces_off + off++)] =
+        (ii * 2 * nx * ny) + (jj * nx) + (kk);
+    }
+  }
+}
+
+// Here we will list all of the edges that each of the cells connects to
+for (int ii = 0; ii < nz; ++ii) {
+  for (int jj = 0; jj < ny; ++jj) {
+    for (int kk = 0; kk < nx; ++kk) {
+      const int cell_index = (ii * nx * ny) + (jj * nx) + (kk);
+
+      const int cell_to_edges_off = cells_to_edges_offsets[(cell_index)];
+
+      // Store all of the edges surrounding the polyhedra
+      int off = 0;
+      const int edge_index =
+        (ii * (3 * nx + 1) * (nx + 1)) + (jj * 2 * nx + 1) + (kk);
+
+      // On the front face
+      cells_to_edges[(cells_to_edges_off + off++)] = edge_index;
+      cells_to_edges[(cells_to_edges_off + off++)] = edge_index + nx;
+      cells_to_edges[(cells_to_edges_off + off++)] = edge_index + nx + 1;
+      cells_to_edges[(cells_to_edges_off + off++)] = edge_index + 2 * nx;
+
+      // Connecting the two faces
+      const int depth1_off = (edge_index + 2 * nx * ny + nx + ny);
+      cells_to_edges[(cells_to_edges_off + off++)] = depth1_off;
+      cells_to_edges[(cells_to_edges_off + off++)] = depth1_off + 1;
+      cells_to_edges[(cells_to_edges_off + off++)] = depth1_off + (nx + 1);
+      cells_to_edges[(cells_to_edges_off + off++)] =
+        depth1_off + (nx + 1) + 1;
+
+      // On the back face
+      const int depth2_off = (depth1_off + (nx + 1) * (ny + 1));
+      cells_to_edges[(cells_to_edges_off + off++)] = depth2_off;
+      cells_to_edges[(cells_to_edges_off + off++)] = depth2_off + nx;
+      cells_to_edges[(cells_to_edges_off + off++)] = depth2_off + nx + 1;
+      cells_to_edges[(cells_to_edges_off + off++)] = depth2_off + 2 * nx;
+
+      // Add the contribution to the offset indirection
+      cells_to_edges_offsets[(cell_index + 1)] = cell_to_edges_off + off;
+    }
+  }
+}
+
+#if 0
+// Here we will list all of the edges
+for (int ii = 0; ii < nz + 1; ++ii) {
+  const int ioff = (ii * (3 * nx * ny + 2 * nx + 2 * ny + 1));
+  for (int jj = 0; jj < ny + 1; ++jj) {
+    // n horizontal edges
+    for (int kk = 0; kk < nx; ++kk) {
+      const int edge_index = ioff + (jj * 2 * nx + 1) + (kk);
+
+      edges0[(edge_index)] =
+        (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+      edges1[(edge_index)] =
+        (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
+      boundary_edge[(edge_index)] =
+        (ii == 0 || ii == nz || jj == 0 || jj == ny);
+    }
+
+    // Don't fill a final slot for the vertical edges
+    if (jj >= ny) {
+      continue;
+    }
+
+    // n+1 vertical edges
+    for (int kk = 0; kk < nx + 1; ++kk) {
+      const int edge_index = ioff + (jj * 2 * nx + 1) + (kk);
+
+      edges0[(edge_index)] =
+        (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+      edges1[(edge_index)] =
+        (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
+      boundary_edge[(edge_index)] =
+        (ii == 0 || ii == nz || kk == 0 || kk == nx);
+    }
+  }
+
+  // Don't fill a final slot for the depthwise edges
+  if (ii >= nz) {
+    continue;
+  }
+
+  // (n by n+1) edges depthwise
+  for (int jj = 0; jj < ny; ++jj) {
+    for (int kk = 0; kk < nx; ++kk) {
+      const int edge_index = ioff + (jj * 2 * nx + 1) + (kk);
+
+      edges0[(edge_index)] =
+        (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+      edges1[(edge_index)] =
+        ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+      boundary_edge[(edge_index)] =
+        (jj == 0 || jj == ny || kk == 0 || kk == nx);
+    }
+  }
+}
 #endif // if 0
 #endif // if 0
