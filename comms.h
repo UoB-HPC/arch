@@ -95,6 +95,15 @@ void handle_unstructured_reflect(const int nnodes, const int* boundary_index,
                                  const double* boundary_normal_y,
                                  double* velocity_x, double* velocity_y);
 
+// Reflect the node centered velocities on the boundary
+void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
+                                    const int* boundary_type,
+                                    const double* boundary_normal_x,
+                                    const double* boundary_normal_y,
+                                    const double* boundary_normal_z,
+                                    double* velocity_x, double* velocity_y,
+                                    double* velocity_z);
+
 // Finalise the communications
 void finalise_comms();
 
