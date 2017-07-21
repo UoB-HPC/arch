@@ -425,13 +425,18 @@ size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh) {
 }
 
 // Converts an ordinary structured mesh into an unstructured equivalent
-size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
+size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh,
+                                double*** cell_variables, int nvars) {
   umesh->nboundary_cells = 0;
   umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
   umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
   umesh->nnodes =
       (mesh->local_nx + 1) * (mesh->local_ny + 1) * (mesh->local_nz + 1);
   umesh->ncells = (mesh->local_nx * mesh->local_ny * mesh->local_nz);
+
+  for (int ii = 0; ii < nvars; ++ii) {
+    allocate_data(cell_variables[ii], umesh->ncells);
+  }
 
   size_t allocated = initialise_unstructured_mesh(umesh);
   allocated += allocate_data(&umesh->nodes_x0, umesh->nnodes);
@@ -750,21 +755,21 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
 
         // Simple closed form calculation for the nodes surrounding a cell
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
-            (ii * nx * ny) + (jj * nx) + (kk);
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 1] =
-            (ii * nx * ny) + (jj * nx) + (kk + 1);
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 2] =
-            (ii * nx * ny) + ((jj + 1) * nx) + (kk);
+            (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 3] =
-            (ii * nx * ny) + ((jj + 1) * nx) + (kk + 1);
+            (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk + 1);
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 4] =
-            ((ii + 1) * nx * ny) + (jj * nx) + (kk);
+            ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 5] =
-            ((ii + 1) * nx * ny) + (jj * nx) + (kk + 1);
+            ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 6] =
-            ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk);
+            ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
         umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 7] =
-            ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk + 1);
+            ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk + 1);
       }
     }
   }
