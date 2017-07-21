@@ -30,16 +30,23 @@ typedef struct {
   int* boundary_index;
   int* boundary_type;
 
+  // CURRENTLY 2D
   int* nodes_to_cells;
   int* cells_to_nodes;
   int* nodes_to_nodes;
-  int* cells_to_cells;
   int* nodes_offsets;
   int* cells_offsets;
+
+  // CURRENTLY 3D
+  int* cells_to_cells;
+  int* faces_to_cells0;
+  int* faces_to_cells1;
   int* cells_to_faces;
   int* faces_to_nodes;
+  int* nodes_to_faces;
   int* faces_to_nodes_offsets;
   int* cells_to_faces_offsets;
+  int* nodes_to_faces_offsets;
 
   double* nodes_x0;
   double* nodes_y0;
