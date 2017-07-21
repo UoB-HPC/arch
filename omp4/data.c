@@ -255,7 +255,7 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
 #pragma omp target teams distribute parallel for
   for (int nn = 0; nn < umesh->nnodes; ++nn) {
     const int boundary_index = umesh->boundary_index[(nn)];
-    if (boundary_index == IS_INTERIOR_NODE) {
+    if (boundary_index == IS_INTERIOR) {
       continue;
     }
 

@@ -292,21 +292,21 @@ void set_problem_3d(const int global_nx, const int global_ny,
 }
 
 // Finds the normals for all boundary cells
-void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
+void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_face_list) {
 // Loop through all of the boundary cells and find their normals
 #pragma omp parallel for
   for (int nn = 0; nn < umesh->nnodes; ++nn) {
     const int boundary_index = umesh->boundary_index[(nn)];
-    if (boundary_index == IS_INTERIOR_NODE) {
+    if (boundary_index == IS_INTERIOR) {
       continue;
     }
 
     double normal_x = 0.0;
     double normal_y = 0.0;
 
-    for (int bb1 = 0; bb1 < umesh->nboundary_cells; ++bb1) {
-      const int node0 = boundary_edge_list[bb1 * 2];
-      const int node1 = boundary_edge_list[bb1 * 2 + 1];
+    for (int bb1 = 0; bb1 < umesh->nboundary_nodes; ++bb1) {
+      const int node0 = boundary_face_list[bb1 * 2];
+      const int node1 = boundary_face_list[bb1 * 2 + 1];
 
       if (node0 == nn || node1 == nn) {
         const double node0_x = umesh->nodes_x0[(node0)];
@@ -335,25 +335,24 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
 
 // Finds the normals for all boundary cells
 void find_boundary_normals_3d(UnstructuredMesh* umesh,
-                              int* boundary_edge_list) {
+                              int* boundary_face_list) {
 
-  TERMINATE("Needs to be implemented.");
-
+  TERMINATE("%s not yet implemented.", __func__);
 #if 0
 // Loop through all of the boundary cells and find their normals
 #pragma omp parallel for
   for (int nn = 0; nn < umesh->nnodes; ++nn) {
     const int boundary_index = umesh->boundary_index[(nn)];
-    if (boundary_index == IS_INTERIOR_NODE) {
+    if (boundary_index == IS_INTERIOR) {
       continue;
     }
 
     double normal_x = 0.0;
     double normal_y = 0.0;
 
-    for (int bb1 = 0; bb1 < umesh->nboundary_cells; ++bb1) {
-      const int node0 = boundary_edge_list[bb1 * 2];
-      const int node1 = boundary_edge_list[bb1 * 2 + 1];
+    for (int bb1 = 0; bb1 < umesh->nboundary_faces; ++bb1) {
+      const int node0 = boundary_face_list[bb1 * 2];
+      const int node1 = boundary_face_list[bb1 * 2 + 1];
 
       if (node0 == nn || node1 == nn) {
         const double node0_x = umesh->nodes_x0[(node0)];

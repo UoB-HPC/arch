@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 /* Problem-Independent Constants */
-#define IS_INTERIOR_NODE -1
+#define IS_INTERIOR -1
 #define IS_FIXED -1
 #define IS_BOUNDARY -2
 
@@ -24,7 +24,7 @@ typedef struct {
   int nnodes_by_cell;
   int nsub_cell_edges;
   int nregional_variables;
-  int nboundary_cells;
+  int nboundary_nodes;
   int nfaces;
 
   int* boundary_index;
@@ -75,8 +75,8 @@ size_t read_unstructured_mesh(UnstructuredMesh* umesh, double*** variables,
                               int nvars);
 
 // Finds the normals for all boundary cells
-void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list);
-void find_boundary_normals_3d(UnstructuredMesh* umesh, int* boundary_edge_list);
+void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_face_list);
+void find_boundary_normals_3d(UnstructuredMesh* umesh, int* boundary_face_list);
 
 // Converts an ordinary structured mesh into an unstructured equivalent
 size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh);

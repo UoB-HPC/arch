@@ -461,7 +461,7 @@ void handle_unstructured_reflect(const int nnodes, const int* boundary_index,
 #pragma omp parallel for
   for (int nn = 0; nn < nnodes; ++nn) {
     const int index = boundary_index[(nn)];
-    if (index == IS_INTERIOR_NODE) {
+    if (index == IS_INTERIOR) {
       continue;
     }
 
@@ -491,7 +491,7 @@ void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
 #pragma omp parallel for
   for (int nn = 0; nn < nnodes; ++nn) {
     const int index = boundary_index[(nn)];
-    if (index == IS_INTERIOR_NODE) {
+    if (index == IS_INTERIOR) {
       continue;
     }
 
