@@ -82,8 +82,7 @@ void find_boundary_normals_3d(UnstructuredMesh* umesh, int* boundary_edge_list);
 size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh);
 
 // Converts an ordinary structured mesh into an unstructured equivalent
-size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh,
-                                double*** cell_variables, int nvars);
+size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh);
 
 #ifdef __cplusplus
 }
