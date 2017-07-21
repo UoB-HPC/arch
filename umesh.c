@@ -740,9 +740,33 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
     }
   }
 
-  for (int ff = 0; ff < umesh->nfaces; ++ff) {
-    printf("%d %d %d\n", ff, umesh->faces_to_cells0[(ff)],
-           umesh->faces_to_cells1[(ff)]);
+  // Store the connectivity between cells and nodes
+  for (int ii = 0; ii < nz; ++ii) {
+    for (int jj = 0; jj < ny; ++jj) {
+      for (int kk = 0; kk < nx; ++kk) {
+        const int index = (ii * nx * ny) + (jj * nx) + (kk);
+        umesh->cells_offsets[(index + 1)] =
+            umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
+
+        // Simple closed form calculation for the nodes surrounding a cell
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
+            (ii * nx * ny) + (jj * nx) + (kk);
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 1] =
+            (ii * nx * ny) + (jj * nx) + (kk + 1);
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 2] =
+            (ii * nx * ny) + ((jj + 1) * nx) + (kk);
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 3] =
+            (ii * nx * ny) + ((jj + 1) * nx) + (kk + 1);
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 4] =
+            ((ii + 1) * nx * ny) + (jj * nx) + (kk);
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 5] =
+            ((ii + 1) * nx * ny) + (jj * nx) + (kk + 1);
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 6] =
+            ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk);
+        umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 7] =
+            ((ii + 1) * nx * ny) + ((jj + 1) * nx) + (kk + 1);
+      }
+    }
   }
 
   find_boundary_normals(umesh, boundary_edge_list);
