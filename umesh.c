@@ -298,7 +298,7 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
 
   umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
   umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
-  umesh->nboundary_nodes = 6 * nx * ny;
+  umesh->nboundary_nodes = 6 * (nx + 1) * (ny + 1);
   umesh->nnodes =
       (mesh->local_nx + 1) * (mesh->local_ny + 1) * (mesh->local_nz + 1);
   umesh->ncells = (mesh->local_nx * mesh->local_ny * mesh->local_nz);
