@@ -6,8 +6,9 @@
 
 /* Problem-Independent Constants */
 #define IS_INTERIOR -1
-#define IS_FIXED -1
 #define IS_BOUNDARY -2
+#define IS_EDGE -3
+#define IS_CORNER -4
 
 #ifdef __cplusplus
 extern "C" {

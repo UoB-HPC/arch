@@ -322,7 +322,7 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_face_list) {
     // We are fixed if we are one of the four corners
     if ((umesh->nodes_x0[(nn)] == 0.0 || umesh->nodes_x0[(nn)] == 1.0) &&
         (umesh->nodes_y0[(nn)] == 0.0 || umesh->nodes_y0[(nn)] == 1.0)) {
-      umesh->boundary_type[(boundary_index)] = IS_FIXED;
+      umesh->boundary_type[(boundary_index)] = IS_CORNER;
     } else {
       umesh->boundary_type[(boundary_index)] = IS_BOUNDARY;
     }
@@ -368,7 +368,7 @@ void find_boundary_normals_3d(UnstructuredMesh* umesh,
     // We are fixed if we are one of the four corners
     if ((umesh->nodes_x0[(nn)] == 0.0 || umesh->nodes_x0[(nn)] == 1.0) &&
         (umesh->nodes_y0[(nn)] == 0.0 || umesh->nodes_y0[(nn)] == 1.0)) {
-      umesh->boundary_type[(boundary_index)] = IS_FIXED;
+      umesh->boundary_type[(boundary_index)] = IS_CORNER;
     } else {
       umesh->boundary_type[(boundary_index)] = IS_BOUNDARY;
     }

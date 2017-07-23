@@ -298,7 +298,14 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
 
   umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
   umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
-  umesh->nboundary_nodes = 6 * (nx + 1) * (ny + 1);
+
+  umesh->nboundary_nodes =
+      2 * (nx + 1) * (ny + 1) + 2 * (ny) * (nz) + 2 * (nz) * (nx);
+
+#if 0
+  umesh->nboundary_nodes = 2 * (nx + 1) * (ny + 1) + 2 * (ny + 1) * (nz + 1) +
+                           2 * (nz + 1) * (nx + 1);
+#endif // if 0
   umesh->nnodes =
       (mesh->local_nx + 1) * (mesh->local_ny + 1) * (mesh->local_nz + 1);
   umesh->ncells = (mesh->local_nx * mesh->local_ny * mesh->local_nz);
@@ -312,9 +319,8 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   allocated += allocate_data(&umesh->nodes_z1, umesh->nnodes);
 
   int* boundary_face_list;
-  int boundary_edge_index = 0;
   allocated += allocate_int_data(&boundary_face_list, umesh->nboundary_nodes);
-  allocated += allocate_int_data(&umesh->boundary_index, umesh->nfaces);
+  allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
   allocated += allocate_data(&umesh->boundary_normal_x, umesh->nboundary_nodes);
   allocated += allocate_data(&umesh->boundary_normal_y, umesh->nboundary_nodes);
   allocated += allocate_data(&umesh->boundary_normal_z, umesh->nboundary_nodes);
@@ -399,17 +405,18 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   umesh->nfaces = nx * ny * (nz + 1) + (nx * (ny + 1) + (nx + 1) * ny) * nz;
   const int nnodes_by_face = 4;
   const int nfaces_by_node = 12;
+  const int nfaces_by_cells = 6;
   allocate_int_data(&umesh->faces_to_nodes_offsets, umesh->nfaces + 1);
   allocate_int_data(&umesh->faces_to_nodes, umesh->nfaces * nnodes_by_face);
   allocate_int_data(&umesh->cells_to_faces_offsets, umesh->ncells + 1);
-  allocate_int_data(&umesh->cells_to_faces, umesh->nfaces * umesh->ncells);
+  allocate_int_data(&umesh->cells_to_faces, nfaces_by_cells * umesh->ncells);
   allocate_int_data(&umesh->nodes_to_faces, umesh->nnodes * nfaces_by_node);
   allocate_int_data(&umesh->nodes_to_faces_offsets, umesh->nnodes + 1);
   allocate_int_data(&umesh->faces_to_cells0, umesh->nfaces);
   allocate_int_data(&umesh->faces_to_cells1, umesh->nfaces);
 
   for (int ff = 0; ff < umesh->nfaces + 1; ++ff) {
-    umesh->faces_to_nodes_offsets[(ff)] = ff * nnodes_by_face;
+    umesh->faces_to_nodes_offsets[(ff)] = ff * 4;
   }
 
 // TODO: DOING THIS BECAUSE THE INDEXING INTO THE FACE STORAGE IS HORRIBLE
@@ -438,37 +445,35 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
         const int face_to_node_off =
             umesh->faces_to_nodes_offsets[(face_index)];
 
-        const int node_index =
-            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
-
         // On the front face
-        umesh->faces_to_nodes[(face_to_node_off + 0)] = node_index;
-        umesh->faces_to_nodes[(face_to_node_off + 1)] = node_index + 1;
+        umesh->faces_to_nodes[(face_to_node_off + 0)] =
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+        umesh->faces_to_nodes[(face_to_node_off + 1)] =
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
         umesh->faces_to_nodes[(face_to_node_off + 2)] =
-            node_index + (nx + 1) + 1;
-        umesh->faces_to_nodes[(face_to_node_off + 3)] = node_index + (nx + 1);
+            (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk + 1);
+        umesh->faces_to_nodes[(face_to_node_off + 3)] =
+            (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
       }
     }
 
     if (ii < nz) {
       for (int jj = 0; jj < ny + 1; ++jj) {
         for (int kk = 0; kk < nx + 1; ++kk) {
-          const int node_index =
-              (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
-
           if (jj < ny) {
             // On the left face
             const int face_index = YZPLANE_FACE_INDEX(ii, jj, kk);
             const int face_to_node_off =
                 umesh->faces_to_nodes_offsets[(face_index)];
 
-            umesh->faces_to_nodes[(face_to_node_off + 0)] = node_index;
+            umesh->faces_to_nodes[(face_to_node_off + 0)] =
+                (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 1)] =
-                node_index + (nx + 1) * (ny + 1);
+                ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 2)] =
-                node_index + (nx + 1) * (ny + 1) + (nx + 1);
+                ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 3)] =
-                node_index + (nx + 1);
+                (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
           }
 
           if (kk < nx) {
@@ -477,19 +482,20 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
             const int face_to_node_off =
                 umesh->faces_to_nodes_offsets[(face_index)];
 
-            umesh->faces_to_nodes[(face_to_node_off + 0)] = node_index;
-            umesh->faces_to_nodes[(face_to_node_off + 1)] = node_index + 1;
+            umesh->faces_to_nodes[(face_to_node_off + 0)] =
+                (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+            umesh->faces_to_nodes[(face_to_node_off + 1)] =
+                (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
             umesh->faces_to_nodes[(face_to_node_off + 2)] =
-                node_index + (nx + 1) * (ny + 1) + 1;
+                ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
             umesh->faces_to_nodes[(face_to_node_off + 3)] =
-                node_index + (nx + 1) * (ny + 1);
+                ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
           }
         }
       }
     }
   }
 
-  const int nfaces_by_cells = 6;
   for (int cc = 0; cc < umesh->ncells + 1; ++cc) {
     umesh->cells_to_faces_offsets[(cc)] = cc * nfaces_by_cells;
   }
@@ -571,7 +577,7 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
       for (int kk = 0; kk < nx; ++kk) {
         const int face_index = XYPLANE_FACE_INDEX(ii, jj, kk);
         umesh->faces_to_cells0[(face_index)] =
-            (ii < ny) ? (ii * nx * ny) + (jj * nx) + (kk) : -1;
+            (ii < nz) ? (ii * nx * ny) + (jj * nx) + (kk) : -1;
         umesh->faces_to_cells1[(face_index)] =
             (ii > 0) ? ((ii - 1) * nx * ny) + (jj * nx) + (kk) : -1;
       }
@@ -643,44 +649,76 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
-        const int edge_index =
-            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
         const int boundary_count = ((ii == 0) + (ii == nz) + (jj == 0) +
                                     (jj == ny) + (kk == 0) + (kk == nx));
 
+        const int node_index =
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+
         // Check if we are on the edge
-        if (boundary_count) {
+        if (boundary_count > 0) {
           int index = nboundary_nodes++;
-          umesh->boundary_index[(edge_index)] = index;
+          umesh->boundary_index[(node_index)] = index;
 
-          // Check how many axes the point is anchored on, if it's more than two
-          // then fix it in place, meaning we maintain the original shape of the
-          // solid box.
-
-          if (boundary_count > 1) {
-            umesh->boundary_type[(index)] = IS_FIXED;
-          } else {
+          if (boundary_count == 3) {
+            umesh->boundary_type[(index)] = IS_CORNER;
+          } else if (boundary_count == 2) {
+            umesh->boundary_type[(index)] = IS_EDGE;
+            if (kk == 0) {
+              if (jj == 0) {
+                umesh->boundary_normal_z[(index)] = 1.0;
+              } else if (jj == ny) {
+                umesh->boundary_normal_z[(index)] = 1.0;
+              } else if (ii == 0) {
+                umesh->boundary_normal_y[(index)] = 1.0;
+              } else if (ii == nz) {
+                umesh->boundary_normal_y[(index)] = 1.0;
+              }
+            } else if (jj == 0) {
+              if (kk == nx) {
+                umesh->boundary_normal_z[(index)] = 1.0;
+              } else if (ii == 0) {
+                umesh->boundary_normal_x[(index)] = 1.0;
+              } else if (ii == nz) {
+                umesh->boundary_normal_x[(index)] = 1.0;
+              }
+            } else if (ii == 0) {
+              if (kk == nx) {
+                umesh->boundary_normal_y[(index)] = 1.0;
+              } else if (jj == ny) {
+                umesh->boundary_normal_x[(index)] = 1.0;
+              }
+            } else if (kk == nx) {
+              if (ii == nz) {
+                umesh->boundary_normal_y[(index)] = 1.0;
+              } else if (jj == ny) {
+                umesh->boundary_normal_z[(index)] = 1.0;
+              }
+            } else if (jj == ny) {
+              if (ii == nz) {
+                umesh->boundary_normal_x[(index)] = 1.0;
+              }
+            }
+          } else if (boundary_count == 1) {
             umesh->boundary_type[(index)] = IS_BOUNDARY;
 
             // TODO: WE DON'T NEED ANYTHING SPECIAL HERE AS WE KNOW THE NORMALS
             // FROM THE CONSTRUCTION OF THE MESH, ALTHOUGH WE WILL NEED A
             // SUFFICIENT METHOD WHEN WE START USING MORE COMPLEX MESHES
             umesh->boundary_normal_x[(index)] =
-                (kk == 0) ? -1.0 : ((kk == nx) ? -1.0 : 0.0);
+                (kk == 0) ? -1.0 : ((kk == nx) ? 1.0 : 0.0);
             umesh->boundary_normal_y[(index)] =
-                (jj == 0) ? -1.0 : ((jj == ny) ? -1.0 : 0.0);
+                (jj == 0) ? -1.0 : ((jj == ny) ? 1.0 : 0.0);
             umesh->boundary_normal_z[(index)] =
-                (ii == 0) ? -1.0 : ((ii == nz) ? -1.0 : 0.0);
+                (ii == 0) ? -1.0 : ((ii == nz) ? 1.0 : 0.0);
           }
-
         } else {
-          umesh->boundary_index[(edge_index)] = IS_INTERIOR;
+          umesh->boundary_index[(node_index)] = IS_INTERIOR;
         }
       }
     }
   }
-
   return allocated;
 }
 
@@ -725,17 +763,17 @@ size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh) {
     for (int jj = 0; jj < mesh->local_nx; ++jj) {
       const int index = (ii * mesh->local_nx) + (jj);
       umesh->cells_offsets[(index + 1)] =
-          umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
+        umesh->cells_offsets[(index)] + umesh->nnodes_by_cell;
 
       // Simple closed form calculation for the nodes surrounding a cell
       umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 0] =
-          (ii * mesh->local_nx) + (jj);
+        (ii * mesh->local_nx) + (jj);
       umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 1] =
-          (ii * mesh->local_nx) + (jj + 1);
+        (ii * mesh->local_nx) + (jj + 1);
       umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 2] =
-          ((ii + 1) * mesh->local_nx) + (jj);
+        ((ii + 1) * mesh->local_nx) + (jj);
       umesh->cells_to_nodes[(index * umesh->nnodes_by_cell) + 3] =
-          ((ii + 1) * mesh->local_nx) + (jj + 1);
+        ((ii + 1) * mesh->local_nx) + (jj + 1);
     }
   }
 
@@ -762,16 +800,16 @@ size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh) {
         // Corner nodes only have a single adjoining cell
         if (jj == 0) {
           umesh->nodes_to_cells[(off++)] =
-              ((mesh->local_ny - 1) * mesh->local_nx) + (jj);
+            ((mesh->local_ny - 1) * mesh->local_nx) + (jj);
         } else if (jj == (mesh->local_nx)) {
           umesh->nodes_to_cells[(off++)] =
-              ((mesh->local_ny - 1) * mesh->local_nx) + (jj - 1);
+            ((mesh->local_ny - 1) * mesh->local_nx) + (jj - 1);
         } else {
           // Boundary nodes have two adjoining cells
           umesh->nodes_to_cells[(off++)] =
-              ((mesh->local_ny - 1) * mesh->local_nx) + (jj - 1);
+            ((mesh->local_ny - 1) * mesh->local_nx) + (jj - 1);
           umesh->nodes_to_cells[(off++)] =
-              ((mesh->local_ny - 1) * mesh->local_nx) + (jj);
+            ((mesh->local_ny - 1) * mesh->local_nx) + (jj);
         }
       } else if (jj == 0) {
         umesh->nodes_to_cells[(off++)] = ((ii)*mesh->local_nx) + (jj);
@@ -799,13 +837,13 @@ size_t convert_mesh_to_umesh(UnstructuredMesh* umesh, Mesh* mesh) {
       const int* nodes = &umesh->cells_to_nodes[(cells_off)];
       for (int nn = 0; nn < umesh->nnodes_by_cell; ++nn) {
         const int next_node_index =
-            (nn + 1 == umesh->nnodes_by_cell ? 0 : nn + 1);
+          (nn + 1 == umesh->nnodes_by_cell ? 0 : nn + 1);
         if (umesh->boundary_index[(nodes[(nn)])] != IS_INTERIOR &&
             umesh->boundary_index[(nodes[(next_node_index)])] !=
-                IS_INTERIOR) {
+            IS_INTERIOR) {
           boundary_face_list[(boundary_edge_index++)] = nodes[(nn)];
           boundary_face_list[(boundary_edge_index++)] =
-              nodes[(next_node_index)];
+            nodes[(next_node_index)];
         }
       }
     }
