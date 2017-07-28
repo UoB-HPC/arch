@@ -23,7 +23,6 @@ typedef struct {
   int ncells;
   int nnodes;
   int nnodes_by_cell;
-  int nsub_cell_edges;
   int nregional_variables;
   int nboundary_nodes;
   int nfaces;

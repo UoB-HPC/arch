@@ -32,8 +32,6 @@ size_t initialise_unstructured_mesh(UnstructuredMesh* umesh) {
                                  umesh->ncells * umesh->nnodes_by_cell);
   allocated += allocate_int_data(&umesh->cells_to_cells,
                                  umesh->ncells * umesh->nnodes_by_cell);
-  allocated += allocate_data(&umesh->sub_cell_volume,
-                             umesh->ncells * umesh->nnodes_by_cell);
   return allocated;
 }
 
@@ -92,9 +90,6 @@ size_t read_unstructured_mesh(UnstructuredMesh* umesh, double*** cell_variables,
   skip_whitespace(&line);
   sscanf(line, "%d%d%d", &umesh->ncells, &umesh->nnodes_by_cell,
          &umesh->nregional_variables);
-
-  // Constant nedges by construction
-  umesh->nsub_cell_edges = 4;
 
   int boundary_edge_index = 0;
   int* boundary_face_list;
