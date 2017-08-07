@@ -292,7 +292,6 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   const int nz = mesh->local_nz;
 
   umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
-  umesh->nnodes_by_cell = 8; // Initialising as rectilinear mesh
 
   umesh->nboundary_nodes =
       2 * (nx + 1) * (ny + 1) + 2 * (ny) * (nz) + 2 * (nz) * (nx);
@@ -459,11 +458,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
             umesh->faces_to_nodes[(face_to_node_off + 0)] =
                 (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 1)] =
-                ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+                (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 2)] =
                 ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 3)] =
-                (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
+                ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
           }
 
           if (kk < nx) {
@@ -475,11 +474,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
             umesh->faces_to_nodes[(face_to_node_off + 0)] =
                 (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 1)] =
-                (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
+                ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 2)] =
                 ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
             umesh->faces_to_nodes[(face_to_node_off + 3)] =
-                ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+                (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
           }
         }
       }
@@ -709,5 +708,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
       }
     }
   }
+
+  // TODO: I really don't think that it is reasonable to include some of the
+  // connectivity sets in this general unstructured functionality, but this will
+  // need to be cleaned up later in order to make sure that the ALE code hal3d
+  // can be completed.
+
   return allocated;
 }
