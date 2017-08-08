@@ -47,7 +47,7 @@ template <typename T, unsigned int nthreads>
 __device__ void sum_reduce_in_shared(const int tid, T* sdata) {
   if (nthreads >= 1024) {
     if (tid < 512) {
-      sdata[tid] = min(sdata[tid], sdata[tid + 512]);
+      sdata[tid] += sdata[tid], sdata[tid + 512];
     }
     __syncthreads();
   }
