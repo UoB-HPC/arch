@@ -1,6 +1,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <stdint.h>
 
 #define NTHREADS 128
 
@@ -20,3 +21,4 @@ inline void gpu_assert(cudaError_t code, const char* file, int line,
 void finish_min_reduce(int nblocks1, double* reduce_array, double* result);
 void finish_sum_reduce(int nblocks1, double* reduce_array, double* result);
 void finish_sum_int_reduce(int nblocks1, int* reduce_array, int* result);
+void finish_sum_uint64_reduce(int nblocks1, uint64_t* reduce_array, uint64_t* result);

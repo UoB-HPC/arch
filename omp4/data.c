@@ -46,6 +46,21 @@ size_t allocate_int_data(int** buf, size_t len) {
   return sizeof(int) * len;
 }
 
+// Allocates some int precision data
+size_t allocate_uint64_data(uint64_t** buf, size_t len) {
+  allocate_host_int_data(buf, len);
+
+  uint64_t* local_buf = *buf;
+#pragma omp target enter data map(to : local_buf[ : len])
+
+#pragma omp target teams distribute parallel for
+  for (size_t ii = 0; ii < len; ++ii) {
+    local_buf[ii] = 0;
+  }
+
+  return sizeof(uint64_t) * len;
+}
+
 // Allocates a host copy of some buffer
 void allocate_host_data(double** buf, size_t len) {
 #ifdef INTEL

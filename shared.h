@@ -5,6 +5,7 @@
 
 #include "profiler.h"
 #include <stdio.h>
+#include <stdint.h>
 #include <string.h>
 
 #define ARCH_PARAMS "arch.params"
@@ -60,6 +61,7 @@ void initialise_devices(int rank);
 // Wrappers for data (de)allocation
 size_t allocate_data(double** buf, size_t len);
 size_t allocate_int_data(int** buf, size_t len);
+size_t allocate_uint64_data(uint64_t** buf, const size_t len);
 void allocate_host_data(double** buf, size_t len);
 void allocate_host_int_data(int** buf, size_t len);
 void deallocate_data(double* buf);
@@ -68,6 +70,7 @@ void deallocate_int_data(int* buf);
 void deallocate_host_int_data(int* buf);
 void copy_buffer(const size_t len, double** src, double** dst, int send);
 void copy_int_buffer(const size_t len, int** src, int** dst, int send);
+void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst, int send);
 void move_host_buffer_to_device(const size_t len, double** src, double** dst);
 
 #if 0

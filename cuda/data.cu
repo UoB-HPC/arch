@@ -12,9 +12,9 @@ size_t allocate_data(double** buf, const size_t len) {
   gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
 
   const int nblocks = ceil(len / (double)NTHREADS);
-  zero_array<<<nblocks, NTHREADS>>>(len, *buf);
+  zero_array<double><<<nblocks, NTHREADS>>>(len, *buf);
   gpu_check(cudaDeviceSynchronize());
-  return len;
+  return sizeof(double)*len;
 }
 
 // Allocates some integer data
@@ -22,7 +22,17 @@ size_t allocate_int_data(int** buf, const size_t len) {
   gpu_check(cudaMalloc((void**)buf, sizeof(int) * len));
 
   const int nblocks = ceil(len / (double)NTHREADS);
-  zero_int_array<<<nblocks, NTHREADS>>>(len, *buf);
+  zero_array<int><<<nblocks, NTHREADS>>>(len, *buf);
+  gpu_check(cudaDeviceSynchronize());
+  return sizeof(int)*len;
+}
+
+// Allocates some 64bit integer data
+size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
+  gpu_check(cudaMalloc((void**)buf, sizeof(uint64_t) * len));
+
+  const int nblocks = ceil(len / (double)NTHREADS);
+  zero_array<uint64_t><<<nblocks, NTHREADS>>>(len, *buf);
   gpu_check(cudaDeviceSynchronize());
   return len;
 }
@@ -106,6 +116,18 @@ void copy_int_buffer(const size_t len, int** src, int** dst, int send) {
         cudaMemcpy(*dst, *src, sizeof(int) * len, cudaMemcpyDeviceToHost));
   }
 }
+
+// Copy a buffer to/from the device
+void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst, int send) {
+  if (send) {
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(uint64_t) * len, cudaMemcpyHostToDevice));
+  } else {
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(uint64_t) * len, cudaMemcpyDeviceToHost));
+  }
+}
+
 
 // Move a host buffer onto the device
 void move_host_buffer_to_device(const size_t len, double** src, double** dst) {

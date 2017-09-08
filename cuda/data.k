@@ -10,19 +10,29 @@ __device__ int cuda_strmatch(const char* str, const char* compare) {
   return 1;
 }
 
-__global__ void zero_array(const int len, double* array) {
+template <typename T>
+__global__ void zero_array(const int len, T* array) {
   const int gid = threadIdx.x + blockIdx.x * blockDim.x;
   if (gid >= len)
     return;
   array[gid] = 0.0;
 }
 
+#if 0
 __global__ void zero_int_array(const int len, int* array) {
   const int gid = threadIdx.x + blockIdx.x * blockDim.x;
   if (gid >= len)
     return;
   array[gid] = 0;
 }
+
+__global__ void zero_uint64_array(const int len, int* array) {
+  const int gid = threadIdx.x + blockIdx.x * blockDim.x;
+  if (gid >= len)
+    return;
+  array[gid] = 0;
+}
+#endif // if 0
 
 __global__ void initialise_problem_state(
     const int nx, const int ny, const int global_nx, const int global_ny,

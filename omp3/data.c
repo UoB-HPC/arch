@@ -47,6 +47,26 @@ size_t allocate_int_data(int** buf, size_t len) {
   return sizeof(int) * len;
 }
 
+size_t allocate_uint64_data(uint64_t** buf, const size_t len);
+#ifdef uint64_tEL
+  *buf = (uint64_t*)_mm_malloc(sizeof(uint64_t) * len, VEC_ALIGN);
+#else
+  *buf = (uint64_t*)malloc(sizeof(uint64_t) * len);
+#endif
+
+  if (*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
+
+// Perform first-touch
+#pragma omp parallel for
+  for (size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0;
+  }
+
+  return sizeof(uint64_t) * len;
+}
+
 // Allocates a host copy of some buffer
 void allocate_host_data(double** buf, size_t len) { allocate_data(buf, len); }
 
