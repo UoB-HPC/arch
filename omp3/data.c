@@ -47,7 +47,7 @@ size_t allocate_int_data(int** buf, size_t len) {
   return sizeof(int) * len;
 }
 
-size_t allocate_uint64_data(uint64_t** buf, const size_t len);
+size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
 #ifdef uint64_tEL
   *buf = (uint64_t*)_mm_malloc(sizeof(uint64_t) * len, VEC_ALIGN);
 #else
