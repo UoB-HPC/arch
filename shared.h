@@ -18,8 +18,12 @@
 
 // Helper macros
 #define strmatch(a, b) (strcmp((a), (b)) == 0)
+
+#ifndef __cplusplus
 #define min(a, b) (((a) < (b)) ? (a) : (b))
 #define max(a, b) (((a) > (b)) ? (a) : (b))
+#endif
+
 #define samesign(a, b) ((a * b) > 0.0)
 #define absmin(a, b) ((fabs(a) < fabs(b)) ? (a) : (b))
 #define minmod(a, b) (samesign((a), (b)) ? (absmin((a), (b))) : (0.0))

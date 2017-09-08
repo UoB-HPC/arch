@@ -3,6 +3,7 @@
 #include "../params.h"
 #include "../shared.h"
 #include "../shared_data.h"
+#include "../umesh.h"
 #include "data.k"
 #include <stdlib.h>
 
