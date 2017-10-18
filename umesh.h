@@ -23,6 +23,7 @@ typedef struct {
   int ncells;
   int nnodes;
   int nnodes_by_cell;
+  int nnodes_by_node;
   int nregional_variables;
   int nboundary_nodes;
   int nfaces;
@@ -33,7 +34,6 @@ typedef struct {
   // CURRENTLY 2D
   int* nodes_to_cells;
   int* cells_to_nodes;
-  int* nodes_to_nodes;
   int* nodes_offsets;
   int* cells_offsets;
 
@@ -44,9 +44,11 @@ typedef struct {
   int* cells_to_faces;
   int* faces_to_nodes;
   int* nodes_to_faces;
+  int* nodes_to_nodes;
   int* faces_to_nodes_offsets;
   int* cells_to_faces_offsets;
   int* nodes_to_faces_offsets;
+  int* nodes_to_nodes_offsets;
 
   double* nodes_x0;
   double* nodes_y0;

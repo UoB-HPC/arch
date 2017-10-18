@@ -501,12 +501,12 @@ void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
                          velocity_y[(nn)] * boundary_normal_y[(index)] +
                          velocity_z[(nn)] * boundary_normal_z[(index)]);
 
-      // Project the vector onto the the edge line
+      // Project the vector onto the edge line
       velocity_x[(nn)] = ab * boundary_normal_x[(index)];
       velocity_y[(nn)] = ab * boundary_normal_y[(index)];
       velocity_z[(nn)] = ab * boundary_normal_z[(index)];
     } else if (boundary_type[(index)] == IS_BOUNDARY) {
-      // Perform an orthogonal project, assuming normal vector is normalised...
+      // Perform an orthogonal projection, assuming normal vector is normalised
       const double un = (velocity_x[(nn)] * boundary_normal_x[(index)] +
                          velocity_y[(nn)] * boundary_normal_y[(index)] +
                          velocity_z[(nn)] * boundary_normal_z[(index)]);
