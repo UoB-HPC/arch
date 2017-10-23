@@ -841,6 +841,7 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   const int nfaces_by_cells = 6;
   allocate_int_data(&umesh->faces_to_nodes_offsets, umesh->nfaces + 1);
   allocate_int_data(&umesh->faces_to_nodes, umesh->nfaces * nnodes_by_face);
+  allocate_int_data(&umesh->faces_cclockwise_cell, umesh->nfaces);
   allocate_int_data(&umesh->cells_to_faces_offsets, umesh->ncells + 1);
   allocate_int_data(&umesh->cells_to_faces, nfaces_by_cells * umesh->ncells);
   allocate_int_data(&umesh->nodes_to_faces, umesh->nnodes * nfaces_by_node);
@@ -850,6 +851,9 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
 
   for (int ff = 0; ff < umesh->nfaces + 1; ++ff) {
     umesh->faces_to_nodes_offsets[(ff)] = ff * 4;
+    if (ff < umesh->nfaces) {
+      umesh->faces_cclockwise_cell[(ff)] = -1;
+    }
   }
 
 // TODO: DOING THIS BECAUSE THE INDEXING INTO THE FACE STORAGE IS HORRIBLE
@@ -886,6 +890,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
             (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk + 1);
         umesh->faces_to_nodes[(face_to_node_off + 3)] =
             (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
+
+        if (ii < nz + 1) {
+          umesh->faces_cclockwise_cell[(face_index)] =
+              (ii * nx * ny) + (jj * nx) + (kk);
+        }
       }
     }
 
@@ -906,6 +915,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
                 ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
             umesh->faces_to_nodes[(face_to_node_off + 3)] =
                 ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+
+            if (kk < nx + 1) {
+              umesh->faces_cclockwise_cell[(face_index)] =
+                  (ii * nx * ny) + (jj * nx) + (kk);
+            }
           }
 
           if (kk < nx) {
@@ -922,6 +936,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
                 ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
             umesh->faces_to_nodes[(face_to_node_off + 3)] =
                 (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
+
+            if (jj < ny + 1) {
+              umesh->faces_cclockwise_cell[(face_index)] =
+                  (ii * nx * ny) + (jj * nx) + (kk);
+            }
           }
         }
       }

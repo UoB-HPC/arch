@@ -45,6 +45,7 @@ typedef struct {
   int* faces_to_nodes;
   int* nodes_to_faces;
   int* nodes_to_nodes;
+  int* faces_cclockwise_cell;
   int* faces_to_nodes_offsets;
   int* cells_to_faces_offsets;
   int* nodes_to_faces_offsets;
