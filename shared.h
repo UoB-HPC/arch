@@ -64,6 +64,7 @@ size_t allocate_int_data(int** buf, size_t len);
 size_t allocate_uint64_data(uint64_t** buf, const size_t len);
 void allocate_host_data(double** buf, size_t len);
 void allocate_host_int_data(int** buf, size_t len);
+void allocate_host_uint64_data(uint64_t** buf, size_t len);
 void deallocate_data(double* buf);
 void deallocate_host_data(double* buf);
 void deallocate_int_data(int* buf);

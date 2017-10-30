@@ -1,6 +1,8 @@
 #include "../mesh.h"
 #include "../params.h"
+#include "../umesh.h"
 #include "../shared.h"
+#include <math.h>
 #include <stdlib.h>
 
 // Checks if two strings match
@@ -48,7 +50,7 @@ size_t allocate_int_data(int** buf, size_t len) {
 
 // Allocates some int precision data
 size_t allocate_uint64_data(uint64_t** buf, size_t len) {
-  allocate_host_int_data(buf, len);
+  allocate_host_uint64_data(buf, len);
 
   uint64_t* local_buf = *buf;
 #pragma omp target enter data map(to : local_buf[ : len])
@@ -87,8 +89,25 @@ void allocate_host_int_data(int** buf, size_t len) {
   }
 }
 
+void allocate_host_uint64_data(uint64_t** buf, const size_t len) {
+#ifdef INTEL
+  *buf = (uint64_t*)_mm_malloc(sizeof(uint64_t) * len, VEC_ALIGN);
+#else
+  *buf = (uint64_t*)malloc(sizeof(uint64_t) * len);
+#endif
+
+  if (*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
+}
+
 // Allocates a data array
 void deallocate_data(double* buf) {
+#pragma omp target exit data map(delete : buf)
+}
+
+// Allocates a data array
+void deallocate_int_data(int* buf) {
 #pragma omp target exit data map(delete : buf)
 }
 
@@ -266,26 +285,37 @@ void set_problem_3d(const int global_nx, const int global_ny,
 
 // Finds the normals for all boundary cells
 void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
+
+  const int nnodes = umesh->nnodes;
+  const int nboundary_nodes = umesh->nboundary_nodes;
+  const int* boundary_index = umesh->boundary_index;
+  const double* nodes_x0 = umesh->nodes_x0;
+  const double* nodes_y0 = umesh->nodes_y0;
+  const double* nodes_z0 = umesh->nodes_z0;
+  int* boundary_type = umesh->boundary_type;
+  double* boundary_normal_x = umesh->boundary_normal_x;
+  double* boundary_normal_y = umesh->boundary_normal_y;
+
 // Loop through all of the boundary cells and find their normals
 #pragma omp target teams distribute parallel for
-  for (int nn = 0; nn < umesh->nnodes; ++nn) {
-    const int boundary_index = umesh->boundary_index[(nn)];
-    if (boundary_index == IS_INTERIOR) {
+  for (int nn = 0; nn < nnodes; ++nn) {
+    const int bi = boundary_index[(nn)];
+    if (bi == IS_INTERIOR) {
       continue;
     }
 
     double normal_x = 0.0;
     double normal_y = 0.0;
 
-    for (int bb1 = 0; bb1 < umesh->nboundary_cells; ++bb1) {
+    for (int bb1 = 0; bb1 < nboundary_nodes; ++bb1) {
       const int node0 = boundary_edge_list[bb1 * 2];
       const int node1 = boundary_edge_list[bb1 * 2 + 1];
 
       if (node0 == nn || node1 == nn) {
-        const double node0_x = umesh->nodes_x0[(node0)];
-        const double node0_y = umesh->nodes_y0[(node0)];
-        const double node1_x = umesh->nodes_x0[(node1)];
-        const double node1_y = umesh->nodes_y0[(node1)];
+        const double node0_x = nodes_x0[(node0)];
+        const double node0_y = nodes_y0[(node0)];
+        const double node1_x = nodes_x0[(node1)];
+        const double node1_y = nodes_y0[(node1)];
 
         normal_x += node0_y - node1_y;
         normal_y += -(node0_x - node1_x);
@@ -293,15 +323,15 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
     }
 
     // We are fixed if we are one of the four corners
-    if ((umesh->nodes_x0[(nn)] == 0.0 || umesh->nodes_x0[(nn)] == 1.0) &&
-        (umesh->nodes_y0[(nn)] == 0.0 || umesh->nodes_y0[(nn)] == 1.0)) {
-      umesh->boundary_type[(boundary_index)] = IS_FIXED;
+    if ((nodes_x0[(nn)] == 0.0 || nodes_x0[(nn)] == 1.0) &&
+        (nodes_y0[(nn)] == 0.0 || nodes_y0[(nn)] == 1.0)) {
+      boundary_type[(bi)] = IS_CORNER;
     } else {
-      umesh->boundary_type[(boundary_index)] = IS_BOUNDARY;
+      boundary_type[(bi)] = IS_BOUNDARY;
     }
 
     const double normal_mag = sqrt(normal_x * normal_x + normal_y * normal_y);
-    umesh->boundary_normal_x[(boundary_index)] = normal_x / normal_mag;
-    umesh->boundary_normal_y[(boundary_index)] = normal_y / normal_mag;
+    boundary_normal_x[(bi)] = normal_x / normal_mag;
+    boundary_normal_y[(bi)] = normal_y / normal_mag;
   }
 }

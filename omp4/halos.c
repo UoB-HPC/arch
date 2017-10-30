@@ -195,7 +195,7 @@ void handle_unstructured_reflect(const int nnodes, const int* boundary_index,
 #pragma omp target teams distribute parallel for
   for (int nn = 0; nn < nnodes; ++nn) {
     const int index = boundary_index[(nn)];
-    if (index == IS_INTERIOR_NODE) {
+    if (index == IS_INTERIOR) {
       continue;
     }
 
@@ -207,7 +207,7 @@ void handle_unstructured_reflect(const int nnodes, const int* boundary_index,
                                        velocity_y[(nn)] * boundary_parallel_y);
       velocity_x[(nn)] = boundary_parallel_x * vel_dot_parallel;
       velocity_y[(nn)] = boundary_parallel_y * vel_dot_parallel;
-    } else if (boundary_type[(index)] == IS_FIXED) {
+    } else if (boundary_type[(index)] == IS_CORNER) {
       velocity_x[(nn)] = 0.0;
       velocity_y[(nn)] = 0.0;
     }
