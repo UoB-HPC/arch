@@ -1,4 +1,5 @@
 
+// Matches a string on the device
 __device__ int cuda_strmatch(const char* str, const char* compare) {
   while (*compare != '\0') {
     if (*compare != *str) {
@@ -10,30 +11,15 @@ __device__ int cuda_strmatch(const char* str, const char* compare) {
   return 1;
 }
 
-template <typename T>
-__global__ void zero_array(const int len, T* array) {
+// Generic routine to zero an array
+template <typename T> __global__ void zero_array(const int len, T* array) {
   const int gid = threadIdx.x + blockIdx.x * blockDim.x;
   if (gid >= len)
     return;
   array[gid] = 0.0;
 }
 
-#if 0
-__global__ void zero_int_array(const int len, int* array) {
-  const int gid = threadIdx.x + blockIdx.x * blockDim.x;
-  if (gid >= len)
-    return;
-  array[gid] = 0;
-}
-
-__global__ void zero_uint64_array(const int len, int* array) {
-  const int gid = threadIdx.x + blockIdx.x * blockDim.x;
-  if (gid >= len)
-    return;
-  array[gid] = 0;
-}
-#endif // if 0
-
+// Problem initialisation on target device
 __global__ void initialise_problem_state(
     const int nx, const int ny, const int global_nx, const int global_ny,
     const int x_off, const int y_off, const int nkeys, const int ndims,
@@ -66,6 +52,7 @@ __global__ void initialise_problem_state(
   }
 }
 
+// Initialises mesh data for the x dimension
 __global__ void mesh_data_init_dx(const int nx, const int ny,
                                   const int global_nx, const int global_ny,
                                   const int pad, const int x_off,
@@ -80,6 +67,7 @@ __global__ void mesh_data_init_dx(const int nx, const int ny,
   edgex[gid] = edgedx[gid] * (x_off + gid - pad);
 }
 
+// Initialises mesh data for the y dimension
 __global__ void mesh_data_init_dy(const int nx, const int ny,
                                   const int global_nx, const int global_ny,
                                   const int pad, const int y_off,

@@ -9,8 +9,8 @@
 #include "mpi.h"
 #endif
 
-struct Profile compute_profile = {{0}};
-struct Profile comms_profile = {{0}};
+struct Profile compute_profile;
+struct Profile comms_profile;
 
 // Write out data for visualisation in visit
 void write_to_visit(const int nx, const int ny, const int x_off,

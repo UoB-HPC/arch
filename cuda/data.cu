@@ -14,7 +14,7 @@ size_t allocate_data(double** buf, const size_t len) {
   const int nblocks = ceil(len / (double)NTHREADS);
   zero_array<double><<<nblocks, NTHREADS>>>(len, *buf);
   gpu_check(cudaDeviceSynchronize());
-  return sizeof(double)*len;
+  return sizeof(double) * len;
 }
 
 // Allocates some integer data
@@ -24,7 +24,7 @@ size_t allocate_int_data(int** buf, const size_t len) {
   const int nblocks = ceil(len / (double)NTHREADS);
   zero_array<int><<<nblocks, NTHREADS>>>(len, *buf);
   gpu_check(cudaDeviceSynchronize());
-  return sizeof(int)*len;
+  return sizeof(int) * len;
 }
 
 // Allocates some 64bit integer data
@@ -118,7 +118,8 @@ void copy_int_buffer(const size_t len, int** src, int** dst, int send) {
 }
 
 // Copy a buffer to/from the device
-void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst, int send) {
+void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst,
+                        int send) {
   if (send) {
     gpu_check(
         cudaMemcpy(*dst, *src, sizeof(uint64_t) * len, cudaMemcpyHostToDevice));
@@ -127,7 +128,6 @@ void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst, int se
         cudaMemcpy(*dst, *src, sizeof(uint64_t) * len, cudaMemcpyDeviceToHost));
   }
 }
-
 
 // Move a host buffer onto the device
 void move_host_buffer_to_device(const size_t len, double** src, double** dst) {
@@ -158,11 +158,9 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
 }
 
 // Initialise state data in device specific manner
-void set_problem_2d(const int global_nx, const int global_ny,
-                    const int local_nx, const int local_ny, const int pad,
-                    const int x_off, const int y_off, const double mesh_width,
-                    const double mesh_height, const double* edgex,
-                    const double* edgey, const int ndims,
+void set_problem_2d(const int local_nx, const int local_ny, const int pad,
+                    const double mesh_width, const double mesh_height,
+                    const double* edgex, const double* edgey, const int ndims,
                     const char* problem_def_filename, double* rho, double* e,
                     double* x) {
   int* h_keys;
@@ -248,10 +246,8 @@ void state_data_init_3d(const int local_nx, const int local_ny,
   TERMINATE("CUDA 3d INCOMPLETE");
 }
 
-void set_problem_3d(const int global_nx, const int global_ny,
-                    const int global_nz, const int local_nx, const int local_ny,
-                    const int local_nz, const int pad, const int x_off,
-                    const int y_off, const int z_off, const double mesh_width,
+void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
+                    const int pad, const double mesh_width,
                     const double mesh_height, const double mesh_depth,
                     const double* edgex, const double* edgey,
                     const double* edgez, const int ndims,

@@ -155,9 +155,11 @@ void decompose_2d_cartesian(const int rank, const int nranks,
 #if defined(TILES)
   int found_even = 0;
   float mratio = 0.0f;
+#ifdef DEBUG
   if (rank == MASTER) {
     printf("using tiles decomposition\n");
   }
+#endif
 
   // Determine decomposition that minimises perimeter to area ratio
   for (int ff = 1; ff <= sqrt(nranks); ++ff) {
@@ -196,15 +198,19 @@ void decompose_2d_cartesian(const int rank, const int nranks,
     }
   }
 #elif defined(COLS)
+#ifdef DEBUG
   if (rank == MASTER) {
     printf("using col decomposition\n");
   }
+#endif
   *ranks_x = nranks;
   *ranks_y = 1;
 #else
+#ifdef DEBUG
   if (rank == MASTER) {
     printf("using row decomposition\n");
   }
+#endif
   *ranks_x = 1;
   *ranks_y = nranks;
 #endif
@@ -235,9 +241,11 @@ void decompose_2d_cartesian(const int rank, const int nranks,
   neighbours[SOUTH] = (y_rank > 0) ? rank - (*ranks_x) : EDGE;
   neighbours[WEST] = (x_rank > 0) ? rank - 1 : EDGE;
 
-  printf("rank %d dims %d %d neighbours %d %d %d %d\n", rank, *local_nx,
-         *local_ny, neighbours[NORTH], neighbours[EAST], neighbours[SOUTH],
-         neighbours[WEST]);
+#ifdef DEBUG
+  printf("Rank: %d, Dimensions: %d %d, Neighbours: %d %d %d %d\n", rank,
+         *local_nx, *local_ny, neighbours[NORTH], neighbours[EAST],
+         neighbours[SOUTH], neighbours[WEST]);
+#endif
 }
 
 // Decomposes the ranks minimising ratio of perimeter to area
@@ -324,10 +332,12 @@ void decompose_3d_cartesian(const int rank, const int nranks,
   neighbours[BACK] =
       (z_rank < (*ranks_z) - 1) ? rank + ((*ranks_x) * (*ranks_y)) : EDGE;
 
-  printf("rank %d neighbours %d %d %d %d %d %d\n", rank, neighbours[NORTH],
+#ifdef DEBUG
+  printf("Rank: %d, Dimensions: %d %d %d, Neighbours: %d %d %d %d %d %d\n",
+         rank, *local_nx, *local_ny, *local_nz, neighbours[NORTH],
          neighbours[EAST], neighbours[BACK], neighbours[SOUTH],
          neighbours[WEST], neighbours[FRONT]);
-  printf("rank %d dims %d %d %d\n", rank, *local_nx, *local_ny, *local_nz);
+#endif
 }
 
 // Decompose the unstructured space
