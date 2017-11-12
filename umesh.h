@@ -45,7 +45,6 @@ typedef struct {
   int* cells_to_nodes_offsets;
 
   // CURRENTLY 3D
-  int* cells_to_cells;
   int* faces_to_cells0;
   int* faces_to_cells1;
   int* cells_to_faces;
@@ -112,10 +111,6 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
 
 // Initialises the list of nodes to nodes
 void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
-                            UnstructuredMesh* umesh);
-
-// Initialise the connectivity between cells and cell neighbours
-void init_cells_to_cells_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh);
 
 // Initialises the connectivity between faces and nodes
