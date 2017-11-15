@@ -1,9 +1,11 @@
 #pragma once
 
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 
 #define NTHREADS 128
+#define NTHREADS_SCAN 1024
+#define NTHREADS_REDUCE 1024
 
 // http://stackoverflow.com/questions/14038589/what-is-the-canonical-way-to-check-for-errors-using-the-cuda-runtime-api
 #define gpu_check(ans)                                                         \
@@ -21,4 +23,5 @@ inline void gpu_assert(cudaError_t code, const char* file, int line,
 void finish_min_reduce(int nblocks1, double* reduce_array, double* result);
 void finish_sum_reduce(int nblocks1, double* reduce_array, double* result);
 void finish_sum_int_reduce(int nblocks1, int* reduce_array, int* result);
-void finish_sum_uint64_reduce(int nblocks1, uint64_t* reduce_array, uint64_t* result);
+void finish_sum_uint64_reduce(int nblocks1, uint64_t* reduce_array,
+                              uint64_t* result);

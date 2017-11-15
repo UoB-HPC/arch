@@ -97,6 +97,10 @@ void initialise_shared_data_3d(
                 (local_nx + 1) * (local_ny + 1) * (local_nz + 1));
   allocate_data(&shared_data->reduce_array1,
                 (local_nx + 1) * (local_ny + 1) * (local_nz + 1));
+  allocate_data(&shared_data->scan_array,
+                (local_nx + 1) * (local_ny + 1) * (local_nz + 1));
+  allocate_data(&shared_data->global_scan_sums,
+                (local_nx + 1) * (local_ny + 1) * (local_nz + 1));
 
   set_problem_3d(local_nx, local_ny, local_nz, pad, mesh_width, mesh_height,
                  mesh_depth, edgex, edgey, edgez, ndims, problem_def_filename,

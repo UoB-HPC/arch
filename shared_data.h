@@ -40,6 +40,9 @@ typedef struct {
   double* reduce_array0;
   double* reduce_array1;
 
+  double* scan_array;
+  double* global_scan_sums;
+
 } SharedData;
 
 // Initialises the shared_data variables
