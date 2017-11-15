@@ -211,7 +211,7 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
     // Introduce a problem
     const int nblocks = ceil(local_nx * local_ny / (double)NTHREADS);
     initialise_problem_state<<<nblocks, NTHREADS>>>(
-        local_nx, local_ny, global_nx, global_ny, x_off, y_off, nkeys, ndims,
+        local_nx, local_ny, nkeys, ndims,
         xpos, ypos, width, height, edgey, edgex, rho, e, x, d_keys, d_values);
     gpu_check(cudaDeviceSynchronize());
   }
