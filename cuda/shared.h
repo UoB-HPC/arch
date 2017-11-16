@@ -20,6 +20,7 @@ inline void gpu_assert(cudaError_t code, const char* file, int line,
   }
 }
 
+void perform_exclusive_scan(const int n, int* buffer, int* global_scan_sums);
 void finish_min_reduce(int nblocks1, double* reduce_array, double* result);
 void finish_sum_reduce(int nblocks1, double* reduce_array, double* result);
 void finish_sum_int_reduce(int nblocks1, int* reduce_array, int* result);
