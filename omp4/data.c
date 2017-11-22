@@ -22,7 +22,7 @@ int device_strmatch(const char* str1, const char* str2) {
 size_t allocate_data(double** buf, size_t len) {
   allocate_host_data(buf, len);
 
-  double* local_buf = *buf;
+   double* local_buf = *buf;
 #pragma omp target enter data map(to : local_buf[ : len])
 
 #pragma omp target teams distribute parallel for

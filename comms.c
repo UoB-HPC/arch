@@ -106,7 +106,7 @@ void all_to_all(const int len, double* a, double* b) {
 }
 
 // Performs an all to all communication of complex data
-void all_to_all_complex(const int len, double complex* a, double complex* b) {
+void all_to_all_complex(const int len, double _Complex* a, double _Complex* b) {
 #ifdef MPI
   MPI_Alltoall(b, len, MPI_C_DOUBLE_COMPLEX, a, len, MPI_C_DOUBLE_COMPLEX,
                MPI_COMM_WORLD);

@@ -7,6 +7,7 @@
 #include "shared.h"
 #include "umesh.h"
 #include <complex.h>
+#undef complex
 
 #define MASTER 0        // The master rank for MPI
 #define NVARS_TO_COMM 4 // This is just the max of HOT and WET
@@ -65,7 +66,7 @@ double reduce_to_master(double local_val);
 void all_to_all(const int len, double* a, double* b);
 
 // Performs an all to all communication of complex data
-void all_to_all_complex(const int len, double complex* a, double complex* b);
+void all_to_all_complex(const int len, double _Complex* a, double _Complex* b);
 
 // Performs a non-blocking mpi send
 void non_block_send(double* buffer_out, const int len, const int to,
