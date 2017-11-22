@@ -119,6 +119,15 @@ void deallocate_host_data(double* buf) {
 }
 
 // Allocates a data array
+void deallocate_host_float_data(float* buf) {
+#ifdef INTEL
+  _mm_free(buf);
+#else
+  free(buf);
+#endif
+}
+
+// Allocates a data array
 void deallocate_int_data(int* buf) { gpu_check(cudaFree(buf)); }
 
 // Allocates a data array
@@ -246,8 +255,8 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
     // Introduce a problem
     const int nblocks = ceil(local_nx * local_ny / (double)NTHREADS);
     initialise_problem_state<<<nblocks, NTHREADS>>>(
-        local_nx, local_ny, nkeys, ndims,
-        xpos, ypos, width, height, edgey, edgex, rho, e, x, d_keys, d_values);
+        local_nx, local_ny, nkeys, ndims, xpos, ypos, width, height, edgey,
+        edgex, rho, e, x, d_keys, d_values);
     gpu_check(cudaDeviceSynchronize());
   }
 

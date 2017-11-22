@@ -106,6 +106,15 @@ void deallocate_data(double* buf) {
 }
 
 // Allocates a data array
+void deallocate_float_data(float* buf) {
+#ifdef INTEL
+  _mm_free(buf);
+#else
+  free(buf);
+#endif
+}
+
+// Allocates a data array
 void deallocate_host_data(double* buf) {
   // Not necessary as host-only
 }
