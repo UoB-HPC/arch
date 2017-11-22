@@ -21,8 +21,7 @@ template <typename T> __global__ void zero_array(const int len, T* array) {
 
 // Problem initialisation on target device
 __global__ void initialise_problem_state(
-    const int nx, const int ny, const int global_nx, const int global_ny,
-    const int x_off, const int y_off, const int nkeys, const int ndims,
+    const int nx, const int ny, const int nkeys, const int ndims,
     const double xpos, const double ypos, const double width,
     const double height, const double* edgex, const double* edgey, double* rho,
     double* e, double* x, int* keys, double* values) {
