@@ -17,6 +17,16 @@ size_t allocate_data(double** buf, const size_t len) {
   return sizeof(double) * len;
 }
 
+// Allocates some single precision data
+size_t allocate_float_data(float** buf, const size_t len) {
+  gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
+
+  const int nblocks = ceil(len / (double)NTHREADS);
+  zero_array<float><<<nblocks, NTHREADS>>>(len, *buf);
+  gpu_check(cudaDeviceSynchronize());
+  return sizeof(float) * len;
+}
+
 // Allocates some integer data
 size_t allocate_int_data(int** buf, const size_t len) {
   gpu_check(cudaMalloc((void**)buf, sizeof(int) * len));
@@ -51,6 +61,23 @@ void allocate_host_data(double** buf, const size_t len) {
   *buf = (double*)_mm_malloc(sizeof(double) * len, VEC_ALIGN);
 #else
   *buf = (double*)malloc(sizeof(double) * len);
+#endif
+  if (!*buf) {
+    TERMINATE("Could not allocate host int data.\n");
+  }
+
+#pragma omp parallel for
+  for (size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0.0;
+  }
+}
+
+// Allocates some single precision data
+void allocate_host_float_data(float** buf, const size_t len) {
+#ifdef INTEL
+  *buf = (float*)_mm_malloc(sizeof(float) * len, VEC_ALIGN);
+#else
+  *buf = (float*)malloc(sizeof(float) * len);
 #endif
   if (!*buf) {
     TERMINATE("Could not allocate host int data.\n");

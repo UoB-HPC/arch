@@ -26,6 +26,27 @@ size_t allocate_data(double** buf, size_t len) {
   return sizeof(double) * len;
 }
 
+// Allocates some single precision data
+size_t allocate_float_data(float** buf, size_t len) {
+#ifdef INTEL
+  *buf = (float*)_mm_malloc(sizeof(float) * len, VEC_ALIGN);
+#else
+  *buf = (float*)malloc(sizeof(float) * len);
+#endif
+
+  if (*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
+
+// Perform first-touch
+#pragma omp parallel for
+  for (size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0.0;
+  }
+
+  return sizeof(double) * len;
+}
+
 // Allocates some int precision data
 size_t allocate_int_data(int** buf, size_t len) {
 #ifdef INTEL

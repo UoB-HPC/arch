@@ -60,13 +60,17 @@ void initialise_devices(int rank);
 
 // Wrappers for data (de)allocation
 size_t allocate_data(double** buf, size_t len);
+size_t allocate_float_data(float** buf, size_t len);
 size_t allocate_int_data(int** buf, size_t len);
 size_t allocate_uint64_data(uint64_t** buf, const size_t len);
 void allocate_host_data(double** buf, size_t len);
+void allocate_host_float_data(float** buf, size_t len);
 void allocate_host_int_data(int** buf, size_t len);
 void allocate_host_uint64_data(uint64_t** buf, size_t len);
 void deallocate_data(double* buf);
+void deallocate_float_data(float* buf);
 void deallocate_host_data(double* buf);
+void deallocate_host_float_data(float* buf);
 void deallocate_int_data(int* buf);
 void deallocate_host_int_data(int* buf);
 void copy_buffer(const size_t len, double** src, double** dst, int send);
