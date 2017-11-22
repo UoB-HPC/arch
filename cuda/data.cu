@@ -27,6 +27,16 @@ size_t allocate_int_data(int** buf, const size_t len) {
   return sizeof(int) * len;
 }
 
+// Allocates half precision floating point data
+size_t allocate_half_data(__half** buf, const size_t len) {
+  gpu_check(cudaMalloc((void**)buf, sizeof(__half) * len));
+
+  const int nblocks = ceil(len / (double)NTHREADS);
+  zero_array<__half><<<nblocks, NTHREADS>>>(len, *buf);
+  gpu_check(cudaDeviceSynchronize());
+  return sizeof(__half) * len;
+}
+
 // Allocates some 64bit integer data
 size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
   gpu_check(cudaMalloc((void**)buf, sizeof(uint64_t) * len));

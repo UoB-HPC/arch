@@ -1,5 +1,6 @@
 #pragma once
 
+#include "cuda_fp16.h"
 #include <stdint.h>
 #include <stdio.h>
 
@@ -25,3 +26,7 @@ void finish_sum_reduce(int nblocks1, double* reduce_array, double* result);
 void finish_sum_int_reduce(int nblocks1, int* reduce_array, int* result);
 void finish_sum_uint64_reduce(int nblocks1, uint64_t* reduce_array,
                               uint64_t* result);
+
+// TODO: At some point the half precision type could be refactored and this can
+// be added back to the global shared.h
+size_t allocate_half_data(__half** buf, const size_t len);
