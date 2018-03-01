@@ -5,7 +5,7 @@
 #include <math.h>
 #include <stdlib.h>
 
-// Allocates some double precision data
+// Allocates a double precision array
 size_t allocate_data(double** buf, size_t len) {
 #ifdef INTEL
   *buf = (double*)_mm_malloc(sizeof(double) * len, VEC_ALIGN);
@@ -26,7 +26,7 @@ size_t allocate_data(double** buf, size_t len) {
   return sizeof(double) * len;
 }
 
-// Allocates some single precision data
+// Allocates a single precision array
 size_t allocate_float_data(float** buf, size_t len) {
 #ifdef INTEL
   *buf = (float*)_mm_malloc(sizeof(float) * len, VEC_ALIGN);
@@ -47,7 +47,7 @@ size_t allocate_float_data(float** buf, size_t len) {
   return sizeof(double) * len;
 }
 
-// Allocates some int precision data
+// Allocates a 32-bit integer array
 size_t allocate_int_data(int** buf, size_t len) {
 #ifdef INTEL
   *buf = (int*)_mm_malloc(sizeof(int) * len, VEC_ALIGN);
@@ -68,8 +68,9 @@ size_t allocate_int_data(int** buf, size_t len) {
   return sizeof(int) * len;
 }
 
+// Allocates a 64-bit integer array
 size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
-#ifdef uint64_tEL
+#ifdef INTEL
   *buf = (uint64_t*)_mm_malloc(sizeof(uint64_t) * len, VEC_ALIGN);
 #else
   *buf = (uint64_t*)malloc(sizeof(uint64_t) * len);
@@ -88,6 +89,27 @@ size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
   return sizeof(uint64_t) * len;
 }
 
+// Allocates a complex double array
+size_t allocate_complex_double_data(_Complex double** buf, const size_t len) {
+#ifdef INTEL
+  *buf = (_Complex double*)_mm_malloc(sizeof(_Complex double) * len, VEC_ALIGN);
+#else
+  *buf = (_Complex double*)malloc(sizeof(_Complex double) * len);
+#endif
+
+  if (*buf == NULL) {
+    TERMINATE("Failed to allocate a data array.\n");
+  }
+
+// Perform first-touch
+#pragma omp parallel for
+  for (size_t ii = 0; ii < len; ++ii) {
+    (*buf)[ii] = 0;
+  }
+
+  return sizeof(_Complex double) * len;
+}
+
 // Allocates a host copy of some buffer
 void allocate_host_data(double** buf, size_t len) { allocate_data(buf, len); }
 
@@ -96,7 +118,7 @@ void allocate_host_int_data(int** buf, size_t len) {
   allocate_int_data(buf, len);
 }
 
-// Allocates a data array
+// Deallocate a double array
 void deallocate_data(double* buf) {
 #ifdef INTEL
   _mm_free(buf);
@@ -105,7 +127,7 @@ void deallocate_data(double* buf) {
 #endif
 }
 
-// Allocates a data array
+// Deallocates a float array
 void deallocate_float_data(float* buf) {
 #ifdef INTEL
   _mm_free(buf);
@@ -114,13 +136,31 @@ void deallocate_float_data(float* buf) {
 #endif
 }
 
-// Allocates a data array
+// Deallocation of host data
 void deallocate_host_data(double* buf) {
   // Not necessary as host-only
 }
 
-// Allocates a data array
+// Deallocates a 32-bit integer array
 void deallocate_int_data(int* buf) {
+#ifdef INTEL
+  _mm_free(buf);
+#else
+  free(buf);
+#endif
+}
+
+// Deallocates a 64-bit integer array
+void deallocate_uint64_t_data(uint64_t* buf) {
+#ifdef INTEL
+  _mm_free(buf);
+#else
+  free(buf);
+#endif
+}
+
+// Deallocates complex double data
+void deallocate_complex_double_data(_Complex double* buf) {
 #ifdef INTEL
   _mm_free(buf);
 #else

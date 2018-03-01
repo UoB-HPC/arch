@@ -59,14 +59,9 @@ void initialise_shared_data_3d(
   allocate_data(&shared_data->density, local_nx * local_ny * local_nz);
   allocate_data(&shared_data->energy, local_nx * local_ny * local_nz);
 
-  // TODO: Place this initialisation behaviour in each application to save
-  // some capacity
-
   // Currently flattening the capacity by sharing some of the shared_data
-  // containers
-  // between the different solves for different applications. This might not
-  // be maintainable and/or desirable but seems like a reasonable optimisation
-  // for now...
+  // containers between the different solves for different applications.
+  // This might not be maintainable and/or desirable
   allocate_data(&shared_data->density_old, local_nx * local_ny * local_nz);
   shared_data->Ap = shared_data->density_old;
 
@@ -115,5 +110,5 @@ void finalise_shared_data(SharedData* shared_data) {
   deallocate_data(shared_data->s_y);
   deallocate_data(shared_data->r);
   deallocate_data(shared_data->temperature);
-  deallocate_data(shared_data->pressure);
+  deallocate_data(shared_data->p);
 }

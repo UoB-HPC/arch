@@ -4,8 +4,8 @@
 #pragma once
 
 #include "profiler.h"
-#include <stdio.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 
 #define ARCH_PARAMS "arch.params"
@@ -58,30 +58,36 @@ extern "C" {
 // Initialises devices in implementation-specific manner
 void initialise_devices(int rank);
 
-// Wrappers for data (de)allocation
+// Allocation and deallocation routines (these need templating away)
 size_t allocate_data(double** buf, size_t len);
 size_t allocate_float_data(float** buf, size_t len);
 size_t allocate_int_data(int** buf, size_t len);
 size_t allocate_uint64_data(uint64_t** buf, const size_t len);
+size_t allocate_complex_double_data(_Complex double** buf, const size_t len);
+
 void allocate_host_data(double** buf, size_t len);
 void allocate_host_float_data(float** buf, size_t len);
 void allocate_host_int_data(int** buf, size_t len);
 void allocate_host_uint64_data(uint64_t** buf, size_t len);
+void allocate_host_complex_double_data(_Complex double** buf, size_t len);
+
 void deallocate_data(double* buf);
 void deallocate_float_data(float* buf);
+void deallocate_int_data(int* buf);
+void deallocate_uint64_t_data(uint64_t* buf);
+void deallocate_complex_double_data(_Complex double* buf);
+
 void deallocate_host_data(double* buf);
 void deallocate_host_float_data(float* buf);
-void deallocate_int_data(int* buf);
 void deallocate_host_int_data(int* buf);
+void deallocate_host_uint64_t_data(uint64_t* buf);
+void deallocate_host_complex_double_data(_Complex double* buf);
+
 void copy_buffer(const size_t len, double** src, double** dst, int send);
 void copy_int_buffer(const size_t len, int** src, int** dst, int send);
-void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst, int send);
+void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst,
+                        int send);
 void move_host_buffer_to_device(const size_t len, double** src, double** dst);
-
-#if 0
-  // Compares if two strings match
-  int strmatch(const char* str1, const char* str2);
-#endif // if 0
 
 // Write out data for visualisation in visit
 void write_to_visit(const int nx, const int ny, const int x_off,
