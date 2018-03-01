@@ -113,6 +113,24 @@ void all_to_all_complex(const int len, double _Complex* a, double _Complex* b) {
 #endif
 }
 
+// Performs a complex scatter
+void scatter_complex(const int len, _Complex double* send,
+                     _Complex double* recv) {
+#ifdef MPI
+  MPI_Scatter(send, len, MPI_C_DOUBLE_COMPLEX, recv, len, MPI_C_DOUBLE_COMPLEX,
+              MASTER, MPI_COMM_WORLD);
+#endif
+}
+
+// Performs a complex scatter
+void gather_complex(const int len, _Complex double* send,
+                    _Complex double* recv) {
+#ifdef MPI
+  MPI_Gather(send, len, MPI_C_DOUBLE_COMPLEX, recv, len, MPI_C_DOUBLE_COMPLEX,
+             MASTER, MPI_COMM_WORLD);
+#endif
+}
+
 // Performs an mpi barrier
 void barrier() {
 #ifdef MPI

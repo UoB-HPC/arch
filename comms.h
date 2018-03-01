@@ -68,6 +68,14 @@ void all_to_all(const int len, double* a, double* b);
 // Performs an all to all communication of complex data
 void all_to_all_complex(const int len, double _Complex* a, double _Complex* b);
 
+// Performs a complex scatter
+void scatter_complex(const int len, _Complex double* send,
+                     _Complex double* recv);
+
+// Performs a complex gather
+void gather_complex(const int len, _Complex double* send,
+                    _Complex double* recv);
+
 // Performs a non-blocking mpi send
 void non_block_send(double* buffer_out, const int len, const int to,
                     const int tag, const int req_index);
