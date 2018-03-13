@@ -38,4 +38,5 @@ tags
 a.out-openmp-nvptx64-nvidia-cuda
 *.bov
 *.dat
+.clang-format
 
