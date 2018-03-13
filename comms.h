@@ -76,6 +76,10 @@ void scatter_complex(const int len, _Complex double* send,
 void gather_complex(const int len, _Complex double* send,
                     _Complex double* recv);
 
+// Performs a complex gather from all ranks
+void all_gather_complex(const int len, _Complex double* send,
+                        _Complex double* recv);
+
 // Performs a non-blocking mpi send
 void non_block_send(double* buffer_out, const int len, const int to,
                     const int tag, const int req_index);

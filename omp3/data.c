@@ -104,7 +104,7 @@ size_t allocate_complex_double_data(_Complex double** buf, const size_t len) {
 // Perform first-touch
 #pragma omp parallel for
   for (size_t ii = 0; ii < len; ++ii) {
-    (*buf)[ii] = 0;
+    (*buf)[ii] = 0.0;
   }
 
   return sizeof(_Complex double) * len;

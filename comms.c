@@ -119,15 +119,36 @@ void scatter_complex(const int len, _Complex double* send,
 #ifdef MPI
   MPI_Scatter(send, len, MPI_C_DOUBLE_COMPLEX, recv, len, MPI_C_DOUBLE_COMPLEX,
               MASTER, MPI_COMM_WORLD);
+#else
+  for (int i = 0; i < len; ++i) {
+    recv[i] = send[i];
+  }
 #endif
 }
 
-// Performs a complex scatter
+// Performs a complex gather
 void gather_complex(const int len, _Complex double* send,
                     _Complex double* recv) {
 #ifdef MPI
   MPI_Gather(send, len, MPI_C_DOUBLE_COMPLEX, recv, len, MPI_C_DOUBLE_COMPLEX,
              MASTER, MPI_COMM_WORLD);
+#else
+  for (int i = 0; i < len; ++i) {
+    recv[i] = send[i];
+  }
+#endif
+}
+
+// Performs a complex gather from all ranks
+void all_gather_complex(const int len, _Complex double* send,
+                        _Complex double* recv) {
+#ifdef MPI
+  MPI_Allgather(send, len, MPI_C_DOUBLE_COMPLEX, recv, len,
+                MPI_C_DOUBLE_COMPLEX, MPI_COMM_WORLD);
+#else
+  for (int i = 0; i < len; ++i) {
+    recv[i] = send[i];
+  }
 #endif
 }
 
