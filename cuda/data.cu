@@ -151,6 +151,17 @@ void copy_buffer(const size_t len, double** src, double** dst, int send) {
 }
 
 // Copy a buffer to/from the device
+void copy_float_buffer(const size_t len, float** src, float** dst, int send) {
+  if (send) {
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(float) * len, cudaMemcpyHostToDevice));
+  } else {
+    gpu_check(
+        cudaMemcpy(*dst, *src, sizeof(float) * len, cudaMemcpyDeviceToHost));
+  }
+}
+
+// Copy a buffer to/from the device
 void copy_int_buffer(const size_t len, int** src, int** dst, int send) {
   if (send) {
     gpu_check(
@@ -179,6 +190,14 @@ void move_host_buffer_to_device(const size_t len, double** src, double** dst) {
   copy_buffer(len, src, dst, SEND);
   deallocate_host_data(*src);
 }
+
+// Move a host buffer onto the device
+void move_host_float_buffer_to_device(const size_t len, float** src, float** dst) {
+  allocate_float_data(dst, len);
+  copy_float_buffer(len, src, dst, SEND);
+  deallocate_host_float_data(*src);
+}
+
 
 // Initialises mesh data in device specific manner
 void mesh_data_init_2d(const int local_nx, const int local_ny,
