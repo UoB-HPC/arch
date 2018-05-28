@@ -39,15 +39,14 @@ struct Profile {
   struct ProfileEntry profiler_entries[PROFILER_MAX_ENTRIES];
 };
 
-void profiler_initialise();
-void profiler_finalise();
-
 void profiler_start_timer(struct Profile* profile);
 void profiler_end_timer(struct Profile* profile, const char* entry_name);
 void profiler_print_simple_profile(struct Profile* profile);
 void profiler_print_full_profile(struct Profile* profile);
 struct ProfileEntry profiler_get_profile_entry(struct Profile* profile,
                                                const char* entry_name);
+double profiler_get_time(struct Profile* profile, const char* entry_name);
+void profiler_init(struct Profile* profile);
 
 // Allows compile-time optimised conditional profiling
 #ifdef ENABLE_PROFILING
