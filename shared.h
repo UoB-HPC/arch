@@ -84,10 +84,12 @@ void deallocate_host_uint64_t_data(uint64_t* buf);
 void deallocate_host_complex_double_data(_Complex double* buf);
 
 void copy_buffer(const size_t len, double** src, double** dst, int send);
+void copy_float_buffer(const size_t len, float** src, float** dst, int send);
 void copy_int_buffer(const size_t len, int** src, int** dst, int send);
 void copy_uint64_buffer(const size_t len, uint64_t** src, uint64_t** dst,
                         int send);
 void move_host_buffer_to_device(const size_t len, double** src, double** dst);
+void move_host_float_buffer_to_device(const size_t len, float** src, float** dst);
 
 // Write out data for visualisation in visit
 void write_to_visit(const int nx, const int ny, const int x_off,

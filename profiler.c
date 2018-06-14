@@ -7,19 +7,19 @@
 
 // Internally start the profiling timer
 void profiler_start_timer(struct Profile* profile) {
-#ifdef __APPLE__
-  profile->profiler_start = mach_absolute_time();
-#else
+#ifndef TIME_UTC
   clock_gettime(CLOCK_MONOTONIC, &profile->profiler_start);
+#else
+  timespec_get(&profile->profiler_start, TIME_UTC);
 #endif
 }
 
 // Internally end the profiling timer and store results
 void profiler_end_timer(struct Profile* profile, const char* entry_name) {
-#ifdef __APPLE__
-  profile->profiler_end = mach_absolute_time();
-#else
+#ifndef TIME_UTC
   clock_gettime(CLOCK_MONOTONIC, &profile->profiler_end);
+#else
+  timespec_get(&profile->profiler_end, TIME_UTC);
 #endif
 
   // Check if an entry exists
@@ -40,17 +40,14 @@ void profiler_end_timer(struct Profile* profile, const char* entry_name) {
   if (ii == profile->profiler_entry_count) {
     profile->profiler_entry_count++;
     strcpy(profile->profiler_entries[ii].name, entry_name);
+    profile->profiler_entries[ii].time = 0.0;
   }
 
 // Update number of calls and time
-#ifdef __APPLE__
-  double elapsed = (profile->profiler_end - profile->profiler_start) * 1.0E-9;
-#else
   double elapsed =
       (profile->profiler_end.tv_sec - profile->profiler_start.tv_sec) +
       (profile->profiler_end.tv_nsec - profile->profiler_start.tv_nsec) *
           1.0E-9;
-#endif
 
   profile->profiler_entries[ii].time += elapsed;
   profile->profiler_entries[ii].calls++;
@@ -88,6 +85,7 @@ void profiler_print_simple_profile(struct Profile* profile) {
 // Gets an individual profile entry
 struct ProfileEntry profiler_get_profile_entry(struct Profile* profile,
                                                const char* entry_name) {
+
   for (int ii = 0; ii < profile->profiler_entry_count; ++ii) {
     if (strmatch(profile->profiler_entries[ii].name, entry_name)) {
       return profile->profiler_entries[ii];
@@ -95,4 +93,21 @@ struct ProfileEntry profiler_get_profile_entry(struct Profile* profile,
   }
 
   TERMINATE("Attempted to retrieve missing profile entry %s\n", entry_name);
+}
+
+double profiler_get_time(struct Profile* profile, const char* entry_name) {
+
+  for (int ii = 0; ii < profile->profiler_entry_count; ++ii) {
+    if (strmatch(profile->profiler_entries[ii].name, entry_name)) {
+      return profile->profiler_entries[ii].time;
+    }
+  }
+
+  TERMINATE("Attempted to retrieve missing profile entry %s\n", entry_name);
+}
+
+void profiler_init(struct Profile* profile) {
+  for(int i = 0; i < PROFILER_MAX_ENTRIES; ++i) {
+    profile->profiler_entries[i].time = 0.0;
+  }
 }
