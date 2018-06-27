@@ -21,7 +21,7 @@ size_t init_unstructured_mesh(UnstructuredMesh* umesh) {
   allocated += allocate_int_data(&umesh->nodes_to_nodes,
                                  umesh->nnodes * umesh->nnodes_by_node);
   allocated += allocate_int_data(&umesh->nodes_to_cells,
-                                 umesh->ncells * umesh->nnodes_by_cell);
+                                 umesh->nnodes * umesh->nnodes_by_cell);
   return allocated;
 }
 
