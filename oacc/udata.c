@@ -16,7 +16,8 @@ void init_faces_to_nodes_offsets_3d(UnstructuredMesh* umesh) {
 
   TERMINATE("%s is not implemented with OpenMP 4.5 yet.\n", __func__);
 
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ff = 0; ff < umesh->nfaces + 1; ++ff) {
     umesh->faces_to_nodes_offsets[(ff)] = ff * NNODES_BY_FACE;
     if (ff < umesh->nfaces) {
@@ -28,7 +29,8 @@ void init_faces_to_nodes_offsets_3d(UnstructuredMesh* umesh) {
 // Initialises the offsets between cells and faces
 void init_cells_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int cc = 0; cc < umesh->ncells + 1; ++cc) {
     umesh->cells_to_faces_offsets[(cc)] = cc * NFACES_BY_CELL;
   }
@@ -37,7 +39,8 @@ void init_cells_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 // Initialises the offsets between nodes and faces
 void init_nodes_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int nn = 0; nn < umesh->nnodes + 1; ++nn) {
     umesh->nodes_to_faces_offsets[(nn)] = nn * NFACES_BY_NODE;
   }
@@ -47,7 +50,8 @@ void init_nodes_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 void init_faces_to_cells_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < nz + 1; ++ii) {
     // All front oriented faces
     for (int jj = 0; jj < ny; ++jj) {
@@ -91,7 +95,8 @@ void init_nodes_to_faces_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
 // Determine the connectivity of nodes to faces
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
@@ -144,12 +149,14 @@ void init_nodes_to_faces_3d(const int nx, const int ny, const int nz,
 void init_cells_to_nodes_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int cc = 0; cc < umesh->ncells + 1; ++cc) {
     umesh->cells_to_nodes_offsets[(cc)] = cc * NNODES_BY_CELL;
   }
 
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < nz; ++ii) {
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
@@ -190,7 +197,9 @@ void init_faces_to_nodes_3d(const int nx, const int ny, const int nz,
 
 // Connectivity of faces to nodes, the nodes are stored in a counter-clockwise
 // ordering around the face
-#pragma omp parallel for
+
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < nz + 1; ++ii) {
     // Add the front faces
     for (int jj = 0; jj < ny; ++jj) {
@@ -279,7 +288,8 @@ void init_faces_to_nodes_3d(const int nx, const int ny, const int nz,
 void init_cells_to_faces_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < nz; ++ii) {
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
@@ -313,14 +323,15 @@ void init_cells_to_faces_3d(const int nx, const int ny, const int nz,
 void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
-// Prefix sum to convert the counts to offsets
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int nn = 0; nn < umesh->nnodes + 1; ++nn) {
     umesh->nodes_to_nodes_offsets[(nn)] = nn * NNODES_BY_NODE;
   }
 
 // Initialise the offsets and list of nodes to cells, counter-clockwise order
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
@@ -367,8 +378,55 @@ void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
 void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
                             Mesh* mesh, UnstructuredMesh* umesh) {
 
+// Override the original initialisation of the nodes_to_cells layout
+#pragma acc kernels
+#pragma acc loop independent
+  for (int ii = 0; ii < (nz + 1); ++ii) {
+    for (int jj = 0; jj < (ny + 1); ++jj) {
+      for (int kk = 0; kk < (nx + 1); ++kk) {
+        const int node_index =
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+
+        // Fill in all of the cells that surround a node
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 0] =
+            (ii > 0 && jj > 0 && kk > 0)
+                ? ((ii - 1) * nx * ny) + ((jj - 1) * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 1] =
+            (ii > 0 && jj > 0 && kk < nx)
+                ? ((ii - 1) * nx * ny) + ((jj - 1) * nx) + (kk)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 2] =
+            (ii > 0 && jj < ny && kk > 0)
+                ? ((ii - 1) * nx * ny) + (jj * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 3] =
+            (ii > 0 && jj < ny && kk < nx)
+                ? ((ii - 1) * nx * ny) + (jj * nx) + (kk)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 4] =
+            (ii < nz && jj > 0 && kk > 0)
+                ? (ii * nx * ny) + ((jj - 1) * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 5] =
+            (ii < nz && jj > 0 && kk < nx)
+                ? (ii * nx * ny) + ((jj - 1) * nx) + (kk)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 6] =
+            (ii < nz && jj < ny && kk > 0)
+                ? (ii * nx * ny) + (jj * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 7] =
+            (ii < nz && jj < ny && kk < nx) ? (ii * nx * ny) + (jj * nx) + (kk)
+                                            : -1;
+      }
+    }
+  }
+
+#if 0
 // Determine the count of cells by nodes
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
@@ -390,13 +448,16 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
   }
 
   // Perform prefix sum of the counts to get offsets (in serial for now)
+#pragma acc parallel
+#pragma acc loop seq
   for (int nn = 0; nn < umesh->nnodes; ++nn) {
     umesh->nodes_to_cells_offsets[(nn + 1)] +=
         umesh->nodes_to_cells_offsets[(nn)];
   }
 
 // Initialise the offsets and list of nodes to cells, counter-clockwise order
-#pragma omp parallel for
+#pragma acc kernels
+#pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
@@ -445,6 +506,7 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
       }
     }
   }
+#endif // if 0
 }
 
 // Initialises the boundary normals

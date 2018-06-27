@@ -125,9 +125,9 @@ void copy_buffer(const size_t len, double** src, double** dst, int send) {
 void move_host_buffer_to_device(const size_t len, double** src, double** dst) {
   double* local_src = *src;
 
-#pragma acc enter data copyin(local_src[ : len])
+#pragma acc enter data copyin(local_src[:len])
 
-  *dst = *src;
+  *dst = local_src;
 }
 
 // Initialises mesh data in device specific manner

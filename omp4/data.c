@@ -20,9 +20,13 @@ int device_strmatch(const char* str1, const char* str2) {
 
 // Allocates some double precision data
 size_t allocate_data(double** buf, size_t len) {
+  if(!len) {
+    return;
+  }
+
   allocate_host_data(buf, len);
 
-   double* local_buf = *buf;
+  double* local_buf = *buf;
 #pragma omp target enter data map(to : local_buf[ : len])
 
 #pragma omp target teams distribute parallel for
@@ -35,6 +39,9 @@ size_t allocate_data(double** buf, size_t len) {
 
 // Allocates some int precision data
 size_t allocate_int_data(int** buf, size_t len) {
+  if(!len) {
+    return;
+  }
   allocate_host_int_data(buf, len);
 
   int* local_buf = *buf;
@@ -50,6 +57,9 @@ size_t allocate_int_data(int** buf, size_t len) {
 
 // Allocates some int precision data
 size_t allocate_uint64_data(uint64_t** buf, size_t len) {
+  if(!len) {
+    return;
+  }
   allocate_host_uint64_data(buf, len);
 
   uint64_t* local_buf = *buf;
@@ -140,12 +150,12 @@ void move_host_buffer_to_device(const size_t len, double** src, double** dst) {
 
 // Initialises mesh data in device specific manner
 void mesh_data_init_2d(const int local_nx, const int local_ny,
-                       const int global_nx, const int global_ny, const int pad,
-                       const int x_off, const int y_off, const double width,
-                       const double height, double* edgex, double* edgey,
-                       double* edgedx, double* edgedy, double* celldx,
-                       double* celldy) {
-// Simple uniform rectilinear initialisation
+    const int global_nx, const int global_ny, const int pad,
+    const int x_off, const int y_off, const double width,
+    const double height, double* edgex, double* edgey,
+    double* edgedx, double* edgedy, double* celldx,
+    double* celldy) {
+  // Simple uniform rectilinear initialisation
 #pragma omp target teams distribute parallel for
   for (int ii = 0; ii < local_nx + 1; ++ii) {
     edgedx[ii] = width / (global_nx);
@@ -172,20 +182,20 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
 
 // Initialises mesh data in device specific manner
 void mesh_data_init_3d(const int local_nx, const int local_ny,
-                       const int local_nz, const int global_nx,
-                       const int global_ny, const int global_nz, const int pad,
-                       const int x_off, const int y_off, const int z_off,
-                       const double width, const double height,
-                       const double depth, double* edgex, double* edgey,
-                       double* edgez, double* edgedx, double* edgedy,
-                       double* edgedz, double* celldx, double* celldy,
-                       double* celldz) {
+    const int local_nz, const int global_nx,
+    const int global_ny, const int global_nz, const int pad,
+    const int x_off, const int y_off, const int z_off,
+    const double width, const double height,
+    const double depth, double* edgex, double* edgey,
+    double* edgez, double* edgedx, double* edgedy,
+    double* edgedz, double* celldx, double* celldy,
+    double* celldz) {
   // Initialise as in the 2d case
   mesh_data_init_2d(local_nx, local_ny, global_nx, global_ny, pad, x_off, y_off,
-                    width, height, edgex, edgey, edgedx, edgedy, celldx,
-                    celldy);
+      width, height, edgex, edgey, edgedx, edgedy, celldx,
+      celldy);
 
-// Simple uniform rectilinear initialisation
+  // Simple uniform rectilinear initialisation
 #pragma omp target teams distribute parallel for
   for (int ii = 0; ii < local_nz + 1; ++ii) {
     edgedz[ii] = depth / (global_nz);
@@ -199,10 +209,11 @@ void mesh_data_init_3d(const int local_nx, const int local_ny,
 
 // Initialise state data in device specific manner
 void set_problem_2d(const int local_nx, const int local_ny, const int pad,
-                    const double mesh_width, const double mesh_height,
-                    const double* edgex, const double* edgey, const int ndims,
-                    const char* problem_def_filename, double* rho, double* e,
-                    double* x) {
+    const double mesh_width, const double mesh_height,
+    const double* edgex, const double* edgey, const int ndims,
+    const char* problem_def_filename, double* rho, double* e,
+    double* x) {
+
   char* keys = (char*)malloc(sizeof(char) * MAX_KEYS * MAX_STR_LEN);
 #pragma omp target enter data map(to : keys[ : MAX_KEYS* MAX_STR_LEN])
 
@@ -216,7 +227,7 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
 
     int nkeys = 0;
     if (!get_key_value_parameter(specifier, problem_def_filename, keys, values,
-                                 &nkeys)) {
+          &nkeys)) {
       break;
     }
 
@@ -231,9 +242,9 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
 
     int failed = 0;
 
-// Loop through the mesh and set the problem
-#pragma omp target teams distribute parallel for map(tofrom : failed)          \
-    reduction(+ : failed)
+    // Loop through the mesh and set the problem
+#pragma omp target teams distribute parallel for \
+    map(tofrom : failed) reduction(+ : failed)
     for (int ii = pad; ii < local_ny - pad; ++ii) {
       for (int jj = pad; jj < local_nx - pad; ++jj) {
         double global_xpos = edgex[jj];
@@ -270,13 +281,84 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
 
 // Initialise state data in device specific manner
 void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
-                    const int pad, const double mesh_width,
-                    const double mesh_height, const double mesh_depth,
-                    const double* edgex, const double* edgey,
-                    const double* edgez, const int ndims,
-                    const char* problem_def_filename, double* rho, double* e,
-                    double* x) {
-  TERMINATE("set_problem_3d not implemented yet.");
+    const int pad, const double mesh_width,
+    const double mesh_height, const double mesh_depth,
+    const double* edgex, const double* edgey,
+    const double* edgez, const int ndims,
+    const char* problem_def_filename, double* rho, double* e,
+    double* x) {
+
+  char* keys = (char*)malloc(sizeof(char) * MAX_KEYS * MAX_STR_LEN);
+#pragma omp target enter data map(to : keys[ : MAX_KEYS* MAX_STR_LEN])
+
+  double* values;
+  allocate_data(&values, MAX_KEYS);
+
+  int nentries = 0;
+  while (1) {
+    char specifier[MAX_STR_LEN];
+    sprintf(specifier, "problem_%d", nentries++);
+
+    int nkeys = 0;
+    if (!get_key_value_parameter(specifier, problem_def_filename, keys, values,
+          &nkeys)) {
+      break;
+    }
+
+    copy_buffer(MAX_KEYS, &values, &values, SEND);
+#pragma omp target update to(keys[ : MAX_KEYS* MAX_STR_LEN])
+
+    // The last four keys are the bound specification
+    double xpos = values[nkeys - 6] * mesh_width;
+    double ypos = values[nkeys - 5] * mesh_height;
+    double zpos = values[nkeys - 4] * mesh_depth;
+    double width = values[nkeys - 3] * mesh_width;
+    double height = values[nkeys - 2] * mesh_height;
+    double depth = values[nkeys - 1] * mesh_depth;
+
+    int failed = 0;
+
+    // Loop through the mesh and set the problem
+#pragma omp target teams distribute parallel for \
+    map(tofrom: failed) reduction(+: failed)
+    for (int ii = pad; ii < local_nz - pad; ++ii) {
+      for (int jj = pad; jj < local_ny - pad; ++jj) {
+        for (int kk = pad; kk < local_nx - pad; ++kk) {
+          double global_xpos = edgex[kk];
+          double global_ypos = edgey[jj];
+          double global_zpos = edgez[ii];
+
+          // Check we are in bounds of the problem entry
+          if (global_xpos >= xpos && global_ypos >= ypos &&
+              global_zpos >= zpos && global_xpos < xpos + width &&
+              global_ypos < ypos + height && global_zpos < zpos + depth) {
+            // The upper bound excludes the bounding box for the entry
+            for (int ee = 0; ee < nkeys - (2 * ndims); ++ee) {
+              const int index =
+                (ii * local_nx * local_ny) + (jj * local_nx) + (kk);
+              const char* key = &keys[ee * MAX_STR_LEN];
+              if (device_strmatch(key, "density")) {
+                rho[(index)] = values[ee];
+              } else if (device_strmatch(key, "energy")) {
+                e[(index)] = values[ee];
+              } else if (device_strmatch(key, "temperature")) {
+                x[(index)] = values[ee];
+              } else {
+                failed++;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if(failed) {
+      TERMINATE("Found unrecognised key in %s.\n", problem_def_filename);
+    }
+  }
+
+  free(keys);
+  deallocate_data(values);
 }
 
 // Finds the normals for all boundary cells
@@ -292,7 +374,7 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
   double* boundary_normal_x = umesh->boundary_normal_x;
   double* boundary_normal_y = umesh->boundary_normal_y;
 
-// Loop through all of the boundary cells and find their normals
+  // Loop through all of the boundary cells and find their normals
 #pragma omp target teams distribute parallel for
   for (int nn = 0; nn < nnodes; ++nn) {
     const int bi = boundary_index[(nn)];

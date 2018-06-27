@@ -200,10 +200,14 @@ void decompose_2d_cartesian(const int rank, const int nranks,
   }
 #endif
 
+  const int sqr_nranks = sqrtf(nranks);
+
   // Determine decomposition that minimises perimeter to area ratio
-  for (int ff = 1; ff <= sqrt(nranks); ++ff) {
-    if (nranks % ff)
+  for (int ff = 1; ff <= sqr_nranks; ++ff) {
+    if (nranks % ff) {
       continue;
+    }
+
     // If load balance is preferred then prioritise even split over ratio
     // Test if this split evenly decomposes into the mesh
     const int even_split_ff_x =
@@ -217,12 +221,6 @@ void decompose_2d_cartesian(const int rank, const int nranks,
 
     const float potential_ratio =
         (2 * (new_ranks_x + new_ranks_y)) / (float)(new_ranks_x * new_ranks_y);
-
-    // TODO: THIS DECOMPOSITION IS OK IF YOU ARE ONLY CONSIDERING SQUARE
-    // PROBLEMS, BUT WHAT ABOUT IF THERE IS SOME MISHAPEN PROBLEM SIZE
-    // THEN THIS WILL NOT BE THE OPTIMAL DECOMPOSITION
-    // REMOVE THE LOAD BALANCING STUFF AND MAKE IT SO THAT THE RATIO TO
-    // PERIMETER CALCULATION ACCOUNTS FOR THE MESH
 
     // Update if we minimise the ratio further, only if we don't care about load
     // balancing or have found an even split

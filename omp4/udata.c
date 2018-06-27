@@ -14,13 +14,15 @@
 // Initialises the offsets between faces and nodes
 void init_faces_to_nodes_offsets_3d(UnstructuredMesh* umesh) {
 
-  TERMINATE("%s is not implemented with OpenMP 4.5 yet.\n", __func__);
+  const int nfaces = umesh->nfaces;
+  int* faces_to_nodes_offsets = umesh->faces_to_nodes_offsets;
+  int* faces_cclockwise_cell = umesh->faces_cclockwise_cell;
 
-#pragma omp parallel for
-  for (int ff = 0; ff < umesh->nfaces + 1; ++ff) {
-    umesh->faces_to_nodes_offsets[(ff)] = ff * NNODES_BY_FACE;
-    if (ff < umesh->nfaces) {
-      umesh->faces_cclockwise_cell[(ff)] = -1;
+#pragma omp target teams distribute parallel for
+  for (int ff = 0; ff < nfaces + 1; ++ff) {
+    faces_to_nodes_offsets[(ff)] = ff * NNODES_BY_FACE;
+    if (ff < nfaces) {
+      faces_cclockwise_cell[(ff)] = -1;
     }
   }
 }
@@ -28,18 +30,23 @@ void init_faces_to_nodes_offsets_3d(UnstructuredMesh* umesh) {
 // Initialises the offsets between cells and faces
 void init_cells_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
-  for (int cc = 0; cc < umesh->ncells + 1; ++cc) {
-    umesh->cells_to_faces_offsets[(cc)] = cc * NFACES_BY_CELL;
+  const int ncells = umesh->ncells;
+  int* cells_to_faces_offsets = umesh->cells_to_faces_offsets;
+
+#pragma omp target teams distribute parallel for
+  for (int cc = 0; cc < ncells + 1; ++cc) {
+    cells_to_faces_offsets[(cc)] = cc * NFACES_BY_CELL;
   }
 }
 
 // Initialises the offsets between nodes and faces
 void init_nodes_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
-  for (int nn = 0; nn < umesh->nnodes + 1; ++nn) {
-    umesh->nodes_to_faces_offsets[(nn)] = nn * NFACES_BY_NODE;
+  const int nnodes = umesh->nnodes;
+  int* nodes_to_faces_offsets = umesh->nodes_to_faces_offsets;
+#pragma omp target teams distribute parallel for
+  for (int nn = 0; nn < nnodes + 1; ++nn) {
+    nodes_to_faces_offsets[(nn)] = nn * NFACES_BY_NODE;
   }
 }
 
@@ -47,15 +54,18 @@ void init_nodes_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 void init_faces_to_cells_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
+  int* faces_to_cells0 = umesh->faces_to_cells0;
+  int* faces_to_cells1 = umesh->faces_to_cells1;
+
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < nz + 1; ++ii) {
     // All front oriented faces
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
         const int face_index = XYPLANE_FACE_INDEX(ii, jj, kk);
-        umesh->faces_to_cells0[(face_index)] =
+        faces_to_cells0[(face_index)] =
             (ii < nz) ? (ii * nx * ny) + (jj * nx) + (kk) : -1;
-        umesh->faces_to_cells1[(face_index)] =
+        faces_to_cells1[(face_index)] =
             (ii > 0) ? ((ii - 1) * nx * ny) + (jj * nx) + (kk) : -1;
       }
     }
@@ -64,9 +74,9 @@ void init_faces_to_cells_3d(const int nx, const int ny, const int nz,
       for (int jj = 0; jj < ny; ++jj) {
         for (int kk = 0; kk < nx + 1; ++kk) {
           const int face_index = YZPLANE_FACE_INDEX(ii, jj, kk);
-          umesh->faces_to_cells0[(face_index)] =
+          faces_to_cells0[(face_index)] =
               (kk < nx) ? (ii * nx * ny) + (jj * nx) + (kk) : -1;
-          umesh->faces_to_cells1[(face_index)] =
+          faces_to_cells1[(face_index)] =
               (kk > 0) ? (ii * nx * ny) + (jj * nx) + (kk - 1) : -1;
         }
       }
@@ -76,9 +86,9 @@ void init_faces_to_cells_3d(const int nx, const int ny, const int nz,
       for (int jj = 0; jj < ny + 1; ++jj) {
         for (int kk = 0; kk < nx; ++kk) {
           const int face_index = XZPLANE_FACE_INDEX(ii, jj, kk);
-          umesh->faces_to_cells0[(face_index)] =
+          faces_to_cells0[(face_index)] =
               (jj < ny) ? (ii * nx * ny) + (jj * nx) + (kk) : -1;
-          umesh->faces_to_cells1[(face_index)] =
+          faces_to_cells1[(face_index)] =
               (jj > 0) ? (ii * nx * ny) + ((jj - 1) * nx) + (kk) : -1;
         }
       }
@@ -90,50 +100,53 @@ void init_faces_to_cells_3d(const int nx, const int ny, const int nz,
 void init_nodes_to_faces_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
+  int* nodes_to_faces_offsets = umesh->nodes_to_faces_offsets;
+  int* nodes_to_faces = umesh->nodes_to_faces;
+
 // Determine the connectivity of nodes to faces
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
         const int node_index =
             (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
         const int node_to_faces_off =
-            umesh->nodes_to_faces_offsets[(node_index)];
+            nodes_to_faces_offsets[(node_index)];
 
-        umesh->nodes_to_faces[(node_to_faces_off + 0)] =
+        nodes_to_faces[(node_to_faces_off + 0)] =
             (ii < nz && kk < nx) ? XZPLANE_FACE_INDEX(ii, jj, kk) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 1)] =
+        nodes_to_faces[(node_to_faces_off + 1)] =
             (jj < ny && kk < nx) ? XYPLANE_FACE_INDEX(ii, jj, kk) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 2)] =
+        nodes_to_faces[(node_to_faces_off + 2)] =
             (ii < nz && jj < ny) ? YZPLANE_FACE_INDEX(ii, jj, kk) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 3)] =
+        nodes_to_faces[(node_to_faces_off + 3)] =
             (ii < nz && kk > 0) ? XZPLANE_FACE_INDEX(ii, jj, kk - 1) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 4)] =
+        nodes_to_faces[(node_to_faces_off + 4)] =
             (jj < ny && kk > 0) ? XYPLANE_FACE_INDEX(ii, jj, kk - 1) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 5)] =
+        nodes_to_faces[(node_to_faces_off + 5)] =
             (ii > 0 && kk < nx) ? XZPLANE_FACE_INDEX(ii - 1, jj, kk) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 6)] =
+        nodes_to_faces[(node_to_faces_off + 6)] =
             (ii > 0 && jj < ny) ? YZPLANE_FACE_INDEX(ii - 1, jj, kk) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 7)] =
+        nodes_to_faces[(node_to_faces_off + 7)] =
             (ii > 0 && kk > 0) ? XZPLANE_FACE_INDEX(ii - 1, jj, kk - 1) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 8)] =
+        nodes_to_faces[(node_to_faces_off + 8)] =
             (jj > 0 && kk < nx) ? XYPLANE_FACE_INDEX(ii, jj - 1, kk) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 9)] =
+        nodes_to_faces[(node_to_faces_off + 9)] =
             (jj > 0 && kk > 0) ? XYPLANE_FACE_INDEX(ii, jj - 1, kk - 1) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 10)] =
+        nodes_to_faces[(node_to_faces_off + 10)] =
             (ii > 0 && jj > 0) ? YZPLANE_FACE_INDEX(ii - 1, jj - 1, kk) : -1;
 
-        umesh->nodes_to_faces[(node_to_faces_off + 11)] =
+        nodes_to_faces[(node_to_faces_off + 11)] =
             (ii < nz && jj > 0) ? YZPLANE_FACE_INDEX(ii, jj - 1, kk) : -1;
       }
     }
@@ -144,40 +157,44 @@ void init_nodes_to_faces_3d(const int nx, const int ny, const int nz,
 void init_cells_to_nodes_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
-  for (int cc = 0; cc < umesh->ncells + 1; ++cc) {
-    umesh->cells_to_nodes_offsets[(cc)] = cc * NNODES_BY_CELL;
+  const int ncells = umesh->ncells;
+  int* cells_to_nodes_offsets = umesh->cells_to_nodes_offsets;
+  int* cells_to_nodes = umesh->cells_to_nodes;
+
+#pragma omp target teams distribute parallel for
+  for (int cc = 0; cc < ncells + 1; ++cc) {
+    cells_to_nodes_offsets[(cc)] = cc * NNODES_BY_CELL;
   }
 
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < nz; ++ii) {
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
         const int index = (ii * nx * ny) + (jj * nx) + (kk);
 
         // Simple closed form calculation for the nodes surrounding a cell
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 0] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 0] =
             (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 1] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 1] =
             (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
 
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 2] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 2] =
             (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk + 1);
 
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 3] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 3] =
             (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
 
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 4] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 4] =
             ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 5] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 5] =
             ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
 
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 6] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 6] =
             ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk + 1);
 
-        umesh->cells_to_nodes[(index * NNODES_BY_CELL) + 7] =
+        cells_to_nodes[(index * NNODES_BY_CELL) + 7] =
             ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
       }
     }
@@ -188,32 +205,36 @@ void init_cells_to_nodes_3d(const int nx, const int ny, const int nz,
 void init_faces_to_nodes_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
+  int* faces_to_nodes_offsets = umesh->faces_to_nodes_offsets;
+  int* faces_to_nodes = umesh->faces_to_nodes;
+  int* faces_cclockwise_cell = umesh->faces_cclockwise_cell;
+
 // Connectivity of faces to nodes, the nodes are stored in a counter-clockwise
 // ordering around the face
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < nz + 1; ++ii) {
     // Add the front faces
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
         const int face_index = XYPLANE_FACE_INDEX(ii, jj, kk);
         const int face_to_node_off =
-            umesh->faces_to_nodes_offsets[(face_index)];
+            faces_to_nodes_offsets[(face_index)];
 
         // On the front face
-        umesh->faces_to_nodes[(face_to_node_off + 0)] =
+        faces_to_nodes[(face_to_node_off + 0)] =
             (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-        umesh->faces_to_nodes[(face_to_node_off + 1)] =
+        faces_to_nodes[(face_to_node_off + 1)] =
             (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
 
-        umesh->faces_to_nodes[(face_to_node_off + 2)] =
+        faces_to_nodes[(face_to_node_off + 2)] =
             (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk + 1);
 
-        umesh->faces_to_nodes[(face_to_node_off + 3)] =
+        faces_to_nodes[(face_to_node_off + 3)] =
             (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
 
         if (ii < nz + 1) {
-          umesh->faces_cclockwise_cell[(face_index)] =
+          faces_cclockwise_cell[(face_index)] =
               (ii * nx * ny) + (jj * nx) + (kk);
         }
       }
@@ -226,22 +247,22 @@ void init_faces_to_nodes_3d(const int nx, const int ny, const int nz,
             // On the left face
             const int face_index = YZPLANE_FACE_INDEX(ii, jj, kk);
             const int face_to_node_off =
-                umesh->faces_to_nodes_offsets[(face_index)];
+                faces_to_nodes_offsets[(face_index)];
 
-            umesh->faces_to_nodes[(face_to_node_off + 0)] =
+            faces_to_nodes[(face_to_node_off + 0)] =
                 (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-            umesh->faces_to_nodes[(face_to_node_off + 1)] =
+            faces_to_nodes[(face_to_node_off + 1)] =
                 (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
 
-            umesh->faces_to_nodes[(face_to_node_off + 2)] =
+            faces_to_nodes[(face_to_node_off + 2)] =
                 ((ii + 1) * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
 
-            umesh->faces_to_nodes[(face_to_node_off + 3)] =
+            faces_to_nodes[(face_to_node_off + 3)] =
                 ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
             if (kk < nx + 1) {
-              umesh->faces_cclockwise_cell[(face_index)] =
+              faces_cclockwise_cell[(face_index)] =
                   (ii * nx * ny) + (jj * nx) + (kk);
             }
           }
@@ -250,22 +271,22 @@ void init_faces_to_nodes_3d(const int nx, const int ny, const int nz,
             // On the bottom face
             const int face_index = XZPLANE_FACE_INDEX(ii, jj, kk);
             const int face_to_node_off =
-                umesh->faces_to_nodes_offsets[(face_index)];
+                faces_to_nodes_offsets[(face_index)];
 
-            umesh->faces_to_nodes[(face_to_node_off + 0)] =
+            faces_to_nodes[(face_to_node_off + 0)] =
                 (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-            umesh->faces_to_nodes[(face_to_node_off + 1)] =
+            faces_to_nodes[(face_to_node_off + 1)] =
                 ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-            umesh->faces_to_nodes[(face_to_node_off + 2)] =
+            faces_to_nodes[(face_to_node_off + 2)] =
                 ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
 
-            umesh->faces_to_nodes[(face_to_node_off + 3)] =
+            faces_to_nodes[(face_to_node_off + 3)] =
                 (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
 
             if (jj < ny + 1) {
-              umesh->faces_cclockwise_cell[(face_index)] =
+              faces_cclockwise_cell[(face_index)] =
                   (ii * nx * ny) + (jj * nx) + (kk);
             }
           }
@@ -279,30 +300,33 @@ void init_faces_to_nodes_3d(const int nx, const int ny, const int nz,
 void init_cells_to_faces_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
-#pragma omp parallel for
+  int* cells_to_faces_offsets = umesh->cells_to_faces_offsets;
+  int* cells_to_faces = umesh->cells_to_faces;
+
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < nz; ++ii) {
     for (int jj = 0; jj < ny; ++jj) {
       for (int kk = 0; kk < nx; ++kk) {
         const int cell_index = (ii * nx * ny) + (jj * nx) + (kk);
         const int cell_to_faces_off =
-            umesh->cells_to_faces_offsets[(cell_index)];
+            cells_to_faces_offsets[(cell_index)];
 
-        umesh->cells_to_faces[(cell_to_faces_off + 0)] =
+        cells_to_faces[(cell_to_faces_off + 0)] =
             XYPLANE_FACE_INDEX(ii, jj, kk);
 
-        umesh->cells_to_faces[(cell_to_faces_off + 1)] =
+        cells_to_faces[(cell_to_faces_off + 1)] =
             YZPLANE_FACE_INDEX(ii, jj, kk);
 
-        umesh->cells_to_faces[(cell_to_faces_off + 2)] =
+        cells_to_faces[(cell_to_faces_off + 2)] =
             XZPLANE_FACE_INDEX(ii, jj, kk);
 
-        umesh->cells_to_faces[(cell_to_faces_off + 3)] =
+        cells_to_faces[(cell_to_faces_off + 3)] =
             YZPLANE_FACE_INDEX(ii, jj, kk + 1);
 
-        umesh->cells_to_faces[(cell_to_faces_off + 4)] =
+        cells_to_faces[(cell_to_faces_off + 4)] =
             XZPLANE_FACE_INDEX(ii, jj + 1, kk);
 
-        umesh->cells_to_faces[(cell_to_faces_off + 5)] =
+        cells_to_faces[(cell_to_faces_off + 5)] =
             XYPLANE_FACE_INDEX(ii + 1, jj, kk);
       }
     }
@@ -313,49 +337,53 @@ void init_cells_to_faces_3d(const int nx, const int ny, const int nz,
 void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
                             UnstructuredMesh* umesh) {
 
+  const int nnodes = umesh->nnodes;
+  int* nodes_to_nodes_offsets = umesh->nodes_to_nodes_offsets;
+  int* nodes_to_nodes = umesh->nodes_to_nodes;
+
 // Prefix sum to convert the counts to offsets
-#pragma omp parallel for
-  for (int nn = 0; nn < umesh->nnodes + 1; ++nn) {
-    umesh->nodes_to_nodes_offsets[(nn)] = nn * NNODES_BY_NODE;
+#pragma omp target teams distribute parallel for
+  for (int nn = 0; nn < nnodes + 1; ++nn) {
+    nodes_to_nodes_offsets[(nn)] = nn * NNODES_BY_NODE;
   }
 
 // Initialise the offsets and list of nodes to cells, counter-clockwise order
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
         const int node_index =
             (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
 
-        int off = umesh->nodes_to_nodes_offsets[(node_index)];
+        int off = nodes_to_nodes_offsets[(node_index)];
 
         // Initialise all to boundary
         for (int nn = 0; nn < NNODES_BY_NODE; ++nn) {
-          umesh->nodes_to_nodes[(off + nn)] = -1;
+          nodes_to_nodes[(off + nn)] = -1;
         }
 
         if (kk < nx) {
-          umesh->nodes_to_nodes[(off++)] =
+          nodes_to_nodes[(off++)] =
               (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk + 1);
         }
         if (kk > 0) {
-          umesh->nodes_to_nodes[(off++)] =
+          nodes_to_nodes[(off++)] =
               (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk - 1);
         }
         if (jj < ny) {
-          umesh->nodes_to_nodes[(off++)] =
+          nodes_to_nodes[(off++)] =
               (ii * (nx + 1) * (ny + 1)) + ((jj + 1) * (nx + 1)) + (kk);
         }
         if (jj > 0) {
-          umesh->nodes_to_nodes[(off++)] =
+          nodes_to_nodes[(off++)] =
               (ii * (nx + 1) * (ny + 1)) + ((jj - 1) * (nx + 1)) + (kk);
         }
         if (ii < nz) {
-          umesh->nodes_to_nodes[(off++)] =
+          nodes_to_nodes[(off++)] =
               ((ii + 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
         }
         if (ii > 0) {
-          umesh->nodes_to_nodes[(off++)] =
+          nodes_to_nodes[(off++)] =
               ((ii - 1) * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
         }
       }
@@ -367,8 +395,55 @@ void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
 void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
                             Mesh* mesh, UnstructuredMesh* umesh) {
 
+  int* nodes_to_cells = umesh->nodes_to_cells;
+
+// Override the original initialisation of the nodes_to_cells layout
+#pragma omp target teams distribute parallel for
+  for (int ii = 0; ii < (nz + 1); ++ii) {
+    for (int jj = 0; jj < (ny + 1); ++jj) {
+      for (int kk = 0; kk < (nx + 1); ++kk) {
+        const int node_index =
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+
+        // Fill in all of the cells that surround a node
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 0] =
+            (ii > 0 && jj > 0 && kk > 0)
+                ? ((ii - 1) * nx * ny) + ((jj - 1) * nx) + (kk - 1)
+                : -1;
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 1] =
+            (ii > 0 && jj > 0 && kk < nx)
+                ? ((ii - 1) * nx * ny) + ((jj - 1) * nx) + (kk)
+                : -1;
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 2] =
+            (ii > 0 && jj < ny && kk > 0)
+                ? ((ii - 1) * nx * ny) + (jj * nx) + (kk - 1)
+                : -1;
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 3] =
+            (ii > 0 && jj < ny && kk < nx)
+                ? ((ii - 1) * nx * ny) + (jj * nx) + (kk)
+                : -1;
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 4] =
+            (ii < nz && jj > 0 && kk > 0)
+                ? (ii * nx * ny) + ((jj - 1) * nx) + (kk - 1)
+                : -1;
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 5] =
+            (ii < nz && jj > 0 && kk < nx)
+                ? (ii * nx * ny) + ((jj - 1) * nx) + (kk)
+                : -1;
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 6] =
+            (ii < nz && jj < ny && kk > 0)
+                ? (ii * nx * ny) + (jj * nx) + (kk - 1)
+                : -1;
+        nodes_to_cells[node_index * NCELLS_BY_NODE + 7] =
+            (ii < nz && jj < ny && kk < nx) ? (ii * nx * ny) + (jj * nx) + (kk)
+                                            : -1;
+      }
+    }
+  }
+
+#if 0
 // Determine the count of cells by nodes
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
@@ -396,7 +471,7 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
   }
 
 // Initialise the offsets and list of nodes to cells, counter-clockwise order
-#pragma omp parallel for
+#pragma omp target teams distribute parallel for
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
       for (int kk = 0; kk < (nx + 1); ++kk) {
@@ -445,11 +520,18 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
       }
     }
   }
+#endif // if 0
 }
 
 // Initialises the boundary normals
 void init_boundary_normals_3d(const int nx, const int ny, const int nz,
                               UnstructuredMesh* umesh) {
+
+  int* boundary_type = umesh->boundary_type;
+  double* boundary_normal_x = umesh->boundary_normal_x;
+  double* boundary_normal_y = umesh->boundary_normal_y;
+  double* boundary_normal_z = umesh->boundary_normal_z;
+  int* boundary_index = umesh->boundary_index;
 
   // Determine all of the boundary edges
   int nboundary_nodes = 0;
@@ -466,65 +548,71 @@ void init_boundary_normals_3d(const int nx, const int ny, const int nz,
         // Check if we are on the edge
         if (boundary_count > 0) {
           int index = nboundary_nodes++;
-          umesh->boundary_index[(node_index)] = index;
+          boundary_index[(node_index)] = index;
 
           if (boundary_count == 3) {
-            umesh->boundary_type[(index)] = IS_CORNER;
+            boundary_type[(index)] = IS_CORNER;
           } else if (boundary_count == 2) {
-            umesh->boundary_type[(index)] = IS_EDGE;
+            boundary_type[(index)] = IS_EDGE;
             if (kk == 0) {
               if (jj == 0) {
-                umesh->boundary_normal_z[(index)] = 1.0;
+                boundary_normal_z[(index)] = 1.0;
               } else if (jj == ny) {
-                umesh->boundary_normal_z[(index)] = 1.0;
+                boundary_normal_z[(index)] = 1.0;
               } else if (ii == 0) {
-                umesh->boundary_normal_y[(index)] = 1.0;
+                boundary_normal_y[(index)] = 1.0;
               } else if (ii == nz) {
-                umesh->boundary_normal_y[(index)] = 1.0;
+                boundary_normal_y[(index)] = 1.0;
               }
             } else if (jj == 0) {
               if (kk == nx) {
-                umesh->boundary_normal_z[(index)] = 1.0;
+                boundary_normal_z[(index)] = 1.0;
               } else if (ii == 0) {
-                umesh->boundary_normal_x[(index)] = 1.0;
+                boundary_normal_x[(index)] = 1.0;
               } else if (ii == nz) {
-                umesh->boundary_normal_x[(index)] = 1.0;
+                boundary_normal_x[(index)] = 1.0;
               }
             } else if (ii == 0) {
               if (kk == nx) {
-                umesh->boundary_normal_y[(index)] = 1.0;
+                boundary_normal_y[(index)] = 1.0;
               } else if (jj == ny) {
-                umesh->boundary_normal_x[(index)] = 1.0;
+                boundary_normal_x[(index)] = 1.0;
               }
             } else if (kk == nx) {
               if (ii == nz) {
-                umesh->boundary_normal_y[(index)] = 1.0;
+                boundary_normal_y[(index)] = 1.0;
               } else if (jj == ny) {
-                umesh->boundary_normal_z[(index)] = 1.0;
+                boundary_normal_z[(index)] = 1.0;
               }
             } else if (jj == ny) {
               if (ii == nz) {
-                umesh->boundary_normal_x[(index)] = 1.0;
+                boundary_normal_x[(index)] = 1.0;
               }
             }
           } else if (boundary_count == 1) {
-            umesh->boundary_type[(index)] = IS_BOUNDARY;
+            boundary_type[(index)] = IS_BOUNDARY;
 
             // TODO: WE DON'T NEED ANYTHING SPECIAL HERE AS WE KNOW THE
-            // NORMALS
-            // FROM THE CONSTRUCTION OF THE MESH, ALTHOUGH WE WILL NEED A
+            // NORMALS FROM THE CONSTRUCTION OF THE MESH, ALTHOUGH WE WILL NEED A
             // SUFFICIENT METHOD WHEN WE START USING MORE COMPLEX MESHES
-            umesh->boundary_normal_x[(index)] =
+            boundary_normal_x[(index)] =
                 (kk == 0) ? -1.0 : ((kk == nx) ? 1.0 : 0.0);
-            umesh->boundary_normal_y[(index)] =
+            boundary_normal_y[(index)] =
                 (jj == 0) ? -1.0 : ((jj == ny) ? 1.0 : 0.0);
-            umesh->boundary_normal_z[(index)] =
+            boundary_normal_z[(index)] =
                 (ii == 0) ? -1.0 : ((ii == nz) ? 1.0 : 0.0);
           }
         } else {
-          umesh->boundary_index[(node_index)] = IS_INTERIOR;
+          boundary_index[(node_index)] = IS_INTERIOR;
         }
       }
     }
   }
+
+#pragma omp target update to(\
+    boundary_index[:nnodes], \
+    boundary_normal_x[:nboundary_nodes], \
+    boundary_normal_y[:nboundary_nodes], \
+    boundary_normal_z[:nboundary_nodes], \
+    boundary_type[:nboundary_nodes])
 }

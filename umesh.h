@@ -16,6 +16,7 @@
 #define NNODES_BY_FACE 4
 #define NFACES_BY_NODE 12
 #define NFACES_BY_CELL 6
+#define NCELLS_BY_NODE 8
 
 #ifdef __cplusplus
 extern "C" {

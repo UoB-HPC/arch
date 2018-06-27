@@ -364,6 +364,51 @@ void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
 void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
                             Mesh* mesh, UnstructuredMesh* umesh) {
 
+// Override the original initialisation of the nodes_to_cells layout
+#pragma omp parallel for
+  for (int ii = 0; ii < (nz + 1); ++ii) {
+    for (int jj = 0; jj < (ny + 1); ++jj) {
+      for (int kk = 0; kk < (nx + 1); ++kk) {
+        const int node_index =
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+
+        // Fill in all of the cells that surround a node
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 0] =
+            (ii > 0 && jj > 0 && kk > 0)
+                ? ((ii - 1) * nx * ny) + ((jj - 1) * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 1] =
+            (ii > 0 && jj > 0 && kk < nx)
+                ? ((ii - 1) * nx * ny) + ((jj - 1) * nx) + (kk)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 2] =
+            (ii > 0 && jj < ny && kk > 0)
+                ? ((ii - 1) * nx * ny) + (jj * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 3] =
+            (ii > 0 && jj < ny && kk < nx)
+                ? ((ii - 1) * nx * ny) + (jj * nx) + (kk)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 4] =
+            (ii < nz && jj > 0 && kk > 0)
+                ? (ii * nx * ny) + ((jj - 1) * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 5] =
+            (ii < nz && jj > 0 && kk < nx)
+                ? (ii * nx * ny) + ((jj - 1) * nx) + (kk)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 6] =
+            (ii < nz && jj < ny && kk > 0)
+                ? (ii * nx * ny) + (jj * nx) + (kk - 1)
+                : -1;
+        umesh->nodes_to_cells[node_index * NCELLS_BY_NODE + 7] =
+            (ii < nz && jj < ny && kk < nx) ? (ii * nx * ny) + (jj * nx) + (kk)
+                                            : -1;
+      }
+    }
+  }
+
+#if 0
 // Determine the count of cells by nodes
 #pragma omp parallel for
   for (int ii = 0; ii < (nz + 1); ++ii) {
@@ -442,6 +487,7 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
       }
     }
   }
+#endif // if 0
 }
 
 // Initialises the boundary normals
