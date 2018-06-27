@@ -21,7 +21,7 @@ int device_strmatch(const char* str1, const char* str2) {
 // Allocates some double precision data
 size_t allocate_data(double** buf, size_t len) {
   if(!len) {
-    return;
+    return 0;
   }
 
   allocate_host_data(buf, len);
@@ -40,7 +40,7 @@ size_t allocate_data(double** buf, size_t len) {
 // Allocates some int precision data
 size_t allocate_int_data(int** buf, size_t len) {
   if(!len) {
-    return;
+    return 0;
   }
   allocate_host_int_data(buf, len);
 
@@ -58,7 +58,7 @@ size_t allocate_int_data(int** buf, size_t len) {
 // Allocates some int precision data
 size_t allocate_uint64_data(uint64_t** buf, size_t len) {
   if(!len) {
-    return;
+    return 0;
   }
   allocate_host_uint64_data(buf, len);
 
@@ -369,7 +369,6 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
   const int* boundary_index = umesh->boundary_index;
   const double* nodes_x0 = umesh->nodes_x0;
   const double* nodes_y0 = umesh->nodes_y0;
-  const double* nodes_z0 = umesh->nodes_z0;
   int* boundary_type = umesh->boundary_type;
   double* boundary_normal_x = umesh->boundary_normal_x;
   double* boundary_normal_y = umesh->boundary_normal_y;

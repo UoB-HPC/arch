@@ -364,6 +364,20 @@ void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
 void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
                             Mesh* mesh, UnstructuredMesh* umesh) {
 
+#pragma omp parallel for
+  for (int ii = 0; ii < (nz + 1); ++ii) {
+    for (int jj = 0; jj < (ny + 1); ++jj) {
+      for (int kk = 0; kk < (nx + 1); ++kk) {
+        const int node_index =
+            (ii * (nx + 1) * (ny + 1)) + (jj * (nx + 1)) + (kk);
+
+        umesh->nodes_z0[(node_index)] = mesh->edgez[(ii)];
+        umesh->nodes_y0[(node_index)] = mesh->edgey[(jj)];
+        umesh->nodes_x0[(node_index)] = mesh->edgex[(kk)];
+      }
+    }
+  }
+
 // Override the original initialisation of the nodes_to_cells layout
 #pragma omp parallel for
   for (int ii = 0; ii < (nz + 1); ++ii) {
