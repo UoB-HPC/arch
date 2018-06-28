@@ -238,3 +238,45 @@ void handle_unstructured_reflect(const int nnodes, const int* boundary_index,
     }
   }
 }
+
+// Reflect the node centered velocities on the boundary
+void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
+                                    const int* boundary_type,
+                                    const double* boundary_normal_x,
+                                    const double* boundary_normal_y,
+                                    const double* boundary_normal_z,
+                                    double* velocity_x, double* velocity_y,
+                                    double* velocity_z) {
+#pragma acc kernels
+#pragma acc loop independent
+  for (int nn = 0; nn < nnodes; ++nn) {
+    const int index = boundary_index[(nn)];
+    if (index == IS_INTERIOR) {
+      continue;
+    }
+
+    if (boundary_type[(index)] == IS_EDGE) {
+      // The normal here isn't actually a normal but a projection vector
+      const double ab = (velocity_x[(nn)] * boundary_normal_x[(index)] +
+                         velocity_y[(nn)] * boundary_normal_y[(index)] +
+                         velocity_z[(nn)] * boundary_normal_z[(index)]);
+
+      // Project the vector onto the edge line
+      velocity_x[(nn)] = ab * boundary_normal_x[(index)];
+      velocity_y[(nn)] = ab * boundary_normal_y[(index)];
+      velocity_z[(nn)] = ab * boundary_normal_z[(index)];
+    } else if (boundary_type[(index)] == IS_BOUNDARY) {
+      // Perform an orthogonal projection, assuming normal vector is normalised
+      const double un = (velocity_x[(nn)] * boundary_normal_x[(index)] +
+                         velocity_y[(nn)] * boundary_normal_y[(index)] +
+                         velocity_z[(nn)] * boundary_normal_z[(index)]);
+      velocity_x[(nn)] -= un * boundary_normal_x[(index)];
+      velocity_y[(nn)] -= un * boundary_normal_y[(index)];
+      velocity_z[(nn)] -= un * boundary_normal_z[(index)];
+    } else if (boundary_type[(index)] == IS_CORNER) {
+      velocity_x[(nn)] = 0.0;
+      velocity_y[(nn)] = 0.0;
+      velocity_z[(nn)] = 0.0;
+    }
+  }
+}

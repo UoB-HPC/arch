@@ -5,6 +5,18 @@
 #include <math.h>
 #include <stdlib.h>
 
+// Checks if two strings match
+#pragma acc routine seq
+int device_strmatch(const char* str1, const char* str2) {
+  int ii = 0;
+  for (ii = 0; str1[ii] != '\0'; ++ii) {
+    if (str1[ii] != str2[ii]) {
+      return 0;
+    }
+  }
+  return str1[ii] == str2[ii];
+}
+
 // Allocates some double precision data
 size_t allocate_data(double** buf, size_t len) {
   allocate_host_data(buf, len);
@@ -212,6 +224,8 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
   double* values;
   allocate_data(&values, MAX_KEYS);
 
+#pragma acc update host(edgex[:local_nx+1], edgey[:local_ny+1])
+
   int nentries = 0;
   while (1) {
     char specifier[MAX_STR_LEN];
@@ -232,8 +246,6 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
     double height = values[nkeys - 1] * mesh_height;
 
     int failed = 0;
-
-#pragma acc update host(edgex[:local_nx+1], edgey[:local_ny+1])
 
     // Loop through the mesh and set the problem
 #pragma omp parallel for
@@ -278,7 +290,78 @@ void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
     const double* edgez, const int ndims,
     const char* problem_def_filename, double* density, double* energy,
     double* temperature) {
-  TERMINATE("set_problem_3d not implemented yet.");
+
+  char* keys = (char*)malloc(sizeof(char) * MAX_KEYS * MAX_STR_LEN);
+  double* values;
+  allocate_data(&values, MAX_KEYS);
+
+#pragma acc update host(edgex[:local_nx+1], edgey[:local_ny+1], edgez[:local_nz+1])
+
+  int nentries = 0;
+  while (1) {
+    char specifier[MAX_STR_LEN];
+    sprintf(specifier, "problem_%d", nentries++);
+
+    int nkeys = 0;
+    if (!get_key_value_parameter(specifier, problem_def_filename, keys, values,
+          &nkeys)) {
+      break;
+    }
+
+    // The last four keys are the bound specification
+    double xpos = values[nkeys - 6] * mesh_width;
+    double ypos = values[nkeys - 5] * mesh_height;
+    double zpos = values[nkeys - 4] * mesh_depth;
+    double width = values[nkeys - 3] * mesh_width;
+    double height = values[nkeys - 2] * mesh_height;
+    double depth = values[nkeys - 1] * mesh_depth;
+
+    int failed = 0;
+
+    // Loop through the mesh and set the problem
+#pragma omp parallel for
+    for (int ii = pad; ii < local_nz - pad; ++ii) {
+      for (int jj = pad; jj < local_ny - pad; ++jj) {
+        for (int kk = pad; kk < local_nx - pad; ++kk) {
+          double global_xpos = edgex[kk];
+          double global_ypos = edgey[jj];
+          double global_zpos = edgez[ii];
+
+          // Check we are in bounds of the problem entry
+          if (global_xpos >= xpos && global_ypos >= ypos &&
+              global_zpos >= zpos && global_xpos < xpos + width &&
+              global_ypos < ypos + height && global_zpos < zpos + depth) {
+            // The upper bound excludes the bounding box for the entry
+            for (int ee = 0; ee < nkeys - (2 * ndims); ++ee) {
+              const int index =
+                ii * local_nx * local_ny + jj * local_nx + kk;
+              const char* key = &keys[ee * MAX_STR_LEN];
+              if (device_strmatch(key, "density")) {
+                density[index] = values[ee];
+              } else if (device_strmatch(key, "energy")) {
+                energy[index] = values[ee];
+              } else if (device_strmatch(key, "temperature")) {
+                temperature[index] = values[ee];
+              } else {
+                failed++;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    if(failed) {
+      TERMINATE("Found unrecognised key in %s.\n", problem_def_filename);
+    }
+  }
+
+#pragma acc update device(density[:local_nx*local_ny*local_nz])
+#pragma acc update device(energy[:local_nx*local_ny*local_nz])
+#pragma acc update device(temperature[:local_nx*local_ny*local_nz])
+
+  free(keys);
+  deallocate_data(values);
 }
 
 // Finds the normals for all boundary cells
