@@ -175,7 +175,8 @@ void init_cells_to_nodes_3d(const int nx, const int ny, const int nz,
     cells_to_nodes_offsets[(cc)] = cc * NNODES_BY_CELL;
   }
 
-#pragma acc kernels
+#pragma acc kernels \
+  present(cells_to_nodes[:ncells*NNODES_BY_CELL])
 #pragma acc loop independent
   for (int ii = 0; ii < nz; ++ii) {
     for (int jj = 0; jj < ny; ++jj) {

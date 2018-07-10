@@ -23,8 +23,8 @@ template <typename T> __global__ void zero_array(const int len, T* array) {
 __global__ void initialise_problem_state(
     const int nx, const int ny, const int nkeys, const int ndims,
     const double xpos, const double ypos, const double width,
-    const double height, const double* edgex, const double* edgey, double* rho,
-    double* e, double* x, int* keys, double* values) {
+    const double height, const double* edgex, const double* edgey, double* density,
+    double* energy, double* temperature, int* keys, double* values) {
   const int gid = threadIdx.x + blockIdx.x * blockDim.x;
   const int jj = (gid % (nx));
   const int ii = (gid / (nx));
@@ -41,11 +41,49 @@ __global__ void initialise_problem_state(
     for (int kk = 0; kk < nkeys - (2 * ndims); ++kk) {
       const int key = keys[kk];
       if (key == DENSITY_KEY) {
-        rho[ii * nx + jj] = values[kk];
+        density[ii * nx + jj] = values[kk];
       } else if (key == ENERGY_KEY) {
-        e[ii * nx + jj] = values[kk];
+        energy[ii * nx + jj] = values[kk];
       } else if (key == TEMPERATURE_KEY) {
-        x[ii * nx + jj] = values[kk];
+        temperature[ii * nx + jj] = values[kk];
+      }
+    }
+  }
+}
+
+
+// Problem initialisation on target device
+__global__ void initialise_problem_state_3d(
+    const int nx, const int ny, const int nz, const int nkeys, const int ndims,
+    const double xpos, const double ypos, const double zpos, const double width,
+    const double height, const double depth, const double* edgex, 
+    const double* edgey, const double* edgez, double* density,
+    double* energy, double* temperature, int* keys, double* values) {
+
+  const int gid = threadIdx.x + blockIdx.x * blockDim.x;
+  const int ii = (gid / (nx*ny));
+  const int jj = (gid / (nx));
+  const int kk = (gid % (nx));
+  if (gid >= nx * ny * nz)
+    return;
+
+  double global_xpos = edgex[kk];
+  double global_ypos = edgey[jj];
+  double global_zpos = edgez[ii];
+
+  // Check we are in bounds of the problem entry
+  if (global_xpos >= xpos && global_ypos >= ypos && global_zpos >= zpos &&
+      global_xpos < xpos + width && global_ypos < ypos + height && 
+      global_zpos < global_zpos+width) {
+    // The upper bound excludes the bounding box for the entry
+    for (int nn = 0; nn < nkeys - (2 * ndims); ++nn) {
+      const int key = keys[nn];
+      if (key == DENSITY_KEY) {
+        density[gid] = values[nn];
+      } else if (key == ENERGY_KEY) {
+        energy[gid] = values[nn];
+      } else if (key == TEMPERATURE_KEY) {
+        temperature[gid] = values[nn];
       }
     }
   }
@@ -80,3 +118,19 @@ __global__ void mesh_data_init_dy(const int nx, const int ny,
   celldy[gid] = height / (global_ny);
   edgey[gid] = edgedy[gid] * (y_off + gid - pad);
 }
+
+// Initialises mesh data for the y dimension
+__global__ void mesh_data_init_dz(const int nz, const int global_nz,
+                                  const int pad, const int z_off,
+                                  const double depth, double* edgez,
+                                  double* edgedz, double* celldz) {
+
+  const int ii = threadIdx.x + blockIdx.x * blockDim.x;
+  if (ii >= (nz + 1))
+    return;
+
+  edgedz[ii] = depth / (global_nz);
+  edgez[ii] = edgedz[ii] * (z_off + ii - pad);
+  celldz[ii] = depth / (global_nz);
+}
+
