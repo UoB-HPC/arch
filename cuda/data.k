@@ -61,9 +61,11 @@ __global__ void initialise_problem_state_3d(
     double* energy, double* temperature, int* keys, double* values) {
 
   const int gid = threadIdx.x + blockIdx.x * blockDim.x;
+
   const int ii = (gid / (nx*ny));
-  const int jj = (gid / (nx));
+  const int jj = (gid / (nx)) % ny;
   const int kk = (gid % (nx));
+
   if (gid >= nx * ny * nz)
     return;
 
@@ -72,9 +74,13 @@ __global__ void initialise_problem_state_3d(
   double global_zpos = edgez[ii];
 
   // Check we are in bounds of the problem entry
-  if (global_xpos >= xpos && global_ypos >= ypos && global_zpos >= zpos &&
-      global_xpos < xpos + width && global_ypos < ypos + height && 
-      global_zpos < global_zpos+width) {
+  if (global_xpos >= xpos && 
+      global_ypos >= ypos && 
+      global_zpos >= zpos &&
+      global_xpos < xpos + width && 
+      global_ypos < ypos + height && 
+      global_zpos < zpos + depth) {
+
     // The upper bound excludes the bounding box for the entry
     for (int nn = 0; nn < nkeys - (2 * ndims); ++nn) {
       const int key = keys[nn];

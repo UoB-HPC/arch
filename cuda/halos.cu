@@ -158,8 +158,10 @@ void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
                                     const double* boundary_normal_z,
                                     double* velocity_x, double* velocity_y,
                                     double* velocity_z) {
+
   const int nblocks = ceil(nnodes/(double)NTHREADS);
   unstructured_reflect_3d<<<nblocks, NTHREADS>>>(
       nnodes, boundary_index, boundary_type, boundary_normal_x, 
       boundary_normal_y, boundary_normal_z, velocity_x, velocity_y, velocity_z);
+
 }

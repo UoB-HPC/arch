@@ -356,10 +356,24 @@ void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
     double height = h_values[nkeys - 2] * mesh_height;
     double depth = h_values[nkeys - 1] * mesh_depth;
 
+    for (int kk = 0; kk < nkeys - (2 * ndims); ++kk) {
+      const char* key = &keys[kk * MAX_STR_LEN];
+      if (strmatch(key, "density")) {
+        h_keys[kk] = DENSITY_KEY;
+      } else if (strmatch(key, "energy")) {
+        h_keys[kk] = ENERGY_KEY;
+      } else if (strmatch(key, "temperature")) {
+        h_keys[kk] = TEMPERATURE_KEY;
+      } else {
+        TERMINATE("Found unrecognised key in %s : %s.\n", problem_def_filename,
+                  key);
+      }
+    }
+
     copy_int_buffer(MAX_KEYS, &h_keys, &d_keys, SEND);
     copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
 
-    const int nblocks = ceil(local_nx*local_ny*local_nz/(double)NTHREADS);
+    const int nblocks = ceil((local_nx*local_ny*local_nz)/(double)NTHREADS);
     initialise_problem_state_3d<<<nblocks, NTHREADS>>>(
         local_nx, local_ny, local_nz, nkeys, ndims, xpos,  ypos,  zpos,  width,
         height,  depth,  edgex, edgey,  edgez, density, energy, temperature, d_keys, d_values);
