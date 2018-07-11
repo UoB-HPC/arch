@@ -175,6 +175,7 @@ void copy_buffer(const size_t len, double** src, double** dst, int send) {
     gpu_check(
         cudaMemcpy(*dst, *src, sizeof(double) * len, cudaMemcpyDeviceToHost));
   }
+  gpu_check(cudaDeviceSynchronize());
 }
 
 // Copy a buffer to/from the device
@@ -248,6 +249,29 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
   gpu_check(cudaDeviceSynchronize());
 }
 
+void mesh_data_init_3d(const int local_nx, const int local_ny,
+                       const int local_nz, const int global_nx,
+                       const int global_ny, const int global_nz, const int pad,
+                       const int x_off, const int y_off, const int z_off,
+                       const double width, const double height,
+                       const double depth, double* edgex, double* edgey,
+                       double* edgez, double* edgedx, double* edgedy,
+                       double* edgedz, double* celldx, double* celldy,
+                       double* celldz) {
+
+  // Initialise as in the 2d case
+  mesh_data_init_2d(local_nx, local_ny, global_nx, global_ny, pad, x_off, y_off,
+      width, height, edgex, edgey, edgedx, edgedy, celldx,
+      celldy);
+
+
+  // Initialises mesh data for the z dimension
+  const int nblocks = ceil((local_nz+1)/(double)NTHREADS);
+  mesh_data_init_dz<<<nblocks, NTHREADS>>>(
+      local_nz, global_nz, pad, z_off, depth, edgez, edgedz, celldz);
+  gpu_check(cudaDeviceSynchronize());
+}
+
 // Initialise state data in device specific manner
 void set_problem_2d(const int local_nx, const int local_ny, const int pad,
                     const double mesh_width, const double mesh_height,
@@ -309,27 +333,6 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
 
   deallocate_host_int_data(h_keys);
   deallocate_host_data(h_values);
-}
-
-void mesh_data_init_3d(const int local_nx, const int local_ny,
-                       const int local_nz, const int global_nx,
-                       const int global_ny, const int global_nz, const int pad,
-                       const int x_off, const int y_off, const int z_off,
-                       const double width, const double height,
-                       const double depth, double* edgex, double* edgey,
-                       double* edgez, double* edgedx, double* edgedy,
-                       double* edgedz, double* celldx, double* celldy,
-                       double* celldz) {
-
-  // Initialise as in the 2d case
-  mesh_data_init_2d(local_nx, local_ny, global_nx, global_ny, pad, x_off, y_off,
-      width, height, edgex, edgey, edgedx, edgedy, celldx,
-      celldy);
-
-  // Initialises mesh data for the y dimension
-  const int nblocks = ceil((local_nz+1)/(double)NTHREADS);
-  mesh_data_init_dz<<<nblocks, NTHREADS>>>(
-      local_nz, global_nz, pad, z_off, depth, edgez, edgedz, celldz);
 }
 
 void state_data_init_3d(const int local_nx, const int local_ny,

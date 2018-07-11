@@ -4,27 +4,6 @@
 #include <assert.h>
 #include <stdlib.h>
 
-// Initialises the unstructured mesh variables
-size_t init_unstructured_mesh(UnstructuredMesh* umesh) {
-  // Allocate the data structures that we now know the sizes of
-  size_t allocated = allocate_data(&umesh->cell_centroids_x, umesh->ncells);
-  allocated += allocate_data(&umesh->cell_centroids_y, umesh->ncells);
-  allocated += allocate_data(&umesh->cell_centroids_z, umesh->ncells);
-  allocated +=
-      allocate_int_data(&umesh->nodes_to_cells_offsets, umesh->nnodes + 1);
-  allocated +=
-      allocate_int_data(&umesh->cells_to_nodes_offsets, umesh->ncells + 1);
-  allocated +=
-      allocate_int_data(&umesh->nodes_to_nodes_offsets, umesh->nnodes + 1);
-  allocated += allocate_int_data(&umesh->cells_to_nodes,
-                                 umesh->ncells * umesh->nnodes_by_cell);
-  allocated += allocate_int_data(&umesh->nodes_to_nodes,
-                                 umesh->nnodes * umesh->nnodes_by_node);
-  allocated += allocate_int_data(&umesh->nodes_to_cells,
-                                 umesh->nnodes * umesh->nnodes_by_cell);
-  return allocated;
-}
-
 // Converts an ordinary structured mesh into an unstructured equivalent
 size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   const int nx = mesh->local_nx;
@@ -43,7 +22,22 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   umesh->ncells = (nx * ny * nz);
   umesh->nfaces = nx * ny * (nz + 1) + (nx * (ny + 1) + (nx + 1) * ny) * nz;
 
-  size_t allocated = init_unstructured_mesh(umesh);
+  // Allocate the data structures that we now know the sizes of
+  size_t allocated = allocate_data(&umesh->cell_centroids_x, umesh->ncells);
+  allocated += allocate_data(&umesh->cell_centroids_y, umesh->ncells);
+  allocated += allocate_data(&umesh->cell_centroids_z, umesh->ncells);
+  allocated +=
+      allocate_int_data(&umesh->nodes_to_cells_offsets, umesh->nnodes + 1);
+  allocated +=
+      allocate_int_data(&umesh->cells_to_nodes_offsets, umesh->ncells + 1);
+  allocated +=
+      allocate_int_data(&umesh->nodes_to_nodes_offsets, umesh->nnodes + 1);
+  allocated += allocate_int_data(&umesh->cells_to_nodes,
+                                 umesh->ncells * NNODES_BY_CELL);
+  allocated += allocate_int_data(&umesh->nodes_to_nodes,
+                                 umesh->nnodes * NNODES_BY_NODE);
+  allocated += allocate_int_data(&umesh->nodes_to_cells,
+                                 umesh->nnodes * NCELLS_BY_NODE);
   allocated += allocate_data(&umesh->nodes_x0, umesh->nnodes);
   allocated += allocate_data(&umesh->nodes_y0, umesh->nnodes);
   allocated += allocate_data(&umesh->nodes_z0, umesh->nnodes);
@@ -53,14 +47,14 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   allocated +=
       allocate_int_data(&umesh->faces_to_nodes_offsets, umesh->nfaces + 1);
   allocated +=
-      allocate_int_data(&umesh->faces_to_nodes, umesh->nfaces * nnodes_by_face);
+      allocate_int_data(&umesh->faces_to_nodes, umesh->nfaces * NNODES_BY_FACE);
   allocated += allocate_int_data(&umesh->faces_cclockwise_cell, umesh->nfaces);
   allocated +=
       allocate_int_data(&umesh->cells_to_faces_offsets, umesh->ncells + 1);
   allocated += allocate_int_data(&umesh->cells_to_faces,
-                                 nfaces_by_cells * umesh->ncells);
+                                 umesh->ncells * NFACES_BY_CELL);
   allocated +=
-      allocate_int_data(&umesh->nodes_to_faces, umesh->nnodes * nfaces_by_node);
+      allocate_int_data(&umesh->nodes_to_faces, umesh->nnodes * NFACES_BY_NODE);
   allocated +=
       allocate_int_data(&umesh->nodes_to_faces_offsets, umesh->nnodes + 1);
   allocated += allocate_int_data(&umesh->faces_to_cells0, umesh->nfaces);

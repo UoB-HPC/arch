@@ -488,6 +488,7 @@ void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
                                     const double* boundary_normal_z,
                                     double* velocity_x, double* velocity_y,
                                     double* velocity_z) {
+
 #pragma omp parallel for
   for (int nn = 0; nn < nnodes; ++nn) {
     const int index = boundary_index[(nn)];
