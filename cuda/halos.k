@@ -148,39 +148,33 @@ __global__ void unstructured_reflect_3d(const int nnodes, const int* boundary_in
     return;
   }
 
-  const int index = boundary_index[nn];
+  const int index = boundary_index[(nn)];
   if (index == IS_INTERIOR) {
     return;
   }
 
-  if (boundary_type[index] == IS_EDGE) {
-
+  if (boundary_type[(index)] == IS_EDGE) {
     // The normal here isn't actually a normal but a projection vector
-    const double ab = (
-        velocity_x[nn] * boundary_normal_x[index] +
-        velocity_y[nn] * boundary_normal_y[index] +
-        velocity_z[nn] * boundary_normal_z[index]);
+    const double ab = (velocity_x[(nn)] * boundary_normal_x[(index)] +
+        velocity_y[(nn)] * boundary_normal_y[(index)] +
+        velocity_z[(nn)] * boundary_normal_z[(index)]);
 
     // Project the vector onto the edge line
-    velocity_x[nn] = ab * boundary_normal_x[index];
-    velocity_y[nn] = ab * boundary_normal_y[index];
-    velocity_z[nn] = ab * boundary_normal_z[index];
-
+    velocity_x[(nn)] = ab * boundary_normal_x[(index)];
+    velocity_y[(nn)] = ab * boundary_normal_y[(index)];
+    velocity_z[(nn)] = ab * boundary_normal_z[(index)];
   } else if (boundary_type[(index)] == IS_BOUNDARY) {
-
-    // Perform an orthogonal projection, assuming normal vector is normalised
-    const double un = (velocity_x[nn] * boundary_normal_x[index] +
-        velocity_y[nn] * boundary_normal_y[index] +
-        velocity_z[nn] * boundary_normal_z[index]);
-    velocity_x[nn] -= un * boundary_normal_x[index];
-    velocity_y[nn] -= un * boundary_normal_y[index];
-    velocity_z[nn] -= un * boundary_normal_z[index];
-
+    // Perform an orthogonal projection, assuming vector is actually normalised
+    const double un = (velocity_x[(nn)] * boundary_normal_x[(index)] +
+        velocity_y[(nn)] * boundary_normal_y[(index)] +
+        velocity_z[(nn)] * boundary_normal_z[(index)]);
+    velocity_x[(nn)] -= un * boundary_normal_x[(index)];
+    velocity_y[(nn)] -= un * boundary_normal_y[(index)];
+    velocity_z[(nn)] -= un * boundary_normal_z[(index)];
   } else if (boundary_type[(index)] == IS_CORNER) {
-
-    velocity_x[nn] = 0.0;
-    velocity_y[nn] = 0.0;
-    velocity_z[nn] = 0.0;
-
+    velocity_x[(nn)] = 0.0;
+    velocity_y[(nn)] = 0.0;
+    velocity_z[(nn)] = 0.0;
   }
 }
+

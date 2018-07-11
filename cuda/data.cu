@@ -9,6 +9,10 @@
 
 // Allocates some double precision data
 size_t allocate_data(double** buf, const size_t len) {
+  if(len == 0) {
+    return 0;
+  }
+
   gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
 
   const int nblocks = ceil(len / (double)NTHREADS);
@@ -19,6 +23,10 @@ size_t allocate_data(double** buf, const size_t len) {
 
 // Allocates some single precision data
 size_t allocate_float_data(float** buf, const size_t len) {
+  if(len == 0) {
+    return 0;
+  }
+
   gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
 
   const int nblocks = ceil(len / (double)NTHREADS);
@@ -29,6 +37,9 @@ size_t allocate_float_data(float** buf, const size_t len) {
 
 // Allocates some integer data
 size_t allocate_int_data(int** buf, const size_t len) {
+  if(len == 0) {
+    return 0;
+  }
   gpu_check(cudaMalloc((void**)buf, sizeof(int) * len));
 
   const int nblocks = ceil(len / (double)NTHREADS);
@@ -39,6 +50,9 @@ size_t allocate_int_data(int** buf, const size_t len) {
 
 // Allocates half precision floating point data
 size_t allocate_half_data(__half** buf, const size_t len) {
+  if(len == 0) {
+    return 0;
+  }
   gpu_check(cudaMalloc((void**)buf, sizeof(__half) * len));
   const int nblocks = ceil(len / (double)NTHREADS);
   gpu_check(cudaDeviceSynchronize());
@@ -47,6 +61,9 @@ size_t allocate_half_data(__half** buf, const size_t len) {
 
 // Allocates some 64bit integer data
 size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
+  if(len == 0) {
+    return 0;
+  }
   gpu_check(cudaMalloc((void**)buf, sizeof(uint64_t) * len));
 
   const int nblocks = ceil(len / (double)NTHREADS);
@@ -57,6 +74,10 @@ size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
 
 // Allocates some double precision data
 void allocate_host_data(double** buf, const size_t len) {
+  if(len == 0) {
+    return;
+  }
+
 #ifdef INTEL
   *buf = (double*)_mm_malloc(sizeof(double) * len, VEC_ALIGN);
 #else
@@ -74,6 +95,9 @@ void allocate_host_data(double** buf, const size_t len) {
 
 // Allocates some single precision data
 void allocate_host_float_data(float** buf, const size_t len) {
+  if(len == 0) {
+    return;
+  }
 #ifdef INTEL
   *buf = (float*)_mm_malloc(sizeof(float) * len, VEC_ALIGN);
 #else
@@ -85,12 +109,15 @@ void allocate_host_float_data(float** buf, const size_t len) {
 
 #pragma omp parallel for
   for (size_t ii = 0; ii < len; ++ii) {
-    (*buf)[ii] = 0.0;
+    (*buf)[ii] = 0.0f;
   }
 }
 
 // Allocates some double precision data
 void allocate_host_int_data(int** buf, const size_t len) {
+  if(len == 0) {
+    return;
+  }
 #ifdef INTEL
   *buf = (int*)_mm_malloc(sizeof(int) * len, VEC_ALIGN);
 #else
@@ -102,7 +129,7 @@ void allocate_host_int_data(int** buf, const size_t len) {
 
 #pragma omp parallel for
   for (size_t ii = 0; ii < len; ++ii) {
-    (*buf)[ii] = 0.0;
+    (*buf)[ii] = 0;
   }
 }
 
@@ -206,6 +233,7 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
                        const double height, double* edgex, double* edgey,
                        double* edgedx, double* edgedy, double* celldx,
                        double* celldy) {
+
   // Simple uniform rectilinear initialisation
   int nblocks = ceil((local_nx + 1) / (double)NTHREADS);
   mesh_data_init_dx<<<nblocks, NTHREADS>>>(

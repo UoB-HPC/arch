@@ -136,7 +136,7 @@ __global__ void mesh_data_init_dz(const int nz, const int global_nz,
     return;
 
   edgedz[ii] = depth / (global_nz);
-  edgez[ii] = edgedz[ii] * (z_off + ii - pad);
   celldz[ii] = depth / (global_nz);
+  edgez[ii] = edgedz[ii] * (z_off + ii - pad);
 }
 

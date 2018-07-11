@@ -33,16 +33,14 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   const int nnodes_by_face = NNODES_BY_FACE;
   const int nfaces_by_node = NFACES_BY_NODE;
   const int nfaces_by_cells = NFACES_BY_CELL;
-  int* boundary_face_list;
 
   umesh->nnodes_by_cell = NNODES_BY_CELL;
   umesh->nnodes_by_node = NNODES_BY_NODE;
 
   umesh->nboundary_nodes =
-      2 * (nx + 1) * (ny + 1) + 2 * (ny) * (nz) + 2 * (nz) * (nx);
-  umesh->nnodes =
-      (mesh->local_nx + 1) * (mesh->local_ny + 1) * (mesh->local_nz + 1);
-  umesh->ncells = (mesh->local_nx * mesh->local_ny * mesh->local_nz);
+      2 * (nx + 1) * (ny + 1) + 2 * (ny-1) * (nz) + 2 * (nz-1) * (nx);
+  umesh->nnodes = (nx + 1) * (ny + 1) * (nz + 1);
+  umesh->ncells = (nx * ny * nz);
   umesh->nfaces = nx * ny * (nz + 1) + (nx * (ny + 1) + (nx + 1) * ny) * nz;
 
   size_t allocated = init_unstructured_mesh(umesh);
@@ -67,11 +65,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
       allocate_int_data(&umesh->nodes_to_faces_offsets, umesh->nnodes + 1);
   allocated += allocate_int_data(&umesh->faces_to_cells0, umesh->nfaces);
   allocated += allocate_int_data(&umesh->faces_to_cells1, umesh->nfaces);
-  allocated += allocate_int_data(&boundary_face_list, umesh->nboundary_nodes);
-  allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
+
   allocated += allocate_data(&umesh->boundary_normal_x, umesh->nboundary_nodes);
   allocated += allocate_data(&umesh->boundary_normal_y, umesh->nboundary_nodes);
   allocated += allocate_data(&umesh->boundary_normal_z, umesh->nboundary_nodes);
+  allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
   allocated += allocate_int_data(&umesh->boundary_type, umesh->nboundary_nodes);
 
   // Initialises the list of nodes to cells
