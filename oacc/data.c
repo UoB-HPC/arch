@@ -24,7 +24,7 @@ size_t allocate_data(double** buf, size_t len) {
   double* local_buf = *buf;
 #pragma acc enter data copyin(local_buf[:len])
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (size_t ii = 0; ii < len; ++ii) {
     local_buf[ii] = 0.0;
@@ -40,7 +40,7 @@ size_t allocate_int_data(int** buf, size_t len) {
   int* local_buf = *buf;
 #pragma acc enter data copyin(local_buf[ : len])
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (size_t ii = 0; ii < len; ++ii) {
     local_buf[ii] = 0;
@@ -56,7 +56,7 @@ size_t allocate_uint64_data(uint64_t** buf, size_t len) {
   uint64_t* local_buf = *buf;
 #pragma acc enter data copyin(local_buf[ : len])
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (size_t ii = 0; ii < len; ++ii) {
     local_buf[ii] = 0;
@@ -151,7 +151,7 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
     double* celldy) {
 
   // Simple uniform rectilinear initialisation
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < local_nx + 1; ++ii) {
     edgedx[ii] = width / (global_nx);
@@ -160,13 +160,13 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
     edgex[ii] = edgedx[ii] * (x_off + ii - pad);
   }
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < local_nx; ++ii) {
     celldx[ii] = width / (global_nx);
   }
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < local_ny + 1; ++ii) {
     edgedy[ii] = height / (global_ny);
@@ -175,7 +175,7 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
     edgey[ii] = edgedy[ii] * (y_off + ii - pad);
   }
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < local_ny; ++ii) {
     celldy[ii] = height / (global_ny);
@@ -199,14 +199,14 @@ void mesh_data_init_3d(const int local_nx, const int local_ny,
       celldy);
 
   // Simple uniform rectilinear initialisation
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < local_nz + 1; ++ii) {
     edgedz[ii] = depth / (global_nz);
     edgez[ii] = edgedz[ii] * (z_off + ii - pad);
   }
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < local_nz; ++ii) {
     celldz[ii] = depth / (global_nz);
@@ -378,8 +378,6 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_edge_list) {
   double* boundary_normal_y = umesh->boundary_normal_y;
 
   // Loop through all of the boundary cells and find their normals
-#pragma acc kernels
-#pragma acc loop independent
   for (int nn = 0; nn < nnodes; ++nn) {
     const int bi = boundary_index[(nn)];
     if (bi == IS_INTERIOR) {

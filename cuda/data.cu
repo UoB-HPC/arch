@@ -13,7 +13,11 @@ size_t allocate_data(double** buf, const size_t len) {
     return 0;
   }
 
+#ifdef CUDA_MANAGED_MEM
+  gpu_check(cudaMallocManaged((void**)buf, sizeof(double) * len));
+#else
   gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
+#endif
 
   const int nblocks = ceil(len / (double)NTHREADS);
   zero_array<double><<<nblocks, NTHREADS>>>(len, *buf);
@@ -27,7 +31,11 @@ size_t allocate_float_data(float** buf, const size_t len) {
     return 0;
   }
 
+#ifdef CUDA_MANAGED_MEM
+  gpu_check(cudaMallocManaged((void**)buf, sizeof(double) * len));
+#else
   gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
+#endif
 
   const int nblocks = ceil(len / (double)NTHREADS);
   zero_array<float><<<nblocks, NTHREADS>>>(len, *buf);
@@ -40,7 +48,12 @@ size_t allocate_int_data(int** buf, const size_t len) {
   if(len == 0) {
     return 0;
   }
+
+#ifdef CUDA_MANAGED_MEM
+  gpu_check(cudaMallocManaged((void**)buf, sizeof(int) * len));
+#else
   gpu_check(cudaMalloc((void**)buf, sizeof(int) * len));
+#endif
 
   const int nblocks = ceil(len / (double)NTHREADS);
   zero_array<int><<<nblocks, NTHREADS>>>(len, *buf);
@@ -53,7 +66,12 @@ size_t allocate_half_data(__half** buf, const size_t len) {
   if(len == 0) {
     return 0;
   }
+#ifdef CUDA_MANAGED_MEM
+  gpu_check(cudaMallocManaged((void**)buf, sizeof(__half) * len));
+#else
   gpu_check(cudaMalloc((void**)buf, sizeof(__half) * len));
+#endif
+
   const int nblocks = ceil(len / (double)NTHREADS);
   gpu_check(cudaDeviceSynchronize());
   return sizeof(__half) * len;
@@ -64,7 +82,11 @@ size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
   if(len == 0) {
     return 0;
   }
+#ifdef CUDA_MANAGED_MEM
+  gpu_check(cudaMallocManaged((void**)buf, sizeof(uint64_t) * len));
+#else
   gpu_check(cudaMalloc((void**)buf, sizeof(uint64_t) * len));
+#endif
 
   const int nblocks = ceil(len / (double)NTHREADS);
   zero_array<uint64_t><<<nblocks, NTHREADS>>>(len, *buf);

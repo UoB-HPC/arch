@@ -60,11 +60,11 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   allocated += allocate_int_data(&umesh->faces_to_cells0, umesh->nfaces);
   allocated += allocate_int_data(&umesh->faces_to_cells1, umesh->nfaces);
 
-  allocated += allocate_data(&umesh->boundary_normal_x, umesh->nboundary_nodes);
-  allocated += allocate_data(&umesh->boundary_normal_y, umesh->nboundary_nodes);
-  allocated += allocate_data(&umesh->boundary_normal_z, umesh->nboundary_nodes);
+  allocated += allocate_data(&umesh->boundary_normal_x, umesh->nnodes);
+  allocated += allocate_data(&umesh->boundary_normal_y, umesh->nnodes);
+  allocated += allocate_data(&umesh->boundary_normal_z, umesh->nnodes);
   allocated += allocate_int_data(&umesh->boundary_index, umesh->nnodes);
-  allocated += allocate_int_data(&umesh->boundary_type, umesh->nboundary_nodes);
+  allocated += allocate_int_data(&umesh->boundary_type, umesh->nnodes);
 
   // Initialises the list of nodes to cells
   init_nodes_to_cells_3d(nx, ny, nz, mesh, umesh);

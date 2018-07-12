@@ -18,7 +18,7 @@ void init_faces_to_nodes_offsets_3d(UnstructuredMesh* umesh) {
   int* faces_to_nodes_offsets = umesh->faces_to_nodes_offsets;
   int* faces_cclockwise_cell = umesh->faces_cclockwise_cell;
 
-#pragma acc kernels \
+#pragma acc parallel \
   present(faces_cclockwise_cell[:umesh->nfaces])
 #pragma acc loop independent
   for (int ff = 0; ff < nfaces + 1; ++ff) {
@@ -35,7 +35,7 @@ void init_cells_to_faces_offsets_3d(UnstructuredMesh* umesh) {
   const int ncells = umesh->ncells;
   int* cells_to_faces_offsets = umesh->cells_to_faces_offsets;
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int cc = 0; cc < ncells + 1; ++cc) {
     cells_to_faces_offsets[(cc)] = cc * NFACES_BY_CELL;
@@ -47,7 +47,7 @@ void init_nodes_to_faces_offsets_3d(UnstructuredMesh* umesh) {
 
   const int nnodes = umesh->nnodes;
   int* nodes_to_faces_offsets = umesh->nodes_to_faces_offsets;
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int nn = 0; nn < nnodes + 1; ++nn) {
     nodes_to_faces_offsets[(nn)] = nn * NFACES_BY_NODE;
@@ -61,7 +61,7 @@ void init_faces_to_cells_3d(const int nx, const int ny, const int nz,
   int* faces_to_cells0 = umesh->faces_to_cells0;
   int* faces_to_cells1 = umesh->faces_to_cells1;
 
-#pragma acc kernels \
+#pragma acc parallel \
   present(faces_to_cells0[:umesh->nfaces])\
   present(faces_to_cells1[:umesh->nfaces])
 #pragma acc loop independent
@@ -111,7 +111,9 @@ void init_nodes_to_faces_3d(const int nx, const int ny, const int nz,
   int* nodes_to_faces = umesh->nodes_to_faces;
 
 // Determine the connectivity of nodes to faces
-#pragma acc kernels
+#pragma acc parallel \
+  present(nodes_to_faces[:umesh->nnodes*NFACES_BY_NODE])\
+  present(nodes_to_faces_offsets[:umesh->nnodes])
 #pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
@@ -169,13 +171,13 @@ void init_cells_to_nodes_3d(const int nx, const int ny, const int nz,
   int* cells_to_nodes_offsets = umesh->cells_to_nodes_offsets;
   int* cells_to_nodes = umesh->cells_to_nodes;
 
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int cc = 0; cc < ncells + 1; ++cc) {
     cells_to_nodes_offsets[(cc)] = cc * NNODES_BY_CELL;
   }
 
-#pragma acc kernels \
+#pragma acc parallel \
   present(cells_to_nodes[:ncells*NNODES_BY_CELL])
 #pragma acc loop independent
   for (int ii = 0; ii < nz; ++ii) {
@@ -222,7 +224,7 @@ void init_faces_to_nodes_3d(const int nx, const int ny, const int nz,
 
 // Connectivity of faces to nodes, the nodes are stored in a counter-clockwise
 // ordering around the face
-#pragma acc kernels \
+#pragma acc parallel \
   present(faces_cclockwise_cell[:umesh->nfaces])\
   present(faces_to_nodes[:umesh->nfaces*NNODES_BY_FACE])\
   present(faces_to_nodes_offsets[:umesh->nfaces])
@@ -318,7 +320,9 @@ void init_cells_to_faces_3d(const int nx, const int ny, const int nz,
   int* cells_to_faces_offsets = umesh->cells_to_faces_offsets;
   int* cells_to_faces = umesh->cells_to_faces;
 
-#pragma acc kernels
+#pragma acc parallel \
+  present(cells_to_faces[:umesh->ncells*NFACES_BY_CELL])\
+  present(cells_to_faces_offsets[:umesh->ncells])
 #pragma acc loop independent
   for (int ii = 0; ii < nz; ++ii) {
     for (int jj = 0; jj < ny; ++jj) {
@@ -358,14 +362,16 @@ void init_nodes_to_nodes_3d(const int nx, const int ny, const int nz,
   int* nodes_to_nodes = umesh->nodes_to_nodes;
 
 // Prefix sum to convert the counts to offsets
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int nn = 0; nn < nnodes + 1; ++nn) {
     nodes_to_nodes_offsets[(nn)] = nn * NNODES_BY_NODE;
   }
 
 // Initialise the offsets and list of nodes to cells, counter-clockwise order
-#pragma acc kernels
+#pragma acc parallel \
+  present(nodes_to_nodes[:umesh->nnodes*NNODES_BY_NODE])\
+  present(nodes_to_nodes_offsets[:umesh->nnodes])
 #pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
@@ -422,7 +428,13 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
   double* edgez = mesh->edgez;
 
 // Initialise the offsets and list of nodes to cells, counter-clockwise order
-#pragma acc kernels
+#pragma acc parallel \
+  present(nodes_x0[:umesh->nnodes])\
+  present(nodes_y0[:umesh->nnodes])\
+  present(nodes_z0[:umesh->nnodes])\
+  present(edgex[:nx+1])\
+  present(edgey[:ny+1])\
+  present(edgez[:nz+1])
 #pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
@@ -438,7 +450,8 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
   }
 
 // Override the original initialisation of the nodes_to_cells layout
-#pragma acc kernels
+#pragma acc parallel \
+  present(nodes_to_cells[:umesh->nnodes*NCELLS_BY_NODE])
 #pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
@@ -484,7 +497,7 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
 
 #if 0
 // Determine the count of cells by nodes
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
@@ -513,7 +526,7 @@ void init_nodes_to_cells_3d(const int nx, const int ny, const int nz,
   }
 
 // Initialise the offsets and list of nodes to cells, counter-clockwise order
-#pragma acc kernels
+#pragma acc parallel
 #pragma acc loop independent
   for (int ii = 0; ii < (nz + 1); ++ii) {
     for (int jj = 0; jj < (ny + 1); ++jj) {
@@ -652,10 +665,9 @@ void init_boundary_normals_3d(const int nx, const int ny, const int nz,
     }
   }
 
-#pragma acc update device(\
-    boundary_index[:umesh->nnodes], \
-    boundary_normal_x[:nboundary_nodes], \
-    boundary_normal_y[:nboundary_nodes], \
-    boundary_normal_z[:nboundary_nodes], \
-    boundary_type[:nboundary_nodes])
+#pragma acc update device(boundary_index[:umesh->nnodes])
+#pragma acc update device(boundary_normal_x[:umesh->nboundary_nodes])
+#pragma acc update device(boundary_normal_y[:umesh->nboundary_nodes])
+#pragma acc update device(boundary_normal_z[:umesh->nboundary_nodes])
+#pragma acc update device(boundary_type[:umesh->nboundary_nodes])
 }

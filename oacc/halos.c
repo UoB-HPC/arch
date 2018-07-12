@@ -23,7 +23,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   if (pack) {
     // Pack east and west
     if (neighbours[EAST] != EDGE) {
-#pragma acc kernels 
+#pragma acc parallel \
+      present(east_buffer_out[:ny*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int ii = pad; ii < ny - pad; ++ii) {
 #pragma acc loop independent
@@ -41,7 +43,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     }
 
     if (neighbours[WEST] != EDGE) {
-#pragma acc kernels 
+#pragma acc parallel \
+    present(west_buffer_out[:ny*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int ii = pad; ii < ny - pad; ++ii) {
 #pragma acc loop independent
@@ -59,7 +63,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
 
     // Pack north and south
     if (neighbours[NORTH] != EDGE) {
-#pragma acc kernels 
+#pragma acc parallel  \
+    present(north_buffer_out[:nx*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int dd = 0; dd < pad; ++dd) {
 #pragma acc loop independent
@@ -77,7 +83,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     }
 
     if (neighbours[SOUTH] != EDGE) {
-#pragma acc kernels 
+#pragma acc parallel \
+      present(south_buffer_out[:nx*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int dd = 0; dd < pad; ++dd) {
 #pragma acc loop independent
@@ -100,7 +108,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     if (neighbours[WEST] != EDGE) {
       copy_buffer(pad * ny, &west_buffer_in, &west_buffer_in, SEND);
 
-#pragma acc kernels
+#pragma acc parallel \
+      present(west_buffer_in[:ny*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int ii = pad; ii < ny - pad; ++ii) {
 #pragma acc loop independent
@@ -113,7 +123,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     if (neighbours[EAST] != EDGE) {
       copy_buffer(pad * ny, &east_buffer_in, &east_buffer_in, SEND);
 
-#pragma acc kernels 
+#pragma acc parallel \
+      present(east_buffer_in[:ny*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int ii = pad; ii < ny - pad; ++ii) {
 #pragma acc loop independent
@@ -128,7 +140,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     if (neighbours[NORTH] != EDGE) {
       copy_buffer(nx * pad, &north_buffer_in, &north_buffer_in, SEND);
 
-#pragma acc kernels 
+#pragma acc parallel  \
+      present(north_buffer_in[:nx*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int dd = 0; dd < pad; ++dd) {
 #pragma acc loop independent
@@ -142,7 +156,9 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     if (neighbours[SOUTH] != EDGE) {
       copy_buffer(nx * pad, &south_buffer_in, &south_buffer_in, SEND);
 
-#pragma acc kernels 
+#pragma acc parallel \
+      present(south_buffer_in[:nx*pad])\
+      present(arr[:nx*ny])
 #pragma acc loop independent
       for (int dd = 0; dd < pad; ++dd) {
 #pragma acc loop independent
@@ -161,7 +177,8 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
 
   // Reflect at the north
   if (neighbours[NORTH] == EDGE) {
-#pragma acc kernels 
+#pragma acc parallel\
+      present(arr[:nx*ny])
 #pragma acc loop independent
     for (int dd = 0; dd < pad; ++dd) {
 #pragma acc loop independent
@@ -173,7 +190,8 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   }
   // reflect at the south
   if (neighbours[SOUTH] == EDGE) {
-#pragma acc kernels 
+#pragma acc parallel \
+      present(arr[:nx*ny])
 #pragma acc loop independent
     for (int dd = 0; dd < pad; ++dd) {
 #pragma acc loop independent
@@ -185,7 +203,8 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   }
   // reflect at the east
   if (neighbours[EAST] == EDGE) {
-#pragma acc kernels 
+#pragma acc parallel \
+      present(arr[:nx*ny])
 #pragma acc loop independent
     for (int ii = pad; ii < ny - pad; ++ii) {
 #pragma acc loop independent
@@ -197,7 +216,8 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   }
   if (neighbours[WEST] == EDGE) {
 // reflect at the west
-#pragma acc kernels 
+#pragma acc parallel \
+      present(arr[:nx*ny])
 #pragma acc loop independent
     for (int ii = pad; ii < ny - pad; ++ii) {
 #pragma acc loop independent
@@ -216,8 +236,6 @@ void handle_unstructured_reflect(const int nnodes, const int* boundary_index,
                                  const double* boundary_normal_x,
                                  const double* boundary_normal_y,
                                  double* velocity_x, double* velocity_y) {
-#pragma acc kernels
-#pragma acc loop independent
   for (int nn = 0; nn < nnodes; ++nn) {
     const int index = boundary_index[(nn)];
     if (index == IS_INTERIOR) {
@@ -247,7 +265,16 @@ void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
                                     const double* boundary_normal_z,
                                     double* velocity_x, double* velocity_y,
                                     double* velocity_z) {
-#pragma acc kernels
+
+#pragma acc parallel \
+  present(velocity_x[:nnodes])\
+  present(velocity_y[:nnodes])\
+  present(velocity_z[:nnodes])\
+  present(boundary_normal_x[:nnodes])\
+  present(boundary_normal_y[:nnodes])\
+  present(boundary_normal_z[:nnodes])\
+  present(boundary_index[:nnodes])\
+  present(boundary_type[:nnodes])
 #pragma acc loop independent
   for (int nn = 0; nn < nnodes; ++nn) {
     const int index = boundary_index[(nn)];
