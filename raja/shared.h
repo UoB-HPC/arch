@@ -17,6 +17,7 @@
 #else
 
 #define exec_policy RAJA::omp_parallel_for_exec
+#define reduce_policy RAJA::omp_reduce
 
 #endif
 
