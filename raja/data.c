@@ -23,7 +23,7 @@ size_t allocate_data(double** buf, size_t len) {
 
   RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
       (*buf)[i] = 0.0;
-  });
+      });
 
 #else 
 
@@ -50,7 +50,7 @@ size_t allocate_float_data(float** buf, size_t len) {
 
   RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
       (*buf)[i] = 0.0f;
-  });
+      });
 
 #else
 
@@ -77,7 +77,7 @@ size_t allocate_int_data(int** buf, size_t len) {
 
   RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
       (*buf)[i] = 0;
-  });
+      });
 
 #else
 
@@ -117,7 +117,7 @@ size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
 
   RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
       (*buf)[i] = 0;
-  });
+      });
 
   return sizeof(uint64_t) * len;
 }
@@ -141,7 +141,7 @@ void allocate_host_data(double** buf, size_t len) {
 
   RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
       (*buf)[i] = 0.0;
-  });
+      });
 }
 
 // Allocates a host copy of some buffer
@@ -158,7 +158,7 @@ void allocate_host_int_data(int** buf, size_t len) {
 
   RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
       (*buf)[i] = 0;
-  });
+      });
 }
 
 void allocate_host_float_data(float** buf, size_t len) {
@@ -174,7 +174,7 @@ void allocate_host_float_data(float** buf, size_t len) {
 
   RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
       (*buf)[i] = 0.0f;
-  });
+      });
 }
 
 // Deallocate a double array
@@ -351,188 +351,235 @@ void move_host_buffer_to_device(const size_t len, double** src, double** dst) {
 
 // Initialises mesh data in device specific manner
 void mesh_data_init_2d(const int local_nx, const int local_ny,
-                       const int global_nx, const int global_ny, const int pad,
-                       const int x_off, const int y_off, const double width,
-                       const double height, double* edgex, double* edgey,
-                       double* edgedx, double* edgedy, double* celldx,
-                       double* celldy) {
-// Simple uniform rectilinear initialisation
-#pragma omp parallel for
-  for (int ii = 0; ii < local_nx + 1; ++ii) {
+    const int global_nx, const int global_ny, const int pad,
+    const int x_off, const int y_off, const double width,
+    const double height, double* edgex, double* edgey,
+    double* edgedx, double* edgedy, double* celldx,
+    double* celldy) {
+
+  // Simple uniform rectilinear initialisation
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx+1), [=] (int ii) {
     edgedx[ii] = width / (global_nx);
 
     // Note: correcting for padding
     edgex[ii] = edgedx[ii] * (x_off + ii - pad);
-  }
-#pragma omp parallel for
-  for (int ii = 0; ii < local_nx; ++ii) {
+  });
+
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx), [=] (int ii) {
     celldx[ii] = width / (global_nx);
-  }
-#pragma omp parallel for
-  for (int ii = 0; ii < local_ny + 1; ++ii) {
+  });
+
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_ny+1), [=] (int ii) {
     edgedy[ii] = height / (global_ny);
 
     // Note: correcting for padding
     edgey[ii] = edgedy[ii] * (y_off + ii - pad);
-  }
-#pragma omp parallel for
-  for (int ii = 0; ii < local_ny; ++ii) {
+  });
+
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_ny), [=] (int ii) {
     celldy[ii] = height / (global_ny);
-  }
+  });
 }
 
 // Initialises mesh data in device specific manner
 void mesh_data_init_3d(const int local_nx, const int local_ny,
-                       const int local_nz, const int global_nx,
-                       const int global_ny, const int global_nz, const int pad,
-                       const int x_off, const int y_off, const int z_off,
-                       const double width, const double height,
-                       const double depth, double* edgex, double* edgey,
-                       double* edgez, double* edgedx, double* edgedy,
-                       double* edgedz, double* celldx, double* celldy,
-                       double* celldz) {
+    const int local_nz, const int global_nx,
+    const int global_ny, const int global_nz, const int pad,
+    const int x_off, const int y_off, const int z_off,
+    const double width, const double height,
+    const double depth, double* edgex, double* edgey,
+    double* edgez, double* edgedx, double* edgedy,
+    double* edgedz, double* celldx, double* celldy,
+    double* celldz) {
+
   // Initialise as in the 2d case
   mesh_data_init_2d(local_nx, local_ny, global_nx, global_ny, pad, x_off, y_off,
-                    width, height, edgex, edgey, edgedx, edgedy, celldx,
-                    celldy);
+      width, height, edgex, edgey, edgedx, edgedy, celldx,
+      celldy);
 
-// Simple uniform rectilinear initialisation
-#pragma omp parallel for
-  for (int ii = 0; ii < local_nz + 1; ++ii) {
+  // Simple uniform rectilinear initialisation
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nz+1), [=] (int ii) {
     edgedz[ii] = depth / (global_nz);
     edgez[ii] = edgedz[ii] * (z_off + ii - pad);
-  }
-#pragma omp parallel for
-  for (int ii = 0; ii < local_nz; ++ii) {
+  });
+
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nz), [=] (int ii) {
     celldz[ii] = depth / (global_nz);
-  }
+  });
 }
 
 // Initialise state data in device specific manner
 void set_problem_2d(const int local_nx, const int local_ny, const int pad,
-                    const double mesh_width, const double mesh_height,
-                    const double* edgex, const double* edgey, const int ndims,
-                    const char* problem_def_filename, double* rho, double* e,
-                    double* x) {
-  char* keys = (char*)malloc(sizeof(char) * MAX_KEYS * MAX_STR_LEN);
-  double* values = (double*)malloc(sizeof(double) * MAX_KEYS);
+    const double mesh_width, const double mesh_height,
+    const double* edgex, const double* edgey, const int ndims,
+    const char* problem_def_filename, double* density, double* energy,
+    double* temperature) {
+
+  int* h_keys;
+  int* d_keys;
+  allocate_int_data(&d_keys, MAX_KEYS);
+  allocate_host_int_data(&h_keys, MAX_KEYS);
+
+  double* h_values;
+  double* d_values;
+  allocate_data(&d_values, MAX_KEYS);
+  allocate_host_data(&h_values, MAX_KEYS);
 
   int nentries = 0;
   while (1) {
     char specifier[MAX_STR_LEN];
+    char keys[MAX_STR_LEN * MAX_KEYS];
     sprintf(specifier, "problem_%d", nentries++);
 
     int nkeys = 0;
-    if (!get_key_value_parameter(specifier, problem_def_filename, keys, values,
-                                 &nkeys)) {
+    if (!get_key_value_parameter(specifier, problem_def_filename, keys,
+          h_values, &nkeys)) {
       break;
     }
 
     // The last four keys are the bound specification
-    double xpos = values[nkeys - 4] * mesh_width;
-    double ypos = values[nkeys - 3] * mesh_height;
-    double width = values[nkeys - 2] * mesh_width;
-    double height = values[nkeys - 1] * mesh_height;
+    double xpos = h_values[nkeys - 4] * mesh_width;
+    double ypos = h_values[nkeys - 3] * mesh_height;
+    double width = h_values[nkeys - 2] * mesh_width;
+    double height = h_values[nkeys - 1] * mesh_height;
 
-    // Loop through the mesh and set the problem
-    for (int ii = pad; ii < local_ny - pad; ++ii) {
-      for (int jj = pad; jj < local_nx - pad; ++jj) {
+    for (int kk = 0; kk < nkeys - (2 * ndims); ++kk) {
+      const char* key = &keys[kk * MAX_STR_LEN];
+      if (strmatch(key, "density")) {
+        h_keys[kk] = DENSITY_KEY;
+      } else if (strmatch(key, "energy")) {
+        h_keys[kk] = ENERGY_KEY;
+      } else if (strmatch(key, "temperature")) {
+        h_keys[kk] = TEMPERATURE_KEY;
+      } else {
+        TERMINATE("Found unrecognised key in %s : %s.\n", problem_def_filename,
+            key);
+      }
+    }
+
+    copy_int_buffer(MAX_KEYS, &h_keys, &d_keys, SEND);
+    copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
+
+    RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx*local_ny), [=] (int i) {
+        const int ii = i / local_nx;
+        const int jj = i % local_nx;
         double global_xpos = edgex[jj];
         double global_ypos = edgey[ii];
 
         // Check we are in bounds of the problem entry
-        if (global_xpos >= xpos && global_ypos >= ypos &&
-            global_xpos < xpos + width && global_ypos < ypos + height) {
-          // The upper bound excludes the bounding box for the entry
-          for (int kk = 0; kk < nkeys - (2 * ndims); ++kk) {
-            const char* key = &keys[kk * MAX_STR_LEN];
-            if (strmatch(key, "density")) {
-              rho[ii * local_nx + jj] = values[kk];
-            } else if (strmatch(key, "energy")) {
-              e[ii * local_nx + jj] = values[kk];
-            } else if (strmatch(key, "temperature")) {
-              x[ii * local_nx + jj] = values[kk];
-            } else {
-              TERMINATE("Found unrecognised key in %s : %s.\n",
-                        problem_def_filename, key);
-            }
-          }
+        if (global_xpos >= xpos && 
+          global_ypos >= ypos && 
+          global_xpos < xpos + width && 
+          global_ypos < ypos + height) {
+
+        // The upper bound excludes the bounding box for the entry
+        for (int nn = 0; nn < nkeys - (2 * ndims); ++nn) {
+        const int key = d_keys[nn];
+        if (key == DENSITY_KEY) {
+        density[i] = d_values[nn];
+        } else if (key == ENERGY_KEY) {
+          energy[i] = d_values[nn];
+        } else if (key == TEMPERATURE_KEY) {
+          temperature[i] = d_values[nn];
         }
-      }
-    }
+        }
+        }
+    });
   }
 
-  free(keys);
-  free(values);
+  deallocate_host_int_data(h_keys);
+  deallocate_host_data(h_values);
 }
 
 // Initialise state data in device specific manner
 void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
-                    const int pad, const double mesh_width,
-                    const double mesh_height, const double mesh_depth,
-                    const double* edgex, const double* edgey,
-                    const double* edgez, const int ndims,
-                    const char* problem_def_filename, double* rho, double* e,
-                    double* x) {
+    const int pad, const double mesh_width,
+    const double mesh_height, const double mesh_depth,
+    const double* edgex, const double* edgey,
+    const double* edgez, const int ndims,
+    const char* problem_def_filename, double* density, double* energy,
+    double* temperature) {
 
-  char* keys = (char*)malloc(sizeof(char) * MAX_KEYS * MAX_STR_LEN);
-  double* values = (double*)malloc(sizeof(double) * MAX_KEYS);
+  int* h_keys;
+  int* d_keys;
+  allocate_int_data(&d_keys, MAX_KEYS);
+  allocate_host_int_data(&h_keys, MAX_KEYS);
+
+  double* h_values;
+  double* d_values;
+  allocate_data(&d_values, MAX_KEYS);
+  allocate_host_data(&h_values, MAX_KEYS);
 
   int nentries = 0;
   while (1) {
     char specifier[MAX_STR_LEN];
+    char keys[MAX_STR_LEN * MAX_KEYS];
     sprintf(specifier, "problem_%d", nentries++);
 
     int nkeys = 0;
-    if (!get_key_value_parameter(specifier, problem_def_filename, keys, values,
-                                 &nkeys)) {
+    if (!get_key_value_parameter(specifier, problem_def_filename, keys, h_values,
+          &nkeys)) {
       break;
     }
 
     // The last four keys are the bound specification
-    double xpos = values[nkeys - 6] * mesh_width;
-    double ypos = values[nkeys - 5] * mesh_height;
-    double zpos = values[nkeys - 4] * mesh_depth;
-    double width = values[nkeys - 3] * mesh_width;
-    double height = values[nkeys - 2] * mesh_height;
-    double depth = values[nkeys - 1] * mesh_depth;
+    double xpos = h_values[nkeys - 6] * mesh_width;
+    double ypos = h_values[nkeys - 5] * mesh_height;
+    double zpos = h_values[nkeys - 4] * mesh_depth;
+    double width = h_values[nkeys - 3] * mesh_width;
+    double height = h_values[nkeys - 2] * mesh_height;
+    double depth = h_values[nkeys - 1] * mesh_depth;
 
-    // Loop through the mesh and set the problem
-    for (int ii = pad; ii < local_nz - pad; ++ii) {
-      for (int jj = pad; jj < local_ny - pad; ++jj) {
-        for (int kk = pad; kk < local_nx - pad; ++kk) {
-          double global_xpos = edgex[kk];
-          double global_ypos = edgey[jj];
-          double global_zpos = edgez[ii];
-
-          // Check we are in bounds of the problem entry
-          if (global_xpos >= xpos && global_ypos >= ypos &&
-              global_zpos >= zpos && global_xpos < xpos + width &&
-              global_ypos < ypos + height && global_zpos < zpos + depth) {
-            // The upper bound excludes the bounding box for the entry
-            for (int ee = 0; ee < nkeys - (2 * ndims); ++ee) {
-              const int index =
-                  (ii * local_nx * local_ny) + (jj * local_nx) + (kk);
-              const char* key = &keys[ee * MAX_STR_LEN];
-              if (strmatch(key, "density")) {
-                rho[(index)] = values[ee];
-              } else if (strmatch(key, "energy")) {
-                e[(index)] = values[ee];
-              } else if (strmatch(key, "temperature")) {
-                x[(index)] = values[ee];
-              } else {
-                TERMINATE("Found unrecognised key in %s : %s.\n",
-                          problem_def_filename, key);
-              }
-            }
-          }
-        }
+    for (int kk = 0; kk < nkeys - (2 * ndims); ++kk) {
+      const char* key = &keys[kk * MAX_STR_LEN];
+      if (strmatch(key, "density")) {
+        h_keys[kk] = DENSITY_KEY;
+      } else if (strmatch(key, "energy")) {
+        h_keys[kk] = ENERGY_KEY;
+      } else if (strmatch(key, "temperature")) {
+        h_keys[kk] = TEMPERATURE_KEY;
+      } else {
+        TERMINATE("Found unrecognised key in %s : %s.\n", problem_def_filename,
+            key);
       }
     }
+
+    copy_int_buffer(MAX_KEYS, &h_keys, &d_keys, SEND);
+    copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
+
+    RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx*local_ny*local_nz), [=] (int i) {
+        const int ii = (i / local_nx*local_ny);
+        const int jj = (i / local_nx) % local_ny;
+        const int kk = (i % local_nx);
+        double global_xpos = edgex[kk];
+        double global_ypos = edgey[jj];
+        double global_zpos = edgez[ii];
+
+        // Check we are in bounds of the problem entry
+        if (global_xpos >= xpos && 
+          global_ypos >= ypos && 
+          global_zpos >= zpos &&
+          global_xpos < xpos + width && 
+          global_ypos < ypos + height && 
+          global_zpos < zpos + depth) {
+
+        // The upper bound excludes the bounding box for the entry
+        for (int nn = 0; nn < nkeys - (2 * ndims); ++nn) {
+        const int key = d_keys[nn];
+        if (key == DENSITY_KEY) {
+        density[i] = d_values[nn];
+        } else if (key == ENERGY_KEY) {
+          energy[i] = d_values[nn];
+        } else if (key == TEMPERATURE_KEY) {
+          temperature[i] = d_values[nn];
+        }
+        }
+        }
+    });
   }
 
-  free(keys);
-  free(values);
+  deallocate_host_int_data(h_keys);
+  deallocate_host_data(h_values);
 }
 
 // Finds the normals for all boundary cells
@@ -543,7 +590,7 @@ void find_boundary_normals(UnstructuredMesh* umesh, int* boundary_face_list) {
 
 // Finds the normals for all boundary cells
 void find_boundary_normals_3d(UnstructuredMesh* umesh,
-                              int* boundary_face_list) {
+    int* boundary_face_list) {
 
   TERMINATE("%s not yet implemented.", __func__);
 }
