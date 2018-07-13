@@ -59,9 +59,8 @@ void init_cells_to_nodes_3d(const int nx, const int ny, const int nz,
   cells_to_nodes_offsets_3d<<<nblocks, NTHREADS>>>(
       umesh->ncells, umesh->cells_to_nodes_offsets);
 
-  nblocks = ceil((nx+1)*(ny+1)*(nz+1)/(double)NTHREADS);
-  cells_to_nodes_3d<<<nblocks, NTHREADS>>>(
-      nx, ny, nz, umesh->cells_to_nodes);
+  nblocks = ceil(nx*ny*nz/(double)NTHREADS);
+  cells_to_nodes_3d<<<nblocks, NTHREADS>>>(nx, ny, nz, umesh->cells_to_nodes);
   gpu_check(cudaDeviceSynchronize());
 }
 
