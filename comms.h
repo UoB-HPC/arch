@@ -6,8 +6,8 @@
 #include "mesh.h"
 #include "shared.h"
 #include "umesh.h"
-#include <complex.h>
-#undef complex
+//#include <complex.h>
+//#undef complex
 
 #define MASTER 0        // The master rank for MPI
 #define NVARS_TO_COMM 4 // This is just the max of HOT and WET
