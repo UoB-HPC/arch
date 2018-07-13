@@ -5,14 +5,13 @@
 
 #if defined(RAJA_USE_CUDA)
 
+#include "../cuda/shared.h"
+
 #define CUDA_EXEC_BLOCK_SZ 128
 #define CUDA_REDUCE_BLOCK_SZ 128
 
-#if 0
-  using inner_reduce_policy = RAJA::cuda_reduce<CUDA_REDUCE_BLOCK_SZ>;
-  using exec_policy = RAJA::cuda_exec<CUDA_EXEC_BLOCK_SZ>;
-  using atomic_policy = RAJA::atomic::cuda_atomic;
-#endif // if 0
+#define exec_policy RAJA::cuda_exec<CUDA_EXEC_BLOCK_SZ>
+#define reduce_policy RAJA::cuda_reduce<CUDA_REDUCE_BLOCK_SZ>
 
 #else
 

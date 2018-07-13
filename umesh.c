@@ -9,10 +9,6 @@ size_t convert_mesh_to_umesh_3d(UnstructuredMesh* umesh, Mesh* mesh) {
   const int nx = mesh->local_nx;
   const int ny = mesh->local_ny;
   const int nz = mesh->local_nz;
-  const int nnodes_by_face = NNODES_BY_FACE;
-  const int nfaces_by_node = NFACES_BY_NODE;
-  const int nfaces_by_cells = NFACES_BY_CELL;
-
   umesh->nnodes_by_cell = NNODES_BY_CELL;
   umesh->nnodes_by_node = NNODES_BY_NODE;
 

@@ -17,7 +17,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   if (pack) {
     // Pack east and west
     if (neighbours[EAST] != EDGE) {
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] (int ii) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] RAJA_DEVICE (int ii) {
         for (int dd = 0; dd < pad; ++dd) {
           mesh->east_buffer_out[(ii - pad) * pad + dd] =
               arr[(ii * nx) + (nx - 2 * pad + dd)];
@@ -31,7 +31,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     }
 
     if (neighbours[WEST] != EDGE) {
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] (int ii) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] RAJA_DEVICE (int ii) {
         for (int dd = 0; dd < pad; ++dd) {
           mesh->west_buffer_out[(ii - pad) * pad + dd] =
               arr[(ii * nx) + (pad + dd)];
@@ -47,7 +47,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     // Pack north and south
     if (neighbours[NORTH] != EDGE) {
       for (int dd = 0; dd < pad; ++dd) {
-        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] (int jj) {
+        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] RAJA_DEVICE (int jj) {
           mesh->north_buffer_out[dd * (nx - 2 * pad) + (jj - pad)] =
               arr[(ny - 2 * pad + dd) * nx + jj];
         });
@@ -61,7 +61,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
 
     if (neighbours[SOUTH] != EDGE) {
       for (int dd = 0; dd < pad; ++dd) {
-        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] (int jj) {
+        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] RAJA_DEVICE (int jj) {
           mesh->south_buffer_out[dd * (nx - 2 * pad) + (jj - pad)] =
               arr[(pad + dd) * nx + jj];
         });
@@ -77,7 +77,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
 
     // Unpack east and west
     if (neighbours[WEST] != EDGE) {
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] (int ii) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] RAJA_DEVICE (int ii) {
         for (int dd = 0; dd < pad; ++dd) {
           arr[ii * nx + dd] = mesh->west_buffer_in[(ii - pad) * pad + dd];
         }
@@ -85,7 +85,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     }
 
     if (neighbours[EAST] != EDGE) {
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] (int ii) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] RAJA_DEVICE (int ii) {
         for (int dd = 0; dd < pad; ++dd) {
           arr[ii * nx + (nx - pad + dd)] = mesh->east_buffer_in[(ii - pad) * pad + dd];
         }
@@ -95,7 +95,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
     // Unpack north and south
     if (neighbours[NORTH] != EDGE) {
       for (int dd = 0; dd < pad; ++dd) {
-        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] (int jj) {
+        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] RAJA_DEVICE (int jj) {
           arr[(ny - pad + dd) * nx + jj] =
               mesh->north_buffer_in[dd * (nx - 2 * pad) + (jj - pad)];
         });
@@ -104,7 +104,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
 
     if (neighbours[SOUTH] != EDGE) {
       for (int dd = 0; dd < pad; ++dd) {
-        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] (int jj) {
+        RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] RAJA_DEVICE (int jj) {
           arr[dd * nx + jj] =
               mesh->south_buffer_in[dd * (nx - 2 * pad) + (jj - pad)];
         });
@@ -121,7 +121,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   // Reflect at the north
   if (neighbours[NORTH] == EDGE) {
     for (int dd = 0; dd < pad; ++dd) {
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] (int jj) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] RAJA_DEVICE (int jj) {
         arr[(ny - pad + dd) * nx + jj] =
             y_inversion_coeff * arr[(ny - 1 - pad - dd) * nx + jj];
       });
@@ -130,7 +130,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   // reflect at the south
   if (neighbours[SOUTH] == EDGE) {
     for (int dd = 0; dd < pad; ++dd) {
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] (int jj) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, nx-pad), [=] RAJA_DEVICE (int jj) {
         arr[(pad - 1 - dd) * nx + jj] =
             y_inversion_coeff * arr[(pad + dd) * nx + jj];
       });
@@ -138,7 +138,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   }
   // reflect at the east
   if (neighbours[EAST] == EDGE) {
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] (int ii) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] RAJA_DEVICE (int ii) {
       for (int dd = 0; dd < pad; ++dd) {
         arr[ii * nx + (nx - pad + dd)] =
             x_inversion_coeff * arr[ii * nx + (nx - 1 - pad - dd)];
@@ -147,7 +147,7 @@ void handle_boundary_2d(const int nx, const int ny, Mesh* mesh, double* arr,
   }
   if (neighbours[WEST] == EDGE) {
 // reflect at the west
-      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] (int ii) {
+      RAJA::forall<exec_policy>(RAJA::RangeSegment(pad, ny-pad), [=] RAJA_DEVICE (int ii) {
       for (int dd = 0; dd < pad; ++dd) {
         arr[ii * nx + (pad - 1 - dd)] =
             x_inversion_coeff * arr[ii * nx + (pad + dd)];
@@ -170,7 +170,7 @@ void handle_unstructured_reflect(const int nnodes, const int* boundary_index,
                                  const double* boundary_normal_y,
                                  double* velocity_x, double* velocity_y) {
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, nnodes), [=] (int nn) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, nnodes), [=] RAJA_DEVICE (int nn) {
 
     const int index = boundary_index[(nn)];
     if (index != IS_INTERIOR) {
@@ -200,7 +200,7 @@ void handle_unstructured_reflect_3d(const int nnodes, const int* boundary_index,
                                     double* velocity_x, double* velocity_y,
                                     double* velocity_z) {
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, nnodes), [=] (int nn) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, nnodes), [=] RAJA_DEVICE (int nn) {
     const int index = boundary_index[(nn)];
     if (index != IS_INTERIOR) {
 

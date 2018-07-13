@@ -295,8 +295,8 @@ void decompose_3d_cartesian(const int rank, const int nranks,
   float min_sa_to_vol = 0.0f;
 
   // Determine decomposition that minimises surface area to volume ratio
-  for (int split_z = 1; split_z <= cbrt(nranks); ++split_z) {
-    for (int split_y = 1; split_y <= cbrt(nranks); ++split_y) {
+  for (int split_z = 1; split_z <= cbrt((double)nranks); ++split_z) {
+    for (int split_y = 1; split_y <= cbrt((double)nranks); ++split_y) {
       for (int split_x = 1; split_x <= nranks; ++split_x) {
         // Factorise the number of ranks
         if (nranks % split_x || (nranks / split_x) % split_y ||

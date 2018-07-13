@@ -21,9 +21,10 @@ size_t allocate_data(double** buf, size_t len) {
   gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
 #endif // CUDA_MANAGED_MEM
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
-      (*buf)[i] = 0.0;
-      });
+  double* local_buf = *buf;
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] RAJA_DEVICE (int i) {
+    local_buf[i] = 0.0;
+  });
 
 #else 
 
@@ -48,9 +49,10 @@ size_t allocate_float_data(float** buf, size_t len) {
   gpu_check(cudaMalloc((void**)buf, sizeof(double) * len));
 #endif // CUDA_MANAGED_MEM
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
-      (*buf)[i] = 0.0f;
-      });
+  float* local_buf = *buf;
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] RAJA_DEVICE (int i) {
+    local_buf[i] = 0.0f;
+  });
 
 #else
 
@@ -75,9 +77,10 @@ size_t allocate_int_data(int** buf, size_t len) {
   gpu_check(cudaMalloc((void**)buf, sizeof(int) * len));
 #endif // CUDA_MANAGED_MEM
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
-      (*buf)[i] = 0;
-      });
+  int* local_buf = *buf;
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] RAJA_DEVICE (int i) {
+    local_buf[i] = 0;
+  });
 
 #else
 
@@ -115,9 +118,10 @@ size_t allocate_uint64_data(uint64_t** buf, const size_t len) {
 
 #endif // RAJA_USE_CUDA
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
-      (*buf)[i] = 0;
-      });
+  uint64_t* local_buf = *buf;
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] RAJA_DEVICE (int i) {
+    local_buf[i] = 0;
+  });
 
   return sizeof(uint64_t) * len;
 }
@@ -139,9 +143,10 @@ void allocate_host_data(double** buf, size_t len) {
     TERMINATE("Failed to allocate a data array.\n");
   }
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
-      (*buf)[i] = 0.0;
-      });
+#pragma omp parallel for
+  for(int i = 0; i < len; ++i) {
+    (*buf)[i] = 0;
+  }
 }
 
 // Allocates a host copy of some buffer
@@ -156,9 +161,10 @@ void allocate_host_int_data(int** buf, size_t len) {
     TERMINATE("Failed to allocate a data array.\n");
   }
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
-      (*buf)[i] = 0;
-      });
+#pragma omp parallel for
+  for(int i = 0; i < len; ++i) {
+    (*buf)[i] = 0;
+  }
 }
 
 void allocate_host_float_data(float** buf, size_t len) {
@@ -172,9 +178,10 @@ void allocate_host_float_data(float** buf, size_t len) {
     TERMINATE("Failed to allocate a data array.\n");
   }
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, len), [=] (int i) {
-      (*buf)[i] = 0.0f;
-      });
+#pragma omp parallel for
+  for(int i = 0; i < len; ++i) {
+    (*buf)[i] = 0;
+  }
 }
 
 // Deallocate a double array
@@ -275,19 +282,11 @@ void deallocate_complex_double_data(_Complex double* buf) {
 
 // Allocates a data array
 void deallocate_host_int_data(int* buf) {
-#ifdef RAJA_USE_CUDA
-
-  gpu_check(cudaFree(buf));
-
-#else
-
 #ifdef INTEL
   _mm_free(buf);
 #else
   free(buf);
 #endif
-
-#endif // RAJA_USE CUDA
 }
 
 // Just swaps the buffers on the host
@@ -358,25 +357,25 @@ void mesh_data_init_2d(const int local_nx, const int local_ny,
     double* celldy) {
 
   // Simple uniform rectilinear initialisation
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx+1), [=] (int ii) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx+1), [=] RAJA_DEVICE (int ii) {
     edgedx[ii] = width / (global_nx);
 
     // Note: correcting for padding
     edgex[ii] = edgedx[ii] * (x_off + ii - pad);
   });
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx), [=] (int ii) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx), [=] RAJA_DEVICE (int ii) {
     celldx[ii] = width / (global_nx);
   });
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_ny+1), [=] (int ii) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_ny+1), [=] RAJA_DEVICE (int ii) {
     edgedy[ii] = height / (global_ny);
 
     // Note: correcting for padding
     edgey[ii] = edgedy[ii] * (y_off + ii - pad);
   });
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_ny), [=] (int ii) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_ny), [=] RAJA_DEVICE (int ii) {
     celldy[ii] = height / (global_ny);
   });
 }
@@ -398,12 +397,12 @@ void mesh_data_init_3d(const int local_nx, const int local_ny,
       celldy);
 
   // Simple uniform rectilinear initialisation
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nz+1), [=] (int ii) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nz+1), [=] RAJA_DEVICE (int ii) {
     edgedz[ii] = depth / (global_nz);
     edgez[ii] = edgedz[ii] * (z_off + ii - pad);
   });
 
-  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nz), [=] (int ii) {
+  RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nz), [=] RAJA_DEVICE (int ii) {
     celldz[ii] = depth / (global_nz);
   });
 }
@@ -460,30 +459,30 @@ void set_problem_2d(const int local_nx, const int local_ny, const int pad,
     copy_int_buffer(MAX_KEYS, &h_keys, &d_keys, SEND);
     copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
 
-    RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx*local_ny), [=] (int i) {
-        const int ii = i / local_nx;
-        const int jj = i % local_nx;
-        double global_xpos = edgex[jj];
-        double global_ypos = edgey[ii];
+    RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx*local_ny), [=] RAJA_DEVICE (int i) {
+       const int ii = i / local_nx;
+       const int jj = i % local_nx;
+       double global_xpos = edgex[jj];
+       double global_ypos = edgey[ii];
 
-        // Check we are in bounds of the problem entry
-        if (global_xpos >= xpos && 
-          global_ypos >= ypos && 
-          global_xpos < xpos + width && 
-          global_ypos < ypos + height) {
+       // Check we are in bounds of the problem entry
+       if (global_xpos >= xpos && 
+         global_ypos >= ypos && 
+         global_xpos < xpos + width && 
+         global_ypos < ypos + height) {
 
-        // The upper bound excludes the bounding box for the entry
-        for (int nn = 0; nn < nkeys - (2 * ndims); ++nn) {
-        const int key = d_keys[nn];
-        if (key == DENSITY_KEY) {
-        density[i] = d_values[nn];
-        } else if (key == ENERGY_KEY) {
-          energy[i] = d_values[nn];
-        } else if (key == TEMPERATURE_KEY) {
-          temperature[i] = d_values[nn];
-        }
-        }
-        }
+         // The upper bound excludes the bounding box for the entry
+         for (int nn = 0; nn < nkeys - (2 * ndims); ++nn) {
+           const int key = d_keys[nn];
+           if (key == DENSITY_KEY) {
+             density[i] = d_values[nn];
+           } else if (key == ENERGY_KEY) {
+             energy[i] = d_values[nn];
+           } else if (key == TEMPERATURE_KEY) {
+             temperature[i] = d_values[nn];
+           }
+         }
+       }
     });
   }
 
@@ -502,13 +501,12 @@ void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
 
   int* h_keys;
   int* d_keys;
-  allocate_int_data(&d_keys, MAX_KEYS);
-  allocate_host_int_data(&h_keys, MAX_KEYS);
-
   double* h_values;
   double* d_values;
-  allocate_data(&d_values, MAX_KEYS);
+  allocate_host_int_data(&h_keys, MAX_KEYS);
   allocate_host_data(&h_values, MAX_KEYS);
+  allocate_int_data(&d_keys, MAX_KEYS);
+  allocate_data(&d_values, MAX_KEYS);
 
   int nentries = 0;
   while (1) {
@@ -547,7 +545,7 @@ void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
     copy_int_buffer(MAX_KEYS, &h_keys, &d_keys, SEND);
     copy_buffer(MAX_KEYS, &h_values, &d_values, SEND);
 
-    RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx*local_ny*local_nz), [=] (int i) {
+    RAJA::forall<exec_policy>(RAJA::RangeSegment(0, local_nx*local_ny*local_nz), [=] RAJA_DEVICE (int i) {
         const int ii = (i / local_nx*local_ny);
         const int jj = (i / local_nx) % local_ny;
         const int kk = (i % local_nx);
@@ -567,7 +565,7 @@ void set_problem_3d(const int local_nx, const int local_ny, const int local_nz,
         for (int nn = 0; nn < nkeys - (2 * ndims); ++nn) {
         const int key = d_keys[nn];
         if (key == DENSITY_KEY) {
-        density[i] = d_values[nn];
+          density[i] = d_values[nn];
         } else if (key == ENERGY_KEY) {
           energy[i] = d_values[nn];
         } else if (key == TEMPERATURE_KEY) {
